@@ -1,0 +1,9 @@
+* NCBI Tool Kit
+
+A set of tools for curating your collection of genomes retrieved from the [[https://www.ncbi.nlm.nih.gov/][National Center for Biotechology Information's]] public database.
+
+   - Automatically synchronize your local collection with the latest assembly versions.
+   - Assess the integrity of your FASTA collection
+     - Labelling/annotation independent quality control using
+       +  statistical quality metrics
+       +  [[http://mash.readthedocs.io/en/latest/][genome and metagenome distance estimation using MinHash]]
