@@ -1,0 +1,8 @@
+{
+    "steps": [
+        {
+            "name": "update-genbank",
+            "script": "NCBITK/test/scripts/update-genbank.sh"
+        }
+    ]
+}
