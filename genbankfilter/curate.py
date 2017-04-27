@@ -46,7 +46,7 @@ def get_local_genomes(genbank_mirror):
 
     for root, dirs, files in os.walk(genbank_mirror):
         for f in files:
-            if f.startswith('GCA'):
+            if re.match('GCA.*fasta', f):
                 genome_id = '_'.join(f.split('_')[:2])
                 local_genomes.append(genome_id)
 
@@ -81,22 +81,15 @@ def get_sketch_files(genbank_mirror):
     sketch_files = []
     for root, dirs, files in os.walk(genbank_mirror):
         for f in files:
-            if f.endswith('msh'):
-                genome_id = re.sub(r'.msh', '', f)
+            if re.match('GCA.*msh', f):
+                genome_id = re.sub('\.msh', '', f)
                 sketch_files.append(genome_id)
 
     return sketch_files
 
-def get_missing_sketch_files(local_genomes, new_genomes, sketch_files):
+def get_missing_sketch_files(local_genomes, sketch_files):
 
-    missing_sketch_files = []
-
-    for genome_id in local_genomes:
-        if genome_id not in sketch_files:
-            missing_sketch_files.append(genome_id)
-
-    for genome_id in new_genomes:
-        missing_sketch_files.append(genome_id)
+    missing_sketch_files = set(local_genomes) - set(sketch_files)
 
     return missing_sketch_files
 
@@ -111,15 +104,17 @@ def get_old_genomes(genbank_mirror, assembly_summary, local_genomes):
 
     return old_genomes
 
-def assess_genbank_mirror(genbank_mirror, assembly_summary, species_list):
+def assess_genbank_mirror(genbank_mirror, assembly_summary, species_list, logger):
 
     local_genomes = get_local_genomes(genbank_mirror)
-    new_genomes = get_new_genome_list(genbank_mirror, assembly_summary, local_genomes, species_list)
-    old_genomes = get_old_genomes(genbank_mirror, assembly_summary, local_genomes)
+    # new_genomes = get_new_genome_list(genbank_mirror, assembly_summary, local_genomes, species_list)
     sketch_files = get_sketch_files(genbank_mirror)
-    missing_sketch_files = get_missing_sketch_files(local_genomes, new_genomes, sketch_files)
+    missing_sketch_files = get_missing_sketch_files(local_genomes, sketch_files)
 
-    return local_genomes, new_genomes, old_genomes, sketch_files, missing_sketch_files
+    logger.info('{} sketch files present in local collection.'.format(len(sketch_files)))
+    logger.info('{} sketch files not in local collection.'.format(len(missing_sketch_files)))
+
+    return local_genomes, sketch_files, missing_sketch_files
 
 def unzip_genome(root, f, genome_id):
 

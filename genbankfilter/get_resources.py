@@ -62,7 +62,7 @@ def get_scientific_names(genbank_mirror, assembly_summary, taxdump_url="ftp://ft
 
     return names
 
-def get_resources(genbank_mirror, logger, update=True):
+def get_resources(genbank_mirror, logger, update):
 
     """
     Get assembly_summary.txt for bacteria and taxonomy dump file.

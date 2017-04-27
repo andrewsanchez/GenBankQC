@@ -11,7 +11,7 @@ def instantiate_path_vars(genbank_mirror):
     out = os.path.join(slurm, "out")
     ymd = time.strftime("%y.%m.%d_%I:%M:%S_%p")
 
-    for d in [genbank_mirror, info_dir, slurm, out]:
+    for d in [info_dir, slurm, out]:
         if not os.path.isdir(d):
             os.mkdir(d)
 
