@@ -4,11 +4,9 @@ import os
 import argparse
 import logging
 
-from NCBITK import config
-from NCBITK import sync
-from NCBITK import curate
-from NCBITK import get_resources
-from NCBITK import rename
+from genbankfilter import get_resources
+from genbankfilter import config
+from genbankfilter import curate
 from genbankfilter import mash
 
 def setup(genbank_mirror, species_list, update):
