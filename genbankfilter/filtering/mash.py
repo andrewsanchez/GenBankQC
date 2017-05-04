@@ -39,41 +39,44 @@ def sketch(genbank_mirror, assembly_summary, missing_sketch_files, logger):
         try:
             fasta = fasta[0]
         except IndexError:
+            logger.info("IndexError for {} during sketch".format(genome))
             continue
         sketch_dst = os.path.join(genbank_mirror, species_dir, "{}.msh".format(genome))
-        sketch_cmd = "mash sketch {} -o {}".format(fasta, sketch_dst)
-        subprocess.Popen(sketch_cmd, shell="True").wait()
+        sketch_cmd = "mash sketch '{}' -o '{}'".format(fasta, sketch_dst)
+        subprocess.Popen(sketch_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
         logger.info("Created sketch file for {}".format(genome))
 
 def paste(genbank_mirror, assembly_summary, species, logger):
 
-    def paste_cmd(species_list):
+    def paste_cmd(species):
 
-        for name in species_list:
+        for name in species:
             path = os.path.join(genbank_mirror, name)
-            out_file = os.path.join(path, 'all.msh')
+            master_sketch = os.path.join(path, 'all.msh')
+            if os.path.isfile(master_sketch):
+                os.remove(master_sketch)
+                logger.info('Old Master sketch file for {} removed'.format(name))
+            master_sketch = os.path.join(path, 'all.msh')
             all_sketch_files = os.path.join(path,'*msh')
-            if os.path.isfile(out_file):
-                os.remove(out_file)
-                logger.info('Old Master sketch fille for {} removed'.format(name))
-            paste_cmd = "mash paste {} {}".format(out_file, all_sketch_files)
-            subprocess.Popen(paste_cmd, shell="True").wait()
-            logger.info('Master sketch fille for {} create'.format(name))
+            paste_cmd = "mash paste '{}' '{}'".format(master_sketch, all_sketch_files)
+            subprocess.Popen(paste_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
+            logger.info('Master sketch fille for {} created'.format(name))
 
-    paste_cmd(species_list)
+    paste_cmd(species)
 
 def dist(genbank_mirror, assembly_summary, species, logger):
 
-    def dist_cmd(species_list):
+    def dist_cmd(species):
 
-        for name in species_list:
+        for name in species:
             path = os.path.join(genbank_mirror, name)
-            out_file = os.path.join(path, 'all_dist.msh')
+            dist_matrix = os.path.join(path, 'all_dist.msh')
             all_msh = os.path.join(path,'all.msh')
-            if os.path.isfile(out_file):
-                os.remove(out_file)
-            dist_cmd = "mash dist -t {} {} > {}".format(all_msh, all_msh, out_file)
-            subprocess.Popen(dist_cmd, shell="True").wait()
+            if os.path.isfile(dist_matrix):
+                logger.info('Old distance matrix for {} removed'.format(name))
+                os.remove(dist_matrix)
+            dist_cmd = "mash dist -t '{}' '{}' > '{}'".format(all_msh, all_msh, dist_matrix)
+            subprocess.Popen(dist_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
             logger.info('Distance matrix for {} created'.format(name))
 
-    dist_cmd(species_list)
+    dist_cmd(species)
