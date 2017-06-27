@@ -30,21 +30,20 @@ def write_sketch_commands(genbank_mirror, assembly_summary, new_genomes):
 
     return sketch_commands # get the line count of this file
 
-def sketch(genbank_mirror, assembly_summary, missing_sketch_files, logger):
+def sketch(genbank_mirror, assembly_summary, genome):
 
-    for genome in missing_sketch_files:
-        species_dir = assembly_summary.scientific_name.loc[genome]
-        fasta = os.path.join(genbank_mirror, species_dir, "{}*fasta".format(genome))
-        fasta = glob.glob(fasta)
-        try:
-            fasta = fasta[0]
-        except IndexError:
-            logger.info("IndexError for {} during sketch".format(genome))
-            continue
-        sketch_dst = os.path.join(genbank_mirror, species_dir, "{}.msh".format(genome))
-        sketch_cmd = "mash sketch '{}' -o '{}'".format(fasta, sketch_dst)
-        subprocess.Popen(sketch_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
-        logger.info("Created sketch file for {}".format(genome))
+    # TODO: Using os.walk will avoid having to look up species_dir using assembly_summary
+    species_dir = assembly_summary.scientific_name.loc[genome]
+    fasta = os.path.join(genbank_mirror, species_dir, "{}*fasta".format(genome))
+    fasta = glob.glob(fasta)
+    try:
+        fasta = fasta[0]
+    except IndexError:
+        pass
+    sketch_file = os.path.join(genbank_mirror, species_dir, "{}.msh".format(genome))
+    sketch_cmd = "mash sketch '{}' -o '{}'".format(fasta, sketch_file)
+    subprocess.Popen(sketch_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
+    return sketch_file
 
 def paste(genbank_mirror, assembly_summary, species, logger):
 
