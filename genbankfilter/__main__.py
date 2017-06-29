@@ -39,8 +39,9 @@ def main():
         mash.sketch(genbank_mirror, assembly_summary, genome)
     # TODO: Generate a new list of species from accession ids in missing_sketch_files so that funs below
     # are only run on species that get new sketch files
-    mash.paste(genbank_mirror, assembly_summary, species, logger)
-    mash.dist(genbank_mirror, assembly_summary, species, logger)
+    for name in species:
+        mash.paste(genbank_mirror, assembly_summary, name)
+        mash.dist(genbank_mirror, assembly_summary, name)
 
 if __name__ == "__main__":
     main()
