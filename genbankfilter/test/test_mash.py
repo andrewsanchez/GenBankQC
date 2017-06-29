@@ -10,7 +10,7 @@ from genbankfilter import curate
 from genbankfilter import mash
 
 
-class TestCurate(unittest.TestCase):
+class TestMash(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
         self.genbank = os.path.join(self.tmp, 'genbank')
@@ -18,18 +18,22 @@ class TestCurate(unittest.TestCase):
             'genbankfilter/test/resources/updated_assembly_summary.txt',
             sep="\t",
             index_col=0)
+        self.species = 'Buchnera_aphidicola'
         self.species_dir = os.path.join(self.tmp, 'genbank',
-                                        'Francisella_tularensis')
-        self.test_fasta = 'genbankfilter/test/resources/GCA_000009245.1_Francisella_tularensis_holarctica_LVS_Complete_Genome.fasta'
-        self.mash_file = os.path.join(self.species_dir, 'GCA_000009245.1.msh')
-        self.genome = 'GCA_000009245.1'
+                                        'Buchnera_aphidicola')
+        self.genomes = ['GCA_000007365.1', 'GCA_000007725.1']
         shutil.copytree('genbankfilter/test/resources/', self.genbank)
 
-    def test_sketch(self):
-        mash.sketch(self.genbank, self.assembly_summary, self.genome)
-        print(os.listdir(self.genbank))
-        print(os.listdir(self.species_dir))
-        self.assertTrue(os.path.isfile(self.mash_file))
+    def test_mash(self):
+        for genome in self.genomes:
+            sketch_file = mash.sketch(self.genbank, self.assembly_summary, genome)
+            self.assertTrue(os.path.isfile(sketch_file))
+        master_sketch = mash.paste(self.genbank, self.assembly_summary, self.species)
+        dist_matrix = mash.dist(self.genbank,
+                                self.assembly_summary,
+                                self.species)
+        self.assertTrue(os.path.isfile(master_sketch))
+        self.assertTrue(os.path.isfile(dist_matrix))
 
     def tearDown(self):
         shutil.rmtree(self.genbank)
