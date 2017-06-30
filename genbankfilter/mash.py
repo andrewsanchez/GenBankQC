@@ -24,22 +24,24 @@ def sketch(genbank_mirror, assembly_summary, genome):
 def paste(genbank_mirror, assembly_summary, species):
 
     species_dir = os.path.join(genbank_mirror, species)
-    master_sketch = os.path.join(species_dir, 'all.msh')
-    if os.path.isfile(master_sketch):
-        os.remove(master_sketch)
+    all_msh = os.path.join(species_dir, 'all.msh')
+    remove_old(all_msh)
     all_sketchs = os.path.join(species_dir,'sketches.txt')
-    paste_cmd = "mash paste -l '{}' '{}'".format(master_sketch, all_sketchs)
+    paste_cmd = "mash paste -l '{}' '{}'".format(all_msh, all_sketchs)
     subprocess.Popen('ls {}/*msh >> {}'.format(species_dir, all_sketchs), shell='True').wait()
     subprocess.Popen(paste_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
-    return master_sketch
+    return all_msh
 
 def dist(genbank_mirror, assembly_summary, species):
 
     species_dir = os.path.join(genbank_mirror, species)
-    dist_matrix = os.path.join(species_dir, 'all_dist.msh')
+    dst_mx = os.path.join(species_dir, 'all_dist.msh')
     all_msh = os.path.join(species_dir,'all.msh')
-    if os.path.isfile(dist_matrix):
-        os.remove(dist_matrix)
-    dist_cmd = "mash dist -t '{}' '{}' > '{}'".format(all_msh, all_msh, dist_matrix)
+    remove_old(dst_mx)
+    dist_cmd = "mash dist -t '{}' '{}' > '{}'".format(all_msh, all_msh, dst_mx)
     subprocess.Popen(dist_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
-    return dist_matrix
+    return dst_mx
+
+def remove_old(f):
+    if os.path.isfile(f):
+        os.remove(f)
