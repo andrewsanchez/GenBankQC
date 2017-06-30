@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import os, argparse
 import pandas as pd
 from collections import namedtuple
@@ -10,6 +8,7 @@ from re import findall
 from pandas.io.parsers import EmptyDataError
 # from link_passed_genomes import make_passed_dir, link_passed_genomes
 
+# Move to config
 def clean_up(fasta_dir):
 
     sketch_file = os.path.join(fasta_dir, "all.msh")
@@ -40,6 +39,7 @@ def mash(fasta_dir, mash_exe):
 
     return distance_matrix
 
+# Convenience
 def pre_process_all(genbank_mirror):
 
     x = 1

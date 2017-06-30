@@ -1,5 +1,3 @@
-#ses!/usr/bin/env python
-
 import os, argparse
 import pandas as pd
 from subprocess import Popen
