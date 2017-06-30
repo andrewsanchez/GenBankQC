@@ -24,17 +24,24 @@ class TestMash(unittest.TestCase):
         self.genomes = ['GCA_000007365.1', 'GCA_000007725.1']
         shutil.copytree('genbankfilter/test/resources/', self.genbank)
 
-    def test_mash(self):
         for genome in self.genomes:
-            sketch_file = mash.sketch(self.genbank, self.assembly_summary, genome)
-            self.assertTrue(os.path.isfile(sketch_file))
-        master_sketch = mash.paste(self.genbank, self.assembly_summary, self.species)
-        dist_matrix = mash.dist(self.genbank,
+            mash.sketch(self.genbank, self.assembly_summary, genome)
+        self.all_msh = mash.paste(self.genbank, self.assembly_summary, self.species)
+        self.dst_mx = mash.dist(self.genbank,
                                 self.assembly_summary,
                                 self.species)
-        self.assertTrue(os.path.isfile(master_sketch))
-        self.assertTrue(os.path.isfile(dist_matrix))
 
+    def test_sketch(self):
+        for genome in self.genomes:
+            sketch = os.path.join(self.species_dir, '{}.msh'.format(genome))
+            self.assertTrue(os.path.isfile(sketch))
+
+    def test_paste(self):
+        self.assertTrue(os.path.isfile(self.all_msh))
+
+    def test_dist(self):
+        self.assertTrue(os.path.isfile(self.dst_mx))
+        
     def tearDown(self):
         shutil.rmtree(self.genbank)
 
