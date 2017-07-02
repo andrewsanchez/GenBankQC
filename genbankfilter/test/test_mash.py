@@ -8,6 +8,7 @@ from genbankfilter import get_resources
 from genbankfilter import config
 from genbankfilter import curate
 from genbankfilter import mash
+from genbankfilter import filter
 
 
 class TestMash(unittest.TestCase):
@@ -30,6 +31,7 @@ class TestMash(unittest.TestCase):
         self.dst_mx = mash.dist(self.genbank,
                                 self.assembly_summary,
                                 self.species)
+        self.stats = filter.generate_stats(self.species_dir, self.dst_mx)
 
     def test_sketch(self):
         for genome in self.genomes:
@@ -40,8 +42,15 @@ class TestMash(unittest.TestCase):
         self.assertTrue(os.path.isfile(self.all_msh))
 
     def test_dist(self):
-        self.assertTrue(os.path.isfile(self.dst_mx))
+        self.assertIsInstance(self.dst_mx, pd.DataFrame)
         
+    def test_generate_stats(self):
+        self.assertIsInstance(self.stats, pd.DataFrame)
+
+    def test_filter(self):
+        filter_df, failed, passed_final = filter.filter_med_ad(self.species_dir, self.stats)
+        self.assertIsInstance(filter_df, pd.DataFrame)
+
     def tearDown(self):
         shutil.rmtree(self.genbank)
 
