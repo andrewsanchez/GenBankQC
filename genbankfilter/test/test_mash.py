@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 import os
+import re
 import shutil
 import pandas as pd
 
@@ -25,6 +26,7 @@ class TestMash(unittest.TestCase):
         self.genomes = ['GCA_000007365.1', 'GCA_000007725.1']
         shutil.copytree('genbankfilter/test/resources/', self.genbank)
 
+        self.genomes = [re.match('GCA_\d+\.\d', f).group() for f in os.listdir(self.species_dir)]
         for genome in self.genomes:
             mash.sketch(self.genbank, self.assembly_summary, genome)
         self.all_msh = mash.paste(self.genbank, self.assembly_summary, self.species)
