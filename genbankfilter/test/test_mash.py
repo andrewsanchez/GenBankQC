@@ -48,8 +48,8 @@ class TestMash(unittest.TestCase):
         self.assertIsInstance(self.stats, pd.DataFrame)
 
     def test_filter(self):
-        filter_df, failed, passed_final = filter.filter_med_ad(self.species_dir, self.stats)
-        self.assertIsInstance(filter_df, pd.DataFrame)
+        filter_summary, failed, passed_final = filter.filter_med_ad(self.species_dir, self.stats)
+        self.assertIsInstance(filter_summary, pd.DataFrame)
 
     def tearDown(self):
         shutil.rmtree(self.genbank)

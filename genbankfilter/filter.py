@@ -123,7 +123,7 @@ def filter_med_ad(species_dir, stats, max_n_count=100,
 
     filter_ranges = "{}_{}_{}".format(c_range, s_range, m_range)
 
-    filter_df = pd.DataFrame()
+    filter_summary = pd.DataFrame()
 
     # Filter based on N's first
     passed_I = stats[stats["N_Count"] <= max_n_count ]
@@ -135,11 +135,11 @@ def filter_med_ad(species_dir, stats, max_n_count=100,
             failed["N_Count"][i] = stats["N_Count"][i]
         else:
             failed["N_Count"][i] = "passed"
-    filter_df.set_value(filter_ranges, "N's", len(failed_N))
+    filter_summary.set_value(filter_ranges, "N's", len(failed_N))
 
     # Filter using special function for contigs
     if len(passed_I) > 5:
-        filter_contigs_results = filter_contigs(stats, passed_I, filter_ranges, c_range, failed, filter_df)
+        filter_contigs_results = filter_contigs(stats, passed_I, filter_ranges, c_range, failed, filter_summary)
         passed_II = filter_contigs_results.passed
         failed_contigs = filter_contigs_results.failed
 
@@ -157,8 +157,8 @@ def filter_med_ad(species_dir, stats, max_n_count=100,
 
             assembly_lower = passed_II["Assembly_Size"].median() - assembly_dev_ref
             assembly_upper = passed_II["Assembly_Size"].median() + assembly_dev_ref
-            filter_df.set_value(filter_ranges, "Assembly_Size", len(failed_assembly_size))
-            filter_df.set_value(filter_ranges, "Assembly_Range", "{:.0f}-{:.0f}".format(assembly_lower, assembly_upper))
+            filter_summary.set_value(filter_ranges, "Assembly_Size", len(failed_assembly_size))
+            filter_summary.set_value(filter_ranges, "Assembly_Range", "{:.0f}-{:.0f}".format(assembly_lower, assembly_upper))
 
             if len(passed_III) > 5:
                 mash_med_ad = abs(passed_III["MASH"] - passed_III["MASH"].median()).mean()# Median absolute deviation
@@ -174,8 +174,8 @@ def filter_med_ad(species_dir, stats, max_n_count=100,
 
                 mash_lower = passed_II["MASH"].median() - mash_dev_ref
                 mash_upper = passed_II["MASH"].median() + mash_dev_ref
-                filter_df.set_value(filter_ranges, "MASH", len(failed_mash))
-                filter_df.set_value(filter_ranges, "MASH_Range", "{:04.3f}-{:04.3f}".format(mash_lower, mash_upper))
+                filter_summary.set_value(filter_ranges, "MASH", len(failed_mash))
+                filter_summary.set_value(filter_ranges, "MASH_Range", "{:04.3f}-{:04.3f}".format(mash_lower, mash_upper))
 
             else:
                 passed_final = passed_III
@@ -191,8 +191,8 @@ def filter_med_ad(species_dir, stats, max_n_count=100,
                 Filtering will not commence past this stage.".format(max_n_count))
 
     failed.drop(list(passed_final.index), inplace=True)
-    filter_df.set_value(filter_ranges, "Filtered", "{}/{}".format(len(failed), len(stats)))
-    return filter_df, failed, passed_final
+    filter_summary.set_value(filter_ranges, "Filtered", "{}/{}".format(len(failed), len(stats)))
+    return filter_summary, failed, passed_final
 
 def main():
     parser = argparse.ArgumentParser(description = "Assess the integrity of your FASTA collection")
