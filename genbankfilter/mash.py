@@ -37,6 +37,18 @@ def paste(genbank_mirror, assembly_summary, species):
     all_sketchs = os.path.join(species_dir,'sketches.txt')
     paste_cmd = "mash paste -l '{}' '{}'".format(all_msh, all_sketchs)
     subprocess.Popen('ls {}/*msh >> {}'.format(species_dir, all_sketchs), shell='True').wait()
+def sketch_species(species_dir):
+
+    """
+    Produce sketch files for each FASTA in species_dir.
+    """
+
+    fastas = (f for f in os.listdir(species_dir) if f.endswith('fasta'))
+    for f in fastas:
+        genome_path = os.path.join(species_dir, f)
+        sketch_cmd = generate_sketch_command(genome)
+        subprocess.Popen(sketch_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
+
     subprocess.Popen(paste_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
     return all_msh
 
