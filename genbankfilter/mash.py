@@ -7,20 +7,27 @@ import glob
 import subprocess
 import pandas as pd
 
-def sketch(genbank_mirror, assembly_summary, genome):
+def generate_sketch_command(genome):
 
-    # TODO: Using os.walk will avoid having to look up species_dir using assembly_summary
-    species_dir = assembly_summary.scientific_name.loc[genome]
-    fasta = os.path.join(genbank_mirror, species_dir, "{}*fasta".format(genome))
-    fasta = glob.glob(fasta)
-    try:
-        fasta = fasta[0]
-    except IndexError:
-        pass
-    sketch_file = os.path.join(genbank_mirror, species_dir, "{}.msh".format(genome))
-    sketch_cmd = "mash sketch '{}' -o '{}'".format(fasta, sketch_file)
+    """
+    Return sketch command for genome.
+    sketch_cmd is based on full path to genome.
+    """
+
+    basename = os.path.splitext(genome)[0]
+    sketch_file = "{}.msh".format(basename)
+    sketch_cmd = "mash sketch '{}' -o '{}'".format(genome, sketch_file)
+    return sketch_cmd
+
+
+def sketch_genome(genome):
+
+    """
+    Produce a sketch file for genome, where genome is the full path to a FASTA.
+    """
+
+    sketch_cmd = generate_sketch_command(genome)
     subprocess.Popen(sketch_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
-    return sketch_file
 
 def paste(genbank_mirror, assembly_summary, species):
 
