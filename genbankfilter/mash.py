@@ -86,3 +86,13 @@ def format_dst_mx(dst_mx_path):
 def remove_old(f):
     if os.path.isfile(f):
         os.remove(f)
+
+def find_genomes(genbank):
+    genomes = []
+    for root, dirs, files in os.walk(genbank):
+        for f in files:
+            if f.endswith('fasta'):
+                genome = os.path.join(root, f)
+                genomes.append(genome)
+    return genomes
+
