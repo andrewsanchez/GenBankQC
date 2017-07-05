@@ -18,10 +18,10 @@ class TestMash(unittest.TestCase):
         self.genbank = os.path.join(self.tmp, 'genbank')
         shutil.copytree('genbankfilter/test/resources/',
                         self.genbank)
-        self.assembly_summary = pd.read_csv(
-            'genbankfilter/test/resources/updated_assembly_summary.txt',
-            sep="\t",
-            index_col=0)
+        # self.assembly_summary = pd.read_csv(
+        #     'genbankfilter/test/resources/updated_assembly_summary.txt',
+        #     sep="\t",
+        #     index_col=0)
         self.species = 'Buchnera_aphidicola'
         self.species_dir = os.path.join(self.tmp,
                                         'genbank',
