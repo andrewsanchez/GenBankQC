@@ -7,26 +7,26 @@ import glob
 import subprocess
 import pandas as pd
 
-def generate_sketch_command(genome):
+def generate_sketch_command(genome_path):
 
     """
-    Return sketch command for genome.
-    sketch_cmd is based on full path to genome.
+    Return sketch command for genome_path.
+    sketch_cmd is based on full path to genome_path.
     """
 
-    basename = os.path.splitext(genome)[0]
+    basename = os.path.splitext(genome_path)[0]
     sketch_file = "{}.msh".format(basename)
-    sketch_cmd = "mash sketch '{}' -o '{}'".format(genome, sketch_file)
+    sketch_cmd = "mash sketch '{}' -o '{}'".format(genome_path, sketch_file)
     return sketch_cmd
 
 
-def sketch_genome(genome):
+def sketch_genome(genome_path):
 
     """
     Produce a sketch file for genome, where genome is the full path to a FASTA.
     """
 
-    sketch_cmd = generate_sketch_command(genome)
+    sketch_cmd = generate_sketch_command(genome_path)
     subprocess.Popen(sketch_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
 
 def paste(genbank_mirror, assembly_summary, species):
