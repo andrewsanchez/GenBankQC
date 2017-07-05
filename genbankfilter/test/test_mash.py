@@ -23,10 +23,9 @@ class TestMash(unittest.TestCase):
         #     sep="\t",
         #     index_col=0)
         self.species = 'Buchnera_aphidicola'
-        self.species_dir = os.path.join(self.tmp,
-                                        'genbank',
-                                        self.species)
-        self.genomes = [re.match('GCA_\d+\.\d', f).group() for f in os.listdir(self.species_dir)]
+        self.species_dir = os.path.join(self.genbank, self.species)
+        self.genomes = mash.find_all_genome_paths(self.genbank)
+
         for genome in self.genomes:
             mash.sketch(self.genbank, self.assembly_summary, genome)
         self.all_msh = mash.paste(self.genbank, self.assembly_summary, self.species)
