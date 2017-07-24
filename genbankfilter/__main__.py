@@ -2,6 +2,7 @@ import os
 import argparse
 import logging
 import pandas as pd
+import click
 
 from genbankfilter import get_resources
 from genbankfilter import config
