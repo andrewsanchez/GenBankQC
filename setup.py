@@ -10,11 +10,11 @@ setup(name=package,
       include_package_date=True,
       url='',
       install_requires=[
-          'Click',
+          'click',
           'ncbitk',
       ],
       entry_points='''
       [console_scripts]
-      gbfilter=genbankfilter.__main__:gbfilter
+      gbfilter=genbankfilter.__main__:cli
       ''',
 )
