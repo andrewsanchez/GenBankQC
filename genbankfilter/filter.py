@@ -125,6 +125,13 @@ def filter_med_ad(species_dir, stats, max_n_count=100,
     filter_summary.set_value(filter_ranges, "Filtered", "{}/{}".format(len(failed), len(stats)))
     return filter_summary, failed, passed_final
 
+def write_results(results, species_dir):
+    filter_summary, failed, passed_final = results
+    filter_summary.to_csv(os.path.join(species_dir, 'summary.csv'))
+    failed.to_csv(os.path.join(species_dir, 'failed.csv'))
+    passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
+    
+
 def filter_contigs(stats, passed_I, filter_ranges, c_range, failed, summary_df):
 
     contigs = passed_I["Contigs"]
@@ -181,7 +188,16 @@ def check_passed_dir(species_dir):
         rmtree(passed_dir)
     os.mkdir(passed_dir)
     return passed_dir
-    
+
+def min_fastas_check(species_dir):
+    """
+    Check if speices_dir contains at least 5 FASTAs
+    """
+    if len(os.listdir(species_dir)) <= 5:
+        return False
+    return True
+
+
 def link_passed_genomes(species_dir, passed_final, passed_dir):
     for genome in passed_final.index:
         fasta = "{}.fasta".format(genome)
