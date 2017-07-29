@@ -5,9 +5,6 @@ import re
 import shutil
 import pandas as pd
 
-from genbankfilter import get_resources
-from genbankfilter import config
-from genbankfilter import curate
 from genbankfilter import mash
 from genbankfilter import filter
 

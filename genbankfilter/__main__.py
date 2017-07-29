@@ -4,8 +4,6 @@ import logging
 import pandas as pd
 import click
 
-from genbankfilter import get_resources
-from genbankfilter import curate
 from genbankfilter import mash
 from genbankfilter import filter
 
@@ -59,6 +57,7 @@ def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range, species_
         s_range = filter_level
         m_range = filter_level
 
+    filter_ranges = max_n_count, c_range, s_range, m_range
     click.echo('Filtering levels:')
     click.echo('Contigs:  {}'.format(c_range))
     click.echo('Assembly size:  {}'.format(s_range))
@@ -74,9 +73,11 @@ def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range, species_
     #         filter_med_ad(species_dir, stats)
     #     else:
     #         mash_stats_and_filter()
+
     mash.sketch_dir(species_dir)
     mash.paste(species_dir)
     dst_mx = mash.dist(species_dir)
     stats = filter.generate_stats(species_dir, dst_mx)
-    results = filter.filter_med_ad(species_dir, stats, max_n_count, c_range, s_range, m_range)
+    stats.to_csv(os.path.join(species_dir, 'stats.csv'))
+    results = filter.filter_med_ad(species_dir, stats, filter_ranges)
     filter.write_results(results, species_dir)
