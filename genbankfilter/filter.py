@@ -73,14 +73,19 @@ def filter_med_ad(species_dir, stats, filter_ranges):
 
     # Filter using special function for contigs
     if len(passed_I) > 5:
-        filter_contigs_results = filter_contigs(stats, passed_I, filter_ranges, c_range, failed, filter_summary)
+        filter_contigs_results = filter_contigs(
+            stats, passed_I, filter_ranges, c_range, failed, filter_summary)
         passed_II = filter_contigs_results.passed
         failed_contigs = filter_contigs_results.failed
 
         if len(passed_II) > 5:
-            assembly_med_ad = abs(passed_II["Assembly_Size"] - passed_II["Assembly_Size"].median()).mean()# Median absolute deviation
+            assembly_med_ad = abs(passed_II["Assembly_Size"]
+                                  - passed_II["Assembly_Size"].median()).mean(
+                                  )  # Median absolute deviation
             assembly_dev_ref = assembly_med_ad * s_range
-            passed_III = passed_II[abs(passed_II["Assembly_Size"] - passed_II["Assembly_Size"].median()) <= assembly_dev_ref]
+            passed_III = passed_II[abs(passed_II["Assembly_Size"] -
+                                       passed_II["Assembly_Size"].median()) <=
+                                   assembly_dev_ref]
             failed_assembly_size = []
             for i in passed_II.index:
                 if i not in passed_III.index:
@@ -89,15 +94,23 @@ def filter_med_ad(species_dir, stats, filter_ranges):
                 else:
                     failed["Assembly_Size"][i] = "passed"
 
-            assembly_lower = passed_II["Assembly_Size"].median() - assembly_dev_ref
-            assembly_upper = passed_II["Assembly_Size"].median() + assembly_dev_ref
-            filter_summary.set_value(filter_ranges, "Assembly_Size", len(failed_assembly_size))
-            filter_summary.set_value(filter_ranges, "Assembly_Range", "{:.0f}-{:.0f}".format(assembly_lower, assembly_upper))
+            assembly_lower = passed_II["Assembly_Size"].median(
+            ) - assembly_dev_ref
+            assembly_upper = passed_II["Assembly_Size"].median(
+            ) + assembly_dev_ref
+            filter_summary.set_value(filter_ranges, "Assembly_Size",
+                                     len(failed_assembly_size))
+            filter_summary.set_value(filter_ranges, "Assembly_Range",
+                                     "{:.0f}-{:.0f}".format(
+                                         assembly_lower, assembly_upper))
 
             if len(passed_III) > 5:
-                mash_med_ad = abs(passed_III["MASH"] - passed_III["MASH"].median()).mean()# Median absolute deviation
+                mash_med_ad = abs(passed_III["MASH"] - passed_III["MASH"].
+                                  median()).mean()  # Median absolute deviation
                 mash_dev_ref = mash_med_ad * m_range
-                passed_final = passed_III[abs(passed_III["MASH"] - passed_III["MASH"].median()) <= mash_dev_ref]
+                passed_final = passed_III[
+                    abs(passed_III["MASH"] - passed_III["MASH"].median()) <=
+                    mash_dev_ref]
                 failed_mash = []
                 for i in passed_III.index:
                     if i not in passed_final.index:
@@ -108,47 +121,66 @@ def filter_med_ad(species_dir, stats, filter_ranges):
 
                 mash_lower = passed_II["MASH"].median() - mash_dev_ref
                 mash_upper = passed_II["MASH"].median() + mash_dev_ref
-                filter_summary.set_value(filter_ranges, "MASH", len(failed_mash))
-                filter_summary.set_value(filter_ranges, "MASH_Range", "{:04.3f}-{:04.3f}".format(mash_lower, mash_upper))
+                filter_summary.set_value(filter_ranges, "MASH",
+                                         len(failed_mash))
+                filter_summary.set_value(filter_ranges, "MASH_Range",
+                                         "{:04.3f}-{:04.3f}".format(
+                                             mash_lower, mash_upper))
 
             else:
                 passed_final = passed_III
-                print("Removing genomes outside the range of {}-{} for assembly size resulted in < 5 genomes.\n\
-                        Filtering will not commence past this stage.".format(assembly_lower, assembly_upper))
+                print(
+                    "Removing genomes outside the range of {}-{} for assembly size resulted in < 5 genomes.\n\
+                        Filtering will not commence past this stage."
+                    .format(assembly_lower, assembly_upper))
         else:
             passed_final = passed_II
-            print("Removing genomes outside the range of acceptable number of contigs resulted in < 5 genomes.\n\
+            print(
+                "Removing genomes outside the range of acceptable number of contigs resulted in < 5 genomes.\n\
                     Filtering will not commence past this stage.")
     else:
         passed_final = passed_I
-        print("Removing genomes with > than {} N's resulted in dataset with < 5 genomes.\n\
-                Filtering will not commence past this stage.".format(max_n_count))
+        print(
+            "Removing genomes with > than {} N's resulted in dataset with < 5 genomes.\n\
+                Filtering will not commence past this stage."
+            .format(max_n_count))
 
     failed.drop(list(passed_final.index), inplace=True)
-    filter_summary.set_value(filter_ranges, "Filtered", "{}/{}".format(len(failed), len(stats)))
+    filter_summary.set_value(filter_ranges, "Filtered", "{}/{}".format(
+        len(failed), len(stats)))
     return filter_summary, failed, passed_final
 
-def write_results(results, species_dir):
+
+def stats_and_filter(species_dir, dst_mx, filter_ranges):
+    stats = generate_stats(species_dir, dst_mx)
+    results = filter_med_ad(species_dir, stats, filter_ranges)
     filter_summary, failed, passed_final = results
+    stats.to_csv(os.path.join(species_dir, 'stats.csv'))
     filter_summary.to_csv(os.path.join(species_dir, 'summary.csv'))
     failed.to_csv(os.path.join(species_dir, 'failed.csv'))
     passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
-    
 
-def filter_contigs(stats, passed_I, filter_ranges, c_range, failed, summary_df):
+
+def filter_contigs(stats, passed_I, filter_ranges, c_range, failed,
+                   summary_df):
 
     contigs = passed_I["Contigs"]
     contigs_above_median = contigs[contigs >= contigs.median()]
     contigs_below_median = contigs[contigs <= contigs.median()]
-    contigs_lower = contigs[contigs <= 10] # Save genomes with < 10 contigs to add them back in later.
-    contigs = contigs[contigs > 10] # Only look at genomes with > 10 contigs to avoid throwing off the Median AD
-    contigs_med_ad = abs(contigs - contigs.median()).mean() # Median absolute deviation
+    contigs_lower = contigs[
+        contigs <=
+        10]  # Save genomes with < 10 contigs to add them back in later.
+    contigs = contigs[
+        contigs >
+        10]  # Only look at genomes with > 10 contigs to avoid throwing off the Median AD
+    contigs_med_ad = abs(contigs -
+                         contigs.median()).mean()  # Median absolute deviation
     contigs_dev_ref = contigs_med_ad * c_range
     contigs = contigs[abs(contigs - contigs.median()) <= contigs_dev_ref]
     contigs = pd.concat([contigs, contigs_lower])
     contigs_lower = contigs.median() - contigs_dev_ref
     contigs_upper = contigs.median() + contigs_dev_ref
-  # contigs = pd.concat([contigs, contigs_lower, contigs_below_median])
+    # contigs = pd.concat([contigs, contigs_lower, contigs_below_median])
 
     # Avoid returning empty DataFrame when no genomes are removed above
     if len(contigs) == len(passed_I):
@@ -164,12 +196,14 @@ def filter_contigs(stats, passed_I, filter_ranges, c_range, failed, summary_df):
             failed["Contigs"][i] = "passed"
 
     summary_df.set_value(filter_ranges, "Contigs", len(failed_contigs))
-    summary_df.set_value(filter_ranges, "Contigs_Range", "{:.0f}-{:.0f}".format(contigs_lower, contigs_upper))
+    summary_df.set_value(filter_ranges, "Contigs_Range",
+                         "{:.0f}-{:.0f}".format(contigs_lower, contigs_upper))
 
     results = namedtuple("filter_contigs_results", ["passed", "failed"])
     filter_contigs_results = results(passed_II, failed_contigs)
 
     return filter_contigs_results
+
 
 def assess_fastas(fasta_dir):
 
@@ -177,13 +211,16 @@ def assess_fastas(fasta_dir):
     info = os.path.join(fasta_dir, "info")
     empty = os.path.join(info, "corrupt_fastas")
     for f in os.listdir(fasta_dir):
-        if f.endswith("fasta") and os.path.getsize(os.path.join(fasta_dir, f)) == 0:
-            print("{} is empty and will be moved to {} before runing MASH.".format(f, empty))
+        if f.endswith("fasta") and os.path.getsize(
+                os.path.join(fasta_dir, f)) == 0:
+            print("{} is empty and will be moved to {} before runing MASH.".
+                  format(f, empty))
             if not os.path.isdir(empty):
                 os.mkdir(empty)
             src = os.path.join(fasta_dir, f)
             dst = os.path.join(empty, f)
             shutil.move(src, dst)
+
 
 def check_passed_dir(species_dir):
     passed_dir = os.path.join(species_dir, "passed")
@@ -191,6 +228,7 @@ def check_passed_dir(species_dir):
         shutil.rmtree(passed_dir)
     os.mkdir(passed_dir)
     return passed_dir
+
 
 def min_fastas_check(species_dir):
     """
@@ -211,6 +249,7 @@ def link_passed_genomes(species_dir, passed_final, passed_dir):
         dst = os.path.join(passed_dir, fasta)
         os.link(src, dst)
 
+
 # Move to config
 def clean_up(species_dir):
 
@@ -227,6 +266,7 @@ def clean_up(species_dir):
         if os.path.isfile(f):
             os.remove(f)
 
+
 # Convenience
 def pre_process_all(genbank_mirror):
 
@@ -239,7 +279,7 @@ def pre_process_all(genbank_mirror):
         if not os.path.isfile(all_dist):
             try:
                 dst_mx = pd.read_csv(all_dist, index_col=0, delimiter="\t")
-                clean_up_matrix(info_dir, dst_mx) # cleans up matrix in place
+                clean_up_matrix(info_dir, dst_mx)  # cleans up matrix in place
                 print("Formatted matrix for {}".format(d))
                 print("{} out of {}".format(x, total_species))
                 x += 1
@@ -249,6 +289,7 @@ def pre_process_all(genbank_mirror):
                 continue
         else:
             continue
+
 
 # Convenience
 def generate_stats_genbank(genbank_mirror):
@@ -262,6 +303,9 @@ def generate_stats_genbank(genbank_mirror):
         dst_mx_all = os.path.join(info_dir, "dst_mx_all.csv")
         stats = os.path.join(info_dir, "stats.csv")
         if os.path.isfile(dst_mx_all) and not os.path.isfile(stats):
-            generate_fasta_stats(fasta_dir, pd.read_csv(dst_mx_all, index_col=0, delimiter="\t"))
-            print("Generated stats for {} out of {}".format(x, len(all_genbank_species)))
+            generate_fasta_stats(fasta_dir,
+                                 pd.read_csv(
+                                     dst_mx_all, index_col=0, delimiter="\t"))
+            print("Generated stats for {} out of {}".format(
+                x, len(all_genbank_species)))
             x += 1

@@ -7,8 +7,8 @@ import glob
 import subprocess
 import pandas as pd
 
-def generate_sketch_command(genome_path):
 
+def generate_sketch_command(genome_path):
     """
     Return sketch command for genome_path.
     sketch_cmd is based on full path to genome_path.
@@ -21,16 +21,16 @@ def generate_sketch_command(genome_path):
 
 
 def sketch_genome(genome_path):
-
     """
     Produce a sketch file for genome, where genome is the full path to a FASTA.
     """
 
     sketch_cmd = generate_sketch_command(genome_path)
-    subprocess.Popen(sketch_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
+    subprocess.Popen(
+        sketch_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
+
 
 def sketch_dir(directory):
-
     """
     Produce sketch files for each FASTA in dir.
     """
@@ -40,28 +40,38 @@ def sketch_dir(directory):
         genome_path = os.path.join(directory, genome_path)
         sketch_genome(genome_path)
 
+
 def paste(species_dir):
 
     paste_file = os.path.join(species_dir, 'all.msh')
     remove_old(paste_file)
     sketches = os.path.join(species_dir, "GCA*msh")
     paste_cmd = "mash paste {} {}".format(paste_file, sketches)
-    print(paste_cmd*10)
+    print(paste_cmd * 10)
     subprocess.Popen(paste_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
     return paste_file
+
 
 def dist(species_dir):
 
     dst_mx_path = os.path.join(species_dir, 'dst_mx.txt')
-    paste_file = os.path.join(species_dir,'all.msh')
+    paste_file = os.path.join(species_dir, 'all.msh')
     remove_old(dst_mx_path)
-    dist_cmd = "mash dist -t '{}' '{}' > '{}'".format(paste_file, paste_file, dst_mx_path)
+    dist_cmd = "mash dist -t '{}' '{}' > '{}'".format(paste_file, paste_file,
+                                                      dst_mx_path)
     subprocess.Popen(dist_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
     dst_mx = format_dst_mx(dst_mx_path)
     return dst_mx
 
-def format_dst_mx(dst_mx_path):
 
+def mash(species_dir):
+    sketch_dir(species_dir)
+    paste(species_dir)
+    dst_mx = dist(species_dir)
+    return dst_mx
+
+
+def format_dst_mx(dst_mx_path):
     """
     Set indices and headers to the accession ID's
     """
@@ -79,9 +89,11 @@ def format_dst_mx(dst_mx_path):
     dst_mx.to_csv(dst_mx_path, sep="\t")
     return dst_mx
 
+
 def remove_old(f):
     if os.path.isfile(f):
         os.remove(f)
+
 
 def find_all_genome_paths(directory):
     """
@@ -95,6 +107,7 @@ def find_all_genome_paths(directory):
                 genome_paths.append(genome_path)
     return genome_paths
 
+
 def find_all_sketches(genbank):
     sketches = []
     for root, dirs, files in os.walk(genbank):
@@ -103,4 +116,3 @@ def find_all_sketches(genbank):
                 sketch = os.path.join(root, f)
                 sketches.append(sketch)
     return sketches
-

@@ -7,15 +7,12 @@ import click
 from genbankfilter import mash
 from genbankfilter import filter
 
-def mash_stats_and_filter():
-    dst_mx = mash(species_dir, mash_exe)
-    stats = generate_species_stats(fasta_dir, dst_mx)
-    filter_med_ad(species_dir, stats, max_ns, c_range, s_range, m_range)
 
 def just_filter():
     stats = os.path.join(os.path.join(species_dir, "info"), "stats.csv")
     stats = pd.read_csv(stats, index_col=0)
     filter_med_ad(species_dir, stats, max_ns, c_range, s_range, m_range)
+
 
 def stats_are_current():
     genomes_in_dir = 0
@@ -24,30 +21,49 @@ def stats_are_current():
             genomes_in_dir += 1
     genomes_in_stats = len(stats.index)
     if genomes_in_dir == genomes_in_stats:
-        print("stats.csv is current. Filtering will be based on existing stats.csv")
+        print(
+            "stats.csv is current. Filtering will be based on existing stats.csv"
+        )
         return True
     else:
-        print("stats.csv is not current.  MASH will be run and stats.csv will be updated.")
+        print(
+            "stats.csv is not current.  MASH will be run and stats.csv will be updated."
+        )
         return False
 
+
 @click.command()
-@click.option('--mash-exe',
-              help='Path to MASH executable if not in your PATH',
-              default='~/usr/bin/mash')
-@click.option('-l', '--filter-level',
-              help='Value to be used for all filters',
-              type=float, default=3.0)
-@click.option('-n', '--max_n_count',
-              help='Maximum number of acceptable unknown bases',
-              type=int, default=100)
-@click.option('-c', '--c-range',
-              help='Filtering level for number of contigs', type=float)
-@click.option('-s', '--s-range',
-              help='Filtering level for the assembly size', type=float)
-@click.option('-m', '--m-range',
-              help='Filtering level for MASH distances', type=float)
+@click.option(
+    '--mash-exe',
+    help='Path to MASH executable if not in your PATH',
+    default='~/usr/bin/mash')
+@click.option(
+    '-l',
+    '--filter-level',
+    help='Value to be used for all filters',
+    type=float,
+    default=3.0)
+@click.option(
+    '-n',
+    '--max_n_count',
+    help='Maximum number of acceptable unknown bases',
+    type=int,
+    default=100)
+@click.option(
+    '-c',
+    '--c-range',
+    help='Filtering level for number of contigs',
+    type=float)
+@click.option(
+    '-s',
+    '--s-range',
+    help='Filtering level for the assembly size',
+    type=float)
+@click.option(
+    '-m', '--m-range', help='Filtering level for MASH distances', type=float)
 @click.argument('species-dir', type=click.Path(exists=True, file_okay=False))
-def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range, species_dir):
+def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range,
+        species_dir):
     """
     Assess the integrity of your FASTA collection.
     """
@@ -59,6 +75,7 @@ def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range, species_
 
     filter_ranges = max_n_count, c_range, s_range, m_range
     click.echo('Filtering levels:')
+    click.echo('Max Unknowns:  {}'.format(max_n_count))
     click.echo('Contigs:  {}'.format(c_range))
     click.echo('Assembly size:  {}'.format(s_range))
     click.echo('MASH distances:  {}'.format(m_range))
@@ -74,10 +91,5 @@ def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range, species_
     #     else:
     #         mash_stats_and_filter()
 
-    mash.sketch_dir(species_dir)
-    mash.paste(species_dir)
-    dst_mx = mash.dist(species_dir)
-    stats = filter.generate_stats(species_dir, dst_mx)
-    stats.to_csv(os.path.join(species_dir, 'stats.csv'))
-    results = filter.filter_med_ad(species_dir, stats, filter_ranges)
-    filter.write_results(results, species_dir)
+    dst_mx = mash.mash(species_dir)
+    filter.stats_and_filter(species_dir, dst_mx, filter_ranges)
