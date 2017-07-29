@@ -1,12 +1,10 @@
-import os, argparse
+import os
 import pandas as pd
-from collections import namedtuple
-from subprocess import Popen
-from shutil import rmtree, move
-import glob
-from Bio import SeqIO
-from re import findall
 from pandas.io.parsers import EmptyDataError
+from collections import namedtuple
+from Bio import SeqIO
+import glob
+import re
 
 def generate_stats(species_dir, dst_mx):
 
@@ -180,12 +178,12 @@ def assess_fastas(fasta_dir):
                 os.mkdir(empty)
             src = os.path.join(fasta_dir, f)
             dst = os.path.join(empty, f)
-            move(src, dst)
+            shutil.move(src, dst)
 
 def check_passed_dir(species_dir):
     passed_dir = os.path.join(species_dir, "passed")
     if os.path.isdir(passed_dir):
-        rmtree(passed_dir)
+        shutil.rmtree(passed_dir)
     os.mkdir(passed_dir)
     return passed_dir
 
