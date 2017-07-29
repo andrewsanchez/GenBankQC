@@ -6,58 +6,63 @@ from Bio import SeqIO
 import glob
 import re
 
+
 def generate_stats(species_dir, dst_mx):
 
-    for root, dirs, files, in os.walk(species_dir):
+    fastas = [f for f in os.listdir(species_dir) if f.endswith('fasta')]
+
+    for f in fastas:
         file_names = []
         contig_totals = []
         assembly_sizes = []
         n_counts = []
+        fasta = (os.path.join(species_dir, f))
+        name = re.search('(GCA.*)(.fasta)', f).group(1)
+        file_names.append(name)
 
-        for f in files:
-            if f.endswith(".fasta"):
-                print("Getting stats for {}".format(f))
-                fasta = (os.path.join(root, f))
-                name = fasta.split("/")[-1].strip(".fasta")
-                file_names.append(name)
+        # Read all contigs for current fasta into list
+        try:
+            contigs = [seq.seq for seq in SeqIO.parse(fasta, "fasta")]
+        except UnicodeDecodeError:
+            print("{} threw UnicodeDecodeError".format(f))
 
-                # Read all contigs for current fasta into list
-                try:
-                    contigs = [ seq.seq for seq in SeqIO.parse(fasta, "fasta") ]
-                except UnicodeDecodeError:
-                    print("{} threw UnicodeDecodeError".format(f))
+        # Append the total number of contigs to contig_totals
+        contig_totals.append(len(contigs))
 
-                # Append the total number of contigs to contig_totals
-                contig_totals.append(len(contigs))
+        # Read the length of each contig into a list
+        assembly_size = [len(str(seq)) for seq in contigs]
+        # Append the sum of all contig lengths to lengths
+        assembly_sizes.append(sum(assembly_size))
 
-                # Read the length of each contig into a list
-                assembly_size = [ len(str(seq)) for seq in contigs ]
-                # Append the sum of all contig lengths to lengths
-                assembly_sizes.append(sum(assembly_size))
-
-                # Read the N_Count for each contig into a list
-                N_Count = [len(findall("[^ATCG]", str(seq))) for seq in contigs]
-                # Append the total N_Count to n_counts
-                n_counts.append(sum(N_Count))
+        # Read the N_Count for each contig into a list
+        N_Count = [len(re.findall("[^ATCG]", str(seq))) for seq in contigs]
+        # Append the total N_Count to n_counts
+        n_counts.append(sum(N_Count))
 
         SeqDataSet = list(zip(n_counts, contig_totals, assembly_sizes))
-        stats = pd.DataFrame(data=SeqDataSet, index=file_names, columns=["N_Count", "Contigs", "Assembly_Size"], dtype="float64")
+        stats = pd.DataFrame(
+            data=SeqDataSet,
+            index=file_names,
+            columns=["N_Count", "Contigs", "Assembly_Size"],
+            dtype="float64")
         mean_distances = dst_mx.mean()
         stats["MASH"] = mean_distances
 
         return stats
 
+
 def filter_med_ad(species_dir, stats, filter_ranges):
 
-    max_n_count, c_range, s_range, m_range = filter_ranges 
+    max_n_count, c_range, s_range, m_range = filter_ranges
     filter_ranges = "{}_{}_{}".format(c_range, s_range, m_range)
 
     filter_summary = pd.DataFrame()
 
     # Filter based on N's first
-    passed_I = stats[stats["N_Count"] <= max_n_count ]
+    passed_I = stats[stats["N_Count"] <= max_n_count]
     failed = pd.DataFrame(index=stats.index, columns=stats.columns)
     failed_N = []
+    failed_N_count_ixs = [i for i in stats.index if i not in passed_I.index]
     for i in stats.index:
         if i not in passed_I.index:
             failed_N.append(i)
