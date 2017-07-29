@@ -49,9 +49,9 @@ def generate_stats(species_dir, dst_mx):
 
         return stats
 
-def filter_med_ad(species_dir, stats, max_n_count=100,
-                  c_range=3.5, s_range=3.5, m_range=3.5):
+def filter_med_ad(species_dir, stats, filter_ranges):
 
+    max_n_count, c_range, s_range, m_range = filter_ranges 
     filter_ranges = "{}_{}_{}".format(c_range, s_range, m_range)
 
     filter_summary = pd.DataFrame()
