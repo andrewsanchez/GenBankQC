@@ -194,6 +194,16 @@ def filter_contigs(stats, passed_I, filter_ranges, c_range, failed,
     return filter_contigs_results
 
 
+def stats_and_filter(species_dir, dst_mx, filter_ranges):
+    stats = generate_stats(species_dir, dst_mx)
+    stats.to_csv(os.path.join(species_dir, 'stats.csv'))
+    results = filter_med_ad(species_dir, stats, filter_ranges)
+    filter_summary, failed, passed_final = results
+    filter_summary.to_csv(os.path.join(species_dir, 'summary.csv'), index_label='Filter Ranges')
+    failed.to_csv(os.path.join(species_dir, 'failed.csv'))
+    passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
+
+
 def assess_fastas(fasta_dir):
 
     # Check for empty FASTA's and move them before running MASH
