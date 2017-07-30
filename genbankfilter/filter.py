@@ -30,7 +30,8 @@ def generate_stats(species_dir, dst_mx):
         contig_totals.append(len(contigs))
         n_counts.append(sum(N_Count))
 
-    SeqDataSet = list(zip(n_counts, contig_totals, assembly_sizes, dst_mx.mean()))
+    SeqDataSet = list(
+        zip(n_counts, contig_totals, assembly_sizes, dst_mx.mean()))
     stats = pd.DataFrame(
         data=SeqDataSet,
         index=file_names,
@@ -70,13 +71,15 @@ def filter_med_ad(species_dir, stats, filter_ranges):
     failed = pd.DataFrame(index=stats.index, columns=stats.columns)
 
     # Filter based on N's first
-    passed_N_count, failed_N_count, failed = filter_Ns(stats, failed, max_n_count)
+    passed_N_count, failed_N_count, failed = filter_Ns(stats, failed,
+                                                       max_n_count)
     filter_summary.set_value(filter_ranges, "N's", len(failed_N_count))
 
     # Filter using special function for contigs
     if check_df_len(passed_N_count):
-        filter_contigs_results = filter_contigs(
-            stats, passed_N_count, filter_ranges, c_range, failed, filter_summary)
+        filter_contigs_results = filter_contigs(stats, passed_N_count,
+                                                filter_ranges, c_range, failed,
+                                                filter_summary)
         passed_contigs = filter_contigs_results.passed
         failed_contigs = filter_contigs_results.failed
 
@@ -90,20 +93,16 @@ def filter_med_ad(species_dir, stats, filter_ranges):
                 mash_med_ad = abs(passed_assembly_size["MASH"] -
                                   passed_assembly_size["MASH"].median()).mean(
                                   )  # Median absolute deviation
-
-            if len(passed_assembly_size) > 5:
-                mash_med_ad = abs(passed_assembly_size["MASH"] - passed_assembly_size["MASH"].
-                                  median()).mean()  # Median absolute deviation
                 mash_dev_ref = mash_med_ad * m_range
                 passed_final = passed_assembly_size[
-                    abs(passed_assembly_size["MASH"] - passed_assembly_size["MASH"].median()) <=
-                    mash_dev_ref]
+                    abs(passed_assembly_size["MASH"] -
+                        passed_assembly_size["MASH"].median()) <= mash_dev_ref]
                 failed_mash = []
                 for i in passed_assembly_size.index:
                     if i not in passed_final.index:
                         failed["MASH"][i] = stats["MASH"][i]
                         failed_mash.append(i)
-
+                    else:
                         failed["MASH"][i] = "passed"
 
                 mash_lower = passed_contigs["MASH"].median() - mash_dev_ref
@@ -198,7 +197,9 @@ def filter_contigs(stats, passed_N_count, filter_ranges, c_range, failed,
         passed_contigs = passed_I
         failed_contigs = []
     else:
-        failed_contigs = [i for i in passed_N_count.index if i not in contigs.index]
+        failed_contigs = [
+            i for i in passed_N_count.index if i not in contigs.index
+        ]
         passed_contigs = passed_N_count.drop(failed_contigs)
 
         for i in failed_contigs:
@@ -207,10 +208,12 @@ def filter_contigs(stats, passed_N_count, filter_ranges, c_range, failed,
             failed["Contigs"][i] = "+"
 
     filter_summary.set_value(filter_ranges, "Contigs", len(failed_contigs))
-    filter_summary.set_value(filter_ranges, "Contigs_Range",
-                         "{:.0f}-{:.0f}".format(contigs_lower, contigs_upper))
+    filter_summary.set_value(filter_ranges,
+                             "Contigs_Range", "{:.0f}-{:.0f}".format(
+                                 contigs_lower, contigs_upper))
 
-    results = namedtuple("filter_contigs_results", ["passed", "failed"])
+    results = namedtuple("filter_contigs_results",
+                                        ["passed", "failed"])
     filter_contigs_results = results(passed_contigs, failed_contigs)
 
     return filter_contigs_results
@@ -221,7 +224,8 @@ def stats_and_filter(species_dir, dst_mx, filter_ranges):
     stats.to_csv(os.path.join(species_dir, 'stats.csv'))
     results = filter_med_ad(species_dir, stats, filter_ranges)
     filter_summary, failed, passed_final = results
-    filter_summary.to_csv(os.path.join(species_dir, 'summary.csv'), index_label='Filter Ranges')
+    filter_summary.to_csv(
+        os.path.join(species_dir, 'summary.csv'), index_label='Filter Ranges')
     failed.to_csv(os.path.join(species_dir, 'failed.csv'))
     passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
 
