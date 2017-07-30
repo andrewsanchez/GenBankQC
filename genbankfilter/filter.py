@@ -137,43 +137,42 @@ def filter_med_ad(species_dir, stats, filter_ranges):
     return filter_summary, failed, passed_final
 
 
-def filter_assembly_size(passed_contigs, failed, filter_summary, filter_ranges,
-                         s_range):
+def filter_med_ad(criteria, passed, failed, filter_summary, f_range, franges_str):
     """
-    Filter based on the assembly size.
+    Filter based on median absolute deviation
     """
     # Get the median absolute deviation
-    assembly_med_ad = abs(passed_contigs["Assembly_Size"] -
-                          passed_contigs["Assembly_Size"].median()).mean(
+    med_ad = abs(passed[criteria] -
+                          passed[criteria].median()).mean(
                           )
-    assembly_dev_ref = assembly_med_ad * s_range
-    passed_assembly_size = passed_contigs[
-        abs(passed_contigs["Assembly_Size"] -
-            passed_contigs["Assembly_Size"].median()) <= assembly_dev_ref]
-    failed_assembly_size = []
-    for i in passed_contigs.index:
-        if i not in passed_assembly_size.index:
-            failed["Assembly_Size"][i] = stats["Assembly_Size"][i]
-            failed_assembly_size.append(i)
-        else:
-            failed["Assembly_Size"][i] = "+"
+    dev_ref = med_ad * f_range
+    passed = passed[
+        abs(passed[criteria] -
+            passed[criteria].median()) <= dev_ref]
+    failed = []
+    for i in passed.index:
+        if i not in passed.index:
+            failed[criteria][i] = stats[criteria][i]
+            failed.append(i)
+        # else:
+        #     failed[criteria][i] = "+"
 
-    assembly_lower = passed_contigs["Assembly_Size"].median() - assembly_dev_ref
-    assembly_upper = passed_contigs["Assembly_Size"].median() + assembly_dev_ref
-    filter_summary.set_value(filter_ranges, "Assembly_Size",
-                             len(failed_assembly_size))
-    filter_summary.set_value(filter_ranges,
-                             "Assembly_Range", "{:.0f}-{:.0f}".format(
-                                 assembly_lower, assembly_upper))
+    lower = passed[criteria].median() - dev_ref
+    upper = passed[criteria].median() + dev_ref
+    filter_summary.set_value(franges_str, criteria,
+                             len(failed))
+    filter_summary.set_value(franges_str,
+                             '{}_Range'.format(criteria),
+                             "{:.0f}-{:.0f}".format(
+                                 lower, upper))
 
-    results = namedtuple("filter_assembly_size_results", ["passed", "failed"])
-    filter_assembly_size_results = results(passed_assembly_size,
-                                           failed_assembly_size)
+    results = namedtuple("filter_results", ["passed", "failed"])
+    filter_results = results(passed, failed)
 
-    return filter_assembly_size_results
+    return filter_results
 
 
-def filter_contigs(stats, passed_N_count, filter_ranges, c_range, failed,
+def filter_contigs(stats, passed_N_count, franges_str, c_range, failed,
                    filter_summary):
 
     contigs = passed_N_count["Contigs"]
