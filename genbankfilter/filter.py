@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-from pandas.io.parsers import EmptyDataError
 from collections import namedtuple
 from Bio import SeqIO
 import glob
@@ -285,7 +284,7 @@ def pre_process_all(genbank_mirror):
                 x += 1
             except FileNotFoundError:
                 continue
-            except EmptyDataError:
+            except pd.io.parsers.EmptyDataError:
                 continue
         else:
             continue
