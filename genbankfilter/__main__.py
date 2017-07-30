@@ -61,9 +61,17 @@ def stats_are_current():
     type=float)
 @click.option(
     '-m', '--m-range', help='Filtering level for MASH distances', type=float)
+@click.option(
+    '-f',
+    '--filter-only',
+    help="Run filtering without running MASH.  Use this option "
+    "if your species directory already contains the distance matrix "
+    "and you want to run the filters with different parameters",
+    default=False,
+    is_flag=True)
 @click.argument('species-dir', type=click.Path(exists=True, file_okay=False))
 def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range,
-        species_dir):
+        species_dir, filter_only):
     """
     Assess the integrity of your FASTA collection.
     """
@@ -91,5 +99,9 @@ def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range,
     #     else:
     #         mash_stats_and_filter()
 
-    dst_mx = mash.mash(species_dir)
-    filter.stats_and_filter(species_dir, dst_mx, filter_ranges)
+    if filter_only:
+        dst_mx = pd.read_csv(os.path.join(species_dir, 'dst_mx.txt'), index_col=0, sep="\t")
+        filter.stats_and_filter(species_dir, dst_mx, filter_ranges)
+    else:
+        dst_mx = mash.mash(species_dir)
+        filter.stats_and_filter(species_dir, dst_mx, filter_ranges)
