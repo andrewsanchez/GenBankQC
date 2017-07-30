@@ -63,29 +63,30 @@ def check_df_len(df, num=5):
         return False
 
 
-def filter_med_ad(species_dir, stats, filter_ranges):
+def filter_all(species_dir, stats, filter_ranges):
 
     max_n_count, c_range, s_range, m_range = filter_ranges
-    filter_ranges = "{}_{}_{}".format(c_range, s_range, m_range)
-    filter_summary = pd.DataFrame(index=[filter_ranges])
+    franges_str = "{}_{}_{}".format(c_range, s_range, m_range)
+    filter_summary = pd.DataFrame(index=[franges_str])
     failed = pd.DataFrame(index=stats.index, columns=stats.columns)
 
     # Filter based on N's first
     passed_N_count, failed_N_count, failed = filter_Ns(stats, failed,
                                                        max_n_count)
-    filter_summary.set_value(filter_ranges, "N's", len(failed_N_count))
+    filter_summary.set_value(franges_str, "N's", len(failed_N_count))
 
     # Filter using special function for contigs
     if check_df_len(passed_N_count):
         filter_contigs_results = filter_contigs(stats, passed_N_count,
-                                                filter_ranges, c_range, failed,
+                                                franges_str, c_range, failed,
                                                 filter_summary)
         passed_contigs = filter_contigs_results.passed
         failed_contigs = filter_contigs_results.failed
 
         if check_df_len(passed_contigs):
-            filter_assembly_size_results = filter_assembly_size(
-                passed_contigs, failed, filter_summary, filter_ranges, s_range)
+            filter_assembly_size_results = filter_med_ad("Assembly_Size",
+                                                         passed_contigs, failed, filter_summary,
+                                                         s_range, franges_str)
             passed_assembly_size = filter_assembly_size_results.passed
             failed_assembly_size = filter_assembly_size_results.failed
 
@@ -115,7 +116,7 @@ def filter_med_ad(species_dir, stats, filter_ranges):
             .format(max_n_count))
 
     failed.drop(list(passed_final.index), inplace=True)
-    filter_summary.set_value(filter_ranges, "Filtered", "{}/{}".format(
+    filter_summary.set_value(franges_str, "Filtered", "{}/{}".format(
         len(failed), len(stats)))
     return filter_summary, failed, passed_final
 
@@ -189,8 +190,8 @@ def filter_contigs(stats, passed_N_count, franges_str, c_range, failed,
         for i in contigs.index:
             failed["Contigs"][i] = "+"
 
-    filter_summary.set_value(filter_ranges, "Contigs", len(failed_contigs))
-    filter_summary.set_value(filter_ranges,
+    filter_summary.set_value(franges_str, "Contigs", len(failed_contigs))
+    filter_summary.set_value(franges_str,
                              "Contigs_Range", "{:.0f}-{:.0f}".format(
                                  contigs_lower, contigs_upper))
 
@@ -204,7 +205,7 @@ def filter_contigs(stats, passed_N_count, franges_str, c_range, failed,
 def stats_and_filter(species_dir, dst_mx, filter_ranges):
     stats = generate_stats(species_dir, dst_mx)
     stats.to_csv(os.path.join(species_dir, 'stats.csv'))
-    results = filter_med_ad(species_dir, stats, filter_ranges)
+    results = filter_all(species_dir, stats, filter_ranges)
     filter_summary, failed, passed_final = results
     filter_summary.to_csv(
         os.path.join(species_dir, 'summary.csv'), index_label='Filter Ranges')
