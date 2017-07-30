@@ -40,6 +40,17 @@ def generate_stats(species_dir, dst_mx):
     return stats
 
 
+def filter_Ns(stats, failed, max_n_count):
+    """
+    Identify genomes with too many unknown bases.
+    """
+    passed_N_count = stats[stats["N_Count"] <= max_n_count]
+    failed_N_count = stats[stats["N_Count"] >= max_n_count]
+    failed["N_Count"][passed_N_count.index] = "+"
+    for i in failed_N_count.index:
+        failed["N_Count"][i] = stats["N_Count"][i]
+    return passed_N_count, failed_N_count, failed
+
 def filter_med_ad(species_dir, stats, filter_ranges):
 
     max_n_count, c_range, s_range, m_range = filter_ranges
