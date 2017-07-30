@@ -8,46 +8,36 @@ import re
 
 def generate_stats(species_dir, dst_mx):
 
-    fastas = [f for f in os.listdir(species_dir) if f.endswith('fasta')]
+    fastas = (f for f in os.listdir(species_dir) if f.endswith('fasta'))
+    file_names, contig_totals, assembly_sizes, n_counts = [], [], [], []
 
     for f in fastas:
-        file_names = []
-        contig_totals = []
-        assembly_sizes = []
-        n_counts = []
         fasta = (os.path.join(species_dir, f))
         name = re.search('(GCA.*)(.fasta)', f).group(1)
-        file_names.append(name)
 
-        # Read all contigs for current fasta into list
+        # Get all contigs for current FASTA
         try:
             contigs = [seq.seq for seq in SeqIO.parse(fasta, "fasta")]
         except UnicodeDecodeError:
             print("{} threw UnicodeDecodeError".format(f))
-
-        # Append the total number of contigs to contig_totals
-        contig_totals.append(len(contigs))
-
-        # Read the length of each contig into a list
-        assembly_size = [len(str(seq)) for seq in contigs]
-        # Append the sum of all contig lengths to lengths
-        assembly_sizes.append(sum(assembly_size))
-
-        # Read the N_Count for each contig into a list
+        # Length of each contig
+        assembly_size = sum([len(str(seq)) for seq in contigs])
+        # N_Count for each contig
         N_Count = [len(re.findall("[^ATCG]", str(seq))) for seq in contigs]
-        # Append the total N_Count to n_counts
+
+        file_names.append(name)
+        assembly_sizes.append(assembly_size)
+        contig_totals.append(len(contigs))
         n_counts.append(sum(N_Count))
 
-        SeqDataSet = list(zip(n_counts, contig_totals, assembly_sizes))
-        stats = pd.DataFrame(
-            data=SeqDataSet,
-            index=file_names,
-            columns=["N_Count", "Contigs", "Assembly_Size"],
-            dtype="float64")
-        mean_distances = dst_mx.mean()
-        stats["MASH"] = mean_distances
+    SeqDataSet = list(zip(n_counts, contig_totals, assembly_sizes, dst_mx.mean()))
+    stats = pd.DataFrame(
+        data=SeqDataSet,
+        index=file_names,
+        columns=["N_Count", "Contigs", "Assembly_Size", "MASH"],
+        dtype="float64")
 
-        return stats
+    return stats
 
 
 def filter_med_ad(species_dir, stats, filter_ranges):
