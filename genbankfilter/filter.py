@@ -90,28 +90,11 @@ def filter_med_ad(species_dir, stats, filter_ranges):
             failed_assembly_size = filter_assembly_size_results.failed
 
             if check_df_len(passed_assembly_size):
-                mash_med_ad = abs(passed_assembly_size["MASH"] -
-                                  passed_assembly_size["MASH"].median()).mean(
-                                  )  # Median absolute deviation
-                mash_dev_ref = mash_med_ad * m_range
-                passed_final = passed_assembly_size[
-                    abs(passed_assembly_size["MASH"] -
-                        passed_assembly_size["MASH"].median()) <= mash_dev_ref]
-                failed_mash = []
-                for i in passed_assembly_size.index:
-                    if i not in passed_final.index:
-                        failed["MASH"][i] = stats["MASH"][i]
-                        failed_mash.append(i)
-                    else:
-                        failed["MASH"][i] = "passed"
-
-                mash_lower = passed_contigs["MASH"].median() - mash_dev_ref
-                mash_upper = passed_contigs["MASH"].median() + mash_dev_ref
-                filter_summary.set_value(filter_ranges, "MASH",
-                                         len(failed_mash))
-                filter_summary.set_value(filter_ranges, "MASH_Range",
-                                         "{:04.3f}-{:04.3f}".format(
-                                             mash_lower, mash_upper))
+                filter_MASH_results = filter_med_ad("MASH",
+                                                    passed_contigs, failed, filter_summary,
+                                                    m_range, franges_str)
+                passed_final = filter_MASH_results.passed
+                failed_MASH = filter_MASH_results.failed
 
             else:
                 passed_final = passed_assembly_size
