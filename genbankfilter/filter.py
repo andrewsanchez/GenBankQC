@@ -51,6 +51,17 @@ def filter_Ns(stats, failed, max_n_count):
         failed["N_Count"][i] = stats["N_Count"][i]
     return passed_N_count, failed_N_count, failed
 
+
+def check_df_len(df, num=5):
+    """
+    Verify that df has > than num genomes
+    """
+    if len(df) > num:
+        return True
+    else:
+        return False
+
+
 def filter_med_ad(species_dir, stats, filter_ranges):
 
     max_n_count, c_range, s_range, m_range = filter_ranges
