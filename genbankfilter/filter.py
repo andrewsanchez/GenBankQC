@@ -81,30 +81,15 @@ def filter_med_ad(species_dir, stats, filter_ranges):
         failed_contigs = filter_contigs_results.failed
 
         if check_df_len(passed_contigs):
-            assembly_med_ad = abs(passed_contigs["Assembly_Size"]
-                                  - passed_contigs["Assembly_Size"].median()).mean(
-                                  )  # Median absolute deviation
-            assembly_dev_ref = assembly_med_ad * s_range
-            passed_assembly_size = passed_contigs[abs(passed_contigs["Assembly_Size"] -
-                                       passed_contigs["Assembly_Size"].median()) <=
-                                   assembly_dev_ref]
-            failed_assembly_size = []
-            for i in passed_contigs.index:
-                if i not in passed_assembly_size.index:
-                    failed["Assembly_Size"][i] = stats["Assembly_Size"][i]
-                    failed_assembly_size.append(i)
-                else:
-                    failed["Assembly_Size"][i] = "passed"
+            filter_assembly_size_results = filter_assembly_size(
+                passed_contigs, failed, filter_summary, filter_ranges, s_range)
+            passed_assembly_size = filter_assembly_size_results.passed
+            failed_assembly_size = filter_assembly_size_results.failed
 
-            assembly_lower = passed_contigs["Assembly_Size"].median(
-            ) - assembly_dev_ref
-            assembly_upper = passed_contigs["Assembly_Size"].median(
-            ) + assembly_dev_ref
-            filter_summary.set_value(filter_ranges, "Assembly_Size",
-                                     len(failed_assembly_size))
-            filter_summary.set_value(filter_ranges, "Assembly_Range",
-                                     "{:.0f}-{:.0f}".format(
-                                         assembly_lower, assembly_upper))
+            if check_df_len(passed_assembly_size):
+                mash_med_ad = abs(passed_assembly_size["MASH"] -
+                                  passed_assembly_size["MASH"].median()).mean(
+                                  )  # Median absolute deviation
 
             if len(passed_assembly_size) > 5:
                 mash_med_ad = abs(passed_assembly_size["MASH"] - passed_assembly_size["MASH"].
@@ -153,9 +138,41 @@ def filter_med_ad(species_dir, stats, filter_ranges):
     return filter_summary, failed, passed_final
 
 
-def generate_results(failed, passed_final, filter_summary):
-    return filter_summary, failed, passed_final
-    
+def filter_assembly_size(passed_contigs, failed, filter_summary, filter_ranges,
+                         s_range):
+    """
+    Filter based on the assembly size.
+    """
+    # Get the median absolute deviation
+    assembly_med_ad = abs(passed_contigs["Assembly_Size"] -
+                          passed_contigs["Assembly_Size"].median()).mean(
+                          )
+    assembly_dev_ref = assembly_med_ad * s_range
+    passed_assembly_size = passed_contigs[
+        abs(passed_contigs["Assembly_Size"] -
+            passed_contigs["Assembly_Size"].median()) <= assembly_dev_ref]
+    failed_assembly_size = []
+    for i in passed_contigs.index:
+        if i not in passed_assembly_size.index:
+            failed["Assembly_Size"][i] = stats["Assembly_Size"][i]
+            failed_assembly_size.append(i)
+        else:
+            failed["Assembly_Size"][i] = "+"
+
+    assembly_lower = passed_contigs["Assembly_Size"].median() - assembly_dev_ref
+    assembly_upper = passed_contigs["Assembly_Size"].median() + assembly_dev_ref
+    filter_summary.set_value(filter_ranges, "Assembly_Size",
+                             len(failed_assembly_size))
+    filter_summary.set_value(filter_ranges,
+                             "Assembly_Range", "{:.0f}-{:.0f}".format(
+                                 assembly_lower, assembly_upper))
+
+    results = namedtuple("filter_assembly_size_results", ["passed", "failed"])
+    filter_assembly_size_results = results(passed_assembly_size,
+                                           failed_assembly_size)
+
+    return filter_assembly_size_results
+
 
 def filter_contigs(stats, passed_N_count, filter_ranges, c_range, failed,
                    filter_summary):
