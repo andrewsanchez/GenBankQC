@@ -55,26 +55,17 @@ def filter_med_ad(species_dir, stats, filter_ranges):
 
     max_n_count, c_range, s_range, m_range = filter_ranges
     filter_ranges = "{}_{}_{}".format(c_range, s_range, m_range)
-
-    filter_summary = pd.DataFrame()
+    filter_summary = pd.DataFrame(index=[filter_ranges])
+    failed = pd.DataFrame(index=stats.index, columns=stats.columns)
 
     # Filter based on N's first
-    passed_I = stats[stats["N_Count"] <= max_n_count]
-    failed = pd.DataFrame(index=stats.index, columns=stats.columns)
-    failed_N = []
-    failed_N_count_ixs = [i for i in stats.index if i not in passed_I.index]
-    for i in stats.index:
-        if i not in passed_I.index:
-            failed_N.append(i)
-            failed["N_Count"][i] = stats["N_Count"][i]
-        else:
-            failed["N_Count"][i] = "passed"
-    filter_summary.set_value(filter_ranges, "N's", len(failed_N))
+    passed_N_count, failed_N_count, failed = filter_Ns(stats, failed, max_n_count)
+    filter_summary.set_value(filter_ranges, "N's", len(failed_N_count))
 
     # Filter using special function for contigs
-    if len(passed_I) > 5:
+    if len(passed_N_count) > 5:
         filter_contigs_results = filter_contigs(
-            stats, passed_I, filter_ranges, c_range, failed, filter_summary)
+            stats, passed_N_count, filter_ranges, c_range, failed, filter_summary)
         passed_II = filter_contigs_results.passed
         failed_contigs = filter_contigs_results.failed
 
@@ -151,56 +142,44 @@ def filter_med_ad(species_dir, stats, filter_ranges):
     return filter_summary, failed, passed_final
 
 
-def stats_and_filter(species_dir, dst_mx, filter_ranges):
-    stats = generate_stats(species_dir, dst_mx)
-    results = filter_med_ad(species_dir, stats, filter_ranges)
-    filter_summary, failed, passed_final = results
-    stats.to_csv(os.path.join(species_dir, 'stats.csv'))
-    filter_summary.to_csv(os.path.join(species_dir, 'summary.csv'))
-    failed.to_csv(os.path.join(species_dir, 'failed.csv'))
-    passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
+def filter_contigs(stats, passed_N_count, filter_ranges, c_range, failed,
+                   filter_summary):
 
-
-def filter_contigs(stats, passed_I, filter_ranges, c_range, failed,
-                   summary_df):
-
-    contigs = passed_I["Contigs"]
+    contigs = passed_N_count["Contigs"]
     contigs_above_median = contigs[contigs >= contigs.median()]
     contigs_below_median = contigs[contigs <= contigs.median()]
-    contigs_lower = contigs[
-        contigs <=
-        10]  # Save genomes with < 10 contigs to add them back in later.
-    contigs = contigs[
-        contigs >
-        10]  # Only look at genomes with > 10 contigs to avoid throwing off the Median AD
+    # Only look at genomes with > 10 contigs to avoid throwing off the Median AD
+    # Save genomes with < 10 contigs to add them back in later.
+    not_enough_contigs = contigs[contigs <= 10]
+    contigs = contigs[contigs > 10]
     contigs_med_ad = abs(contigs -
                          contigs.median()).mean()  # Median absolute deviation
     contigs_dev_ref = contigs_med_ad * c_range
     contigs = contigs[abs(contigs - contigs.median()) <= contigs_dev_ref]
-    contigs = pd.concat([contigs, contigs_lower])
+    # Add genomes with < 10 contigs back in
+    contigs = pd.concat([contigs, not_enough_contigs])
     contigs_lower = contigs.median() - contigs_dev_ref
     contigs_upper = contigs.median() + contigs_dev_ref
-    # contigs = pd.concat([contigs, contigs_lower, contigs_below_median])
 
     # Avoid returning empty DataFrame when no genomes are removed above
-    if len(contigs) == len(passed_I):
-        passed_II = passed_I
+    if len(contigs) == len(passed_N_count):
+        passed_contigs = passed_I
         failed_contigs = []
     else:
-        failed_contigs = [i for i in passed_I.index if i not in contigs.index]
-        passed_II = passed_I.drop(failed_contigs)
+        failed_contigs = [i for i in passed_N_count.index if i not in contigs.index]
+        passed_contigs = passed_N_count.drop(failed_contigs)
 
         for i in failed_contigs:
             failed["Contigs"][i] = stats["Contigs"][i]
         for i in contigs.index:
-            failed["Contigs"][i] = "passed"
+            failed["Contigs"][i] = "+"
 
-    summary_df.set_value(filter_ranges, "Contigs", len(failed_contigs))
-    summary_df.set_value(filter_ranges, "Contigs_Range",
+    filter_summary.set_value(filter_ranges, "Contigs", len(failed_contigs))
+    filter_summary.set_value(filter_ranges, "Contigs_Range",
                          "{:.0f}-{:.0f}".format(contigs_lower, contigs_upper))
 
     results = namedtuple("filter_contigs_results", ["passed", "failed"])
-    filter_contigs_results = results(passed_II, failed_contigs)
+    filter_contigs_results = results(passed_contigs, failed_contigs)
 
     return filter_contigs_results
 
