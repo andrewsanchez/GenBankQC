@@ -41,7 +41,7 @@ def generate_stats(species_dir, dst_mx):
     return stats
 
 
-def filter_Ns(stats, failed, max_n_count):
+def filter_Ns(stats, summary, failed, max_n_count):
     """
     Identify genomes with too many unknown bases.
     """
@@ -50,9 +50,26 @@ def filter_Ns(stats, failed, max_n_count):
     failed["N_Count"][passed_N_count.index] = "+"
     for i in failed_N_count.index:
         failed["N_Count"][i] = stats["N_Count"][i]
+    summary["N_Count"] = (max_n_count, len(failed_N_count))
     return passed_N_count, failed_N_count, failed
 
 
+def write_summary(species_dir, summary, filter_ranges):
+    """
+    Write a summary of the filtering results.
+    """
+    max_n_count, c_range, s_range, m_range = filter_ranges
+    out = 'summary_{}-{}-{}-{}.txt'.format(max_n_count, c_range,
+                                           s_range, m_range)
+    out = os.path.join(species_dir, out)
+    if os.path.isfile(out):  os.remove(out)
+    with open(out, 'a') as f:
+        for k,v in summary.items():
+            f.write('{}\n'.format(k))
+            f.write('Range: {}\n'.format(v[0]))
+            f.write('Filtered: {}\n\n'.format(v[1]))
+
+    
 def check_df_len(df, num=5):
     """
     Verify that df has > than num genomes
@@ -70,20 +87,16 @@ def filter_all(species_dir, stats, filter_ranges):
     """
 
     max_n_count, c_range, s_range, m_range = filter_ranges
-    franges_str = "{}_{}_{}".format(c_range, s_range, m_range)
-    filter_summary = pd.DataFrame(index=[franges_str])
+    summary = {}
     failed = pd.DataFrame(index=stats.index, columns=stats.columns)
 
     # Filter based on N's first
-    passed_N_count, failed_N_count, failed = filter_Ns(stats, failed,
-                                                       max_n_count)
-    filter_summary.set_value(franges_str, "N's", len(failed_N_count))
-
+    passed_N_count, failed_N_count, failed = filter_Ns(stats, summary,
+                                                       failed, max_n_count)
     # Filter contigs
     if check_df_len(passed_N_count):
         filter_results = filter_contigs(stats, passed_N_count,
-                                        franges_str, c_range, failed,
-                                        filter_summary)
+                                        c_range, failed, summary)
         passed = filter_results.passed
     else:
         print("Filtering based on unknown bases resulted in < 5 genomes.  "
@@ -93,8 +106,7 @@ def filter_all(species_dir, stats, filter_ranges):
         if check_df_len(passed):
             filter_results = filter_med_ad(criteria,
                                         passed, failed,
-                                        filter_summary, s_range,
-                                        franges_str)
+                                        summary, s_range)
             passed = filter_results.passed
         else:
             print("Filtering based on {} resulted in < 5 genomes.  "
@@ -102,12 +114,11 @@ def filter_all(species_dir, stats, filter_ranges):
             break
     
     failed.drop(list(passed.index), inplace=True)
-    filter_summary.set_value(franges_str, "Filtered", "{}/{}".format(
-        len(failed), len(stats)))
-    return filter_summary, failed, passed
+    write_summary(species_dir, summary, filter_ranges)
+    return failed, passed
 
 
-def filter_med_ad(criteria, passed, failed, filter_summary, f_range, franges_str):
+def filter_med_ad(criteria, passed, failed, summary, f_range):
     """
     Filter based on median absolute deviation
     """
@@ -129,21 +140,16 @@ def filter_med_ad(criteria, passed, failed, filter_summary, f_range, franges_str
 
     lower = passed[criteria].median() - dev_ref
     upper = passed[criteria].median() + dev_ref
-    filter_summary.set_value(franges_str, criteria,
-                             len(failed))
-    filter_summary.set_value(franges_str,
-                             '{}_Range'.format(criteria),
-                             "{:.0f}-{:.0f}".format(
-                                 lower, upper))
-
+    summary[criteria] = ('{:.0f}-{:.0f}'.format(lower, upper),
+                         len(failed))
     results = namedtuple("filter_results", ["passed", "failed"])
     filter_results = results(passed, failed)
 
     return filter_results
 
 
-def filter_contigs(stats, passed_N_count, franges_str, c_range, failed,
-                   filter_summary):
+def filter_contigs(stats, passed_N_count, c_range, failed,
+                   summary):
 
     contigs = passed_N_count["Contigs"]
     contigs_above_median = contigs[contigs >= contigs.median()]
@@ -158,8 +164,8 @@ def filter_contigs(stats, passed_N_count, franges_str, c_range, failed,
     contigs = contigs[abs(contigs - contigs.median()) <= contigs_dev_ref]
     # Add genomes with < 10 contigs back in
     contigs = pd.concat([contigs, not_enough_contigs])
-    contigs_lower = contigs.median() - contigs_dev_ref
-    contigs_upper = contigs.median() + contigs_dev_ref
+    lower = contigs.median() - contigs_dev_ref
+    upper = contigs.median() + contigs_dev_ref
 
     # Avoid returning empty DataFrame when no genomes are removed above
     if len(contigs) == len(passed_N_count):
@@ -176,13 +182,10 @@ def filter_contigs(stats, passed_N_count, franges_str, c_range, failed,
         for i in contigs.index:
             failed["Contigs"][i] = "+"
 
-    filter_summary.set_value(franges_str, "Contigs", len(failed_contigs))
-    filter_summary.set_value(franges_str,
-                             "Contigs_Range", "{:.0f}-{:.0f}".format(
-                                 contigs_lower, contigs_upper))
-
+    summary["Contigs"] = ("{:.0f}-{:.0f}".format(lower, upper),
+                          len(failed_contigs))
     results = namedtuple("filter_contigs_results",
-                                        ["passed", "failed"])
+                         ["passed", "failed"])
     filter_contigs_results = results(passed_contigs, failed_contigs)
 
     return filter_contigs_results
@@ -192,9 +195,7 @@ def stats_and_filter(species_dir, dst_mx, filter_ranges):
     stats = generate_stats(species_dir, dst_mx)
     stats.to_csv(os.path.join(species_dir, 'stats.csv'))
     results = filter_all(species_dir, stats, filter_ranges)
-    filter_summary, failed, passed_final = results
-    filter_summary.to_csv(
-        os.path.join(species_dir, 'summary.csv'), index_label='Filter Ranges')
+    failed, passed_final = results
     failed.to_csv(os.path.join(species_dir, 'failed.csv'))
     passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
 
