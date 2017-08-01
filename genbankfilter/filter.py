@@ -81,49 +81,30 @@ def filter_all(species_dir, stats, filter_ranges):
 
     # Filter contigs
     if check_df_len(passed_N_count):
-        filter_contigs_results = filter_contigs(stats, passed_N_count,
-                                                franges_str, c_range, failed,
-                                                filter_summary)
-        passed_contigs = filter_contigs_results.passed
-        if check_df_len(passed_contigs):
-            filter_assembly_size_results = filter_med_ad("Assembly_Size",
-                                                        passed_contigs, failed,
-                                                        filter_summary, s_range,
-                                                        franges_str)
-            passed_assembly_size = filter_assembly_size_results.passed
-
-            if check_df_len(passed_assembly_size):
-                filter_MASH_results = filter_med_ad("MASH",
-                                                    passed_contigs, failed, filter_summary,
-                                                    m_range, franges_str)
-                passed_final = filter_MASH_results.passed
-                failed_MASH = filter_MASH_results.failed
-
-            else:
-                passed_final = passed_assembly_size
-                print(
-                    "Removing genomes outside the range of {}-{} for assembly size resulted in < 5 genomes.\n\
-                        Filtering will not commence past this stage."
-                    .format(assembly_lower, assembly_upper))
-        else:
-            passed_final = passed_II
-            print(
-                "Removing genomes outside the range of acceptable number of contigs resulted in < 5 genomes.\n\
-                    Filtering will not commence past this stage.")
+        filter_results = filter_contigs(stats, passed_N_count,
+                                        franges_str, c_range, failed,
+                                        filter_summary)
+        passed = filter_results.passed
     else:
-        passed_final = passed_I
-        print(
-            "Removing genomes with > than {} N's resulted in dataset with < 5 genomes.\n\
-                Filtering will not commence past this stage."
-            .format(max_n_count))
-            passed_final = passed_contigs
-            print("Filtering based on contigs resulted in < 5 genomes. "
-                    "Filtering will not commence past this stage.")
+        print("Filtering based on unknown bases resulted in < 5 genomes.  "
+                "Filtering will not commence past this stage.")
 
-    failed.drop(list(passed_final.index), inplace=True)
+    for criteria in ["Assembly_Size", "MASH"]:
+        if check_df_len(passed):
+            filter_results = filter_med_ad(criteria,
+                                        passed, failed,
+                                        filter_summary, s_range,
+                                        franges_str)
+            passed = filter_results.passed
+        else:
+            print("Filtering based on {} resulted in < 5 genomes.  "
+                  "Filtering will not commence past this stage.".format(criteria))
+            break
+    
+    failed.drop(list(passed.index), inplace=True)
     filter_summary.set_value(franges_str, "Filtered", "{}/{}".format(
         len(failed), len(stats)))
-    return filter_summary, failed, passed_final
+    return filter_summary, failed, passed
 
 
 def filter_med_ad(criteria, passed, failed, filter_summary, f_range, franges_str):
