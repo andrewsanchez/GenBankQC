@@ -1,9 +1,9 @@
 import os
-import pandas as pd
-from collections import namedtuple
-from Bio import SeqIO
 import glob
 import re
+import pandas as pd
+from Bio import SeqIO
+from collections import namedtuple
 
 
 def generate_stats(species_dir, dst_mx):
@@ -64,6 +64,10 @@ def check_df_len(df, num=5):
 
 
 def filter_all(species_dir, stats, filter_ranges):
+    """
+    This function strings together all of the steps 
+    involved in filtering your genomes.
+    """
 
     max_n_count, c_range, s_range, m_range = filter_ranges
     franges_str = "{}_{}_{}".format(c_range, s_range, m_range)
@@ -75,20 +79,18 @@ def filter_all(species_dir, stats, filter_ranges):
                                                        max_n_count)
     filter_summary.set_value(franges_str, "N's", len(failed_N_count))
 
-    # Filter using special function for contigs
+    # Filter contigs
     if check_df_len(passed_N_count):
         filter_contigs_results = filter_contigs(stats, passed_N_count,
                                                 franges_str, c_range, failed,
                                                 filter_summary)
         passed_contigs = filter_contigs_results.passed
-        failed_contigs = filter_contigs_results.failed
-
         if check_df_len(passed_contigs):
             filter_assembly_size_results = filter_med_ad("Assembly_Size",
-                                                         passed_contigs, failed, filter_summary,
-                                                         s_range, franges_str)
+                                                        passed_contigs, failed,
+                                                        filter_summary, s_range,
+                                                        franges_str)
             passed_assembly_size = filter_assembly_size_results.passed
-            failed_assembly_size = filter_assembly_size_results.failed
 
             if check_df_len(passed_assembly_size):
                 filter_MASH_results = filter_med_ad("MASH",
@@ -114,6 +116,9 @@ def filter_all(species_dir, stats, filter_ranges):
             "Removing genomes with > than {} N's resulted in dataset with < 5 genomes.\n\
                 Filtering will not commence past this stage."
             .format(max_n_count))
+            passed_final = passed_contigs
+            print("Filtering based on contigs resulted in < 5 genomes. "
+                    "Filtering will not commence past this stage.")
 
     failed.drop(list(passed_final.index), inplace=True)
     filter_summary.set_value(franges_str, "Filtered", "{}/{}".format(
