@@ -59,17 +59,17 @@ def write_summary(species_dir, summary, filter_ranges):
     Write a summary of the filtering results.
     """
     max_n_count, c_range, s_range, m_range = filter_ranges
-    out = 'summary_{}-{}-{}-{}.txt'.format(max_n_count, c_range,
-                                           s_range, m_range)
+    out = 'summary_{}-{}-{}-{}.txt'.format(max_n_count, c_range, s_range,
+                                           m_range)
     out = os.path.join(species_dir, out)
-    if os.path.isfile(out):  os.remove(out)
+    if os.path.isfile(out): os.remove(out)
     with open(out, 'a') as f:
-        for k,v in summary.items():
+        for k, v in summary.items():
             f.write('{}\n'.format(k))
             f.write('Range: {}\n'.format(v[0]))
             f.write('Filtered: {}\n\n'.format(v[1]))
 
-    
+
 def check_df_len(df, num=5):
     """
     Verify that df has > than num genomes
@@ -82,7 +82,7 @@ def check_df_len(df, num=5):
 
 def filter_all(species_dir, stats, filter_ranges):
     """
-    This function strings together all of the steps 
+    This function strings together all of the steps
     involved in filtering your genomes.
     """
 
@@ -91,28 +91,28 @@ def filter_all(species_dir, stats, filter_ranges):
     failed = pd.DataFrame(index=stats.index, columns=stats.columns)
 
     # Filter based on N's first
-    passed_N_count, failed_N_count, failed = filter_Ns(stats, summary,
-                                                       failed, max_n_count)
+    passed_N_count, failed_N_count, failed = filter_Ns(stats, summary, failed,
+                                                       max_n_count)
     # Filter contigs
     if check_df_len(passed_N_count):
-        filter_results = filter_contigs(stats, passed_N_count,
-                                        c_range, failed, summary)
+        filter_results = filter_contigs(stats, passed_N_count, c_range, failed,
+                                        summary)
         passed = filter_results.passed
     else:
         print("Filtering based on unknown bases resulted in < 5 genomes.  "
-                "Filtering will not commence past this stage.")
+              "Filtering will not commence past this stage.")
 
     for criteria in ["Assembly_Size", "MASH"]:
         if check_df_len(passed):
-            filter_results = filter_med_ad(criteria,
-                                        passed, failed,
-                                        summary, s_range)
+            filter_results = filter_med_ad(criteria, passed, failed, summary,
+                                           s_range)
             passed = filter_results.passed
         else:
             print("Filtering based on {} resulted in < 5 genomes.  "
-                  "Filtering will not commence past this stage.".format(criteria))
+                  "Filtering will not commence past this stage.".format(
+                      criteria))
             break
-    
+
     failed.drop(list(passed.index), inplace=True)
     write_summary(species_dir, summary, filter_ranges)
     return failed, passed
@@ -123,13 +123,10 @@ def filter_med_ad(criteria, passed, failed, summary, f_range):
     Filter based on median absolute deviation
     """
     # Get the median absolute deviation
-    med_ad = abs(passed[criteria] -
-                          passed[criteria].median()).mean(
-                          )
+    med_ad = abs(passed[criteria] - passed[criteria].median()).mean()
     dev_ref = med_ad * f_range
-    passed = passed[
-        abs(passed[criteria] -
-            passed[criteria].median()) <= dev_ref]
+    passed = passed[abs(passed[criteria] - passed[criteria].median()) <=
+                    dev_ref]
     failed = []
     for i in passed.index:
         if i not in passed.index:
@@ -140,16 +137,14 @@ def filter_med_ad(criteria, passed, failed, summary, f_range):
 
     lower = passed[criteria].median() - dev_ref
     upper = passed[criteria].median() + dev_ref
-    summary[criteria] = ('{:.0f}-{:.0f}'.format(lower, upper),
-                         len(failed))
+    summary[criteria] = ('{:.0f}-{:.0f}'.format(lower, upper), len(failed))
     results = namedtuple("filter_results", ["passed", "failed"])
     filter_results = results(passed, failed)
 
     return filter_results
 
 
-def filter_contigs(stats, passed_N_count, c_range, failed,
-                   summary):
+def filter_contigs(stats, passed_N_count, c_range, failed, summary):
 
     contigs = passed_N_count["Contigs"]
     contigs_above_median = contigs[contigs >= contigs.median()]
@@ -184,8 +179,7 @@ def filter_contigs(stats, passed_N_count, c_range, failed,
 
     summary["Contigs"] = ("{:.0f}-{:.0f}".format(lower, upper),
                           len(failed_contigs))
-    results = namedtuple("filter_contigs_results",
-                         ["passed", "failed"])
+    results = namedtuple("filter_contigs_results", ["passed", "failed"])
     filter_contigs_results = results(passed_contigs, failed_contigs)
 
     return filter_contigs_results
