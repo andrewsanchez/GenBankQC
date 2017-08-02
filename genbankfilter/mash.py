@@ -77,15 +77,12 @@ def format_dmx(dmx_path):
     """
 
     dmx = pd.read_csv(dmx_path, index_col=0, sep="\t")
-    new_index = []
-    new_columns = []
+    genome_ids = []
     for i in dmx.index:
-        name = i.split("/")[-1].strip(".fasta")
-        new_index.append(name)
-        new_columns.append(name)
-
-    dmx.index = new_index
-    dmx.columns = new_columns
+        genome_id = re.match('.*(GCA_\d+\.\d)', i).group(1)
+        genome_ids.append(genome_id)
+    dmx.index = genome_ids
+    dmx.columns = genome_ids
     dmx.to_csv(dmx_path, sep="\t")
     return dmx
 
