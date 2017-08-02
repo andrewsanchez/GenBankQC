@@ -41,46 +41,6 @@ def generate_stats(species_dir, dst_mx):
     return stats
 
 
-def filter_Ns(stats, summary, failed, max_n_count):
-    """
-    Identify genomes with too many unknown bases.
-    """
-    passed_N_count = stats[stats["N_Count"] <= max_n_count]
-    failed_N_count = stats[stats["N_Count"] >= max_n_count]
-    failed["N_Count"][passed_N_count.index] = "+"
-    for i in failed_N_count.index:
-        failed["N_Count"][i] = stats["N_Count"][i]
-    summary["N_Count"] = (max_n_count, len(failed_N_count))
-    return passed_N_count, failed_N_count, failed
-
-
-def write_summary(species_dir, summary, filter_ranges):
-    """
-    Write a summary of the filtering results.
-    """
-    max_n_count, c_range, s_range, m_range = filter_ranges
-    out = 'summary_{}-{}-{}-{}.txt'.format(max_n_count, c_range, s_range,
-                                           m_range)
-    out = os.path.join(species_dir, out)
-    if os.path.isfile(out):
-        os.remove(out)
-    with open(out, 'a') as f:
-        for k, v in summary.items():
-            f.write('{}\n'.format(k))
-            f.write('Range: {}\n'.format(v[0]))
-            f.write('Filtered: {}\n\n'.format(v[1]))
-
-
-def check_df_len(df, num=5):
-    """
-    Verify that df has > than num genomes
-    """
-    if len(df) > num:
-        return True
-    else:
-        return False
-
-
 def filter_all(species_dir, stats, filter_ranges):
     """
     This function strings together all of the steps
@@ -118,26 +78,17 @@ def filter_all(species_dir, stats, filter_ranges):
     return failed, passed
 
 
-def filter_med_ad(criteria, passed, failed, summary, f_range):
+def filter_Ns(stats, summary, failed, max_n_count):
     """
-    Filter based on median absolute deviation
+    Identify genomes with too many unknown bases.
     """
-    # Get the median absolute deviation
-    med_ad = abs(passed[criteria] - passed[criteria].median()).mean()
-    dev_ref = med_ad * f_range
-    passed = passed[abs(passed[criteria] - passed[criteria].median()) <=
-                    dev_ref]
-    failed = passed.index[abs(passed[criteria] - passed[criteria].median()) >=
-                          dev_ref].tolist()
-
-    lower = passed[criteria].median() - dev_ref
-    upper = passed[criteria].median() + dev_ref
-    range_str = '{:.0f}-{:.0f}'.format(lower, upper)
-    summary[criteria] = (range_str, len(failed))
-    results = namedtuple("filter_results", ["passed", "failed"])
-    filter_results = results(passed, failed)
-
-    return filter_results
+    passed_N_count = stats[stats["N_Count"] <= max_n_count]
+    failed_N_count = stats[stats["N_Count"] >= max_n_count]
+    failed["N_Count"][passed_N_count.index] = "+"
+    for i in failed_N_count.index:
+        failed["N_Count"][i] = stats["N_Count"][i]
+    summary["N_Count"] = (max_n_count, len(failed_N_count))
+    return passed_N_count, failed_N_count, failed
 
 
 def filter_contigs(stats, passed_N_count, c_range, failed, summary):
@@ -177,6 +128,55 @@ def filter_contigs(stats, passed_N_count, c_range, failed, summary):
     filter_contigs_results = results(passed_contigs, failed_contigs)
 
     return filter_contigs_results
+
+
+def filter_med_ad(criteria, passed, failed, summary, f_range):
+    """
+    Filter based on median absolute deviation
+    """
+    # Get the median absolute deviation
+    med_ad = abs(passed[criteria] - passed[criteria].median()).mean()
+    dev_ref = med_ad * f_range
+    passed = passed[abs(passed[criteria] - passed[criteria].median()) <=
+                    dev_ref]
+    failed = passed.index[abs(passed[criteria] - passed[criteria].median()) >=
+                          dev_ref].tolist()
+
+    lower = passed[criteria].median() - dev_ref
+    upper = passed[criteria].median() + dev_ref
+    range_str = '{:.0f}-{:.0f}'.format(lower, upper)
+    summary[criteria] = (range_str, len(failed))
+    results = namedtuple("filter_results", ["passed", "failed"])
+    filter_results = results(passed, failed)
+
+    return filter_results
+
+
+def check_df_len(df, num=5):
+    """
+    Verify that df has > than num genomes
+    """
+    if len(df) > num:
+        return True
+    else:
+        return False
+
+
+def write_summary(species_dir, summary, filter_ranges):
+    """
+    Write a summary of the filtering results.
+    """
+    max_n_count, c_range, s_range, m_range = filter_ranges
+    out = 'summary_{}-{}-{}-{}.txt'.format(max_n_count, c_range, s_range,
+                                           m_range)
+    out = os.path.join(species_dir, out)
+    if os.path.isfile(out):
+        os.remove(out)
+    with open(out, 'a') as f:
+        for k, v in summary.items():
+            f.write('{}\n'.format(k))
+            f.write('Range: {}\n'.format(v[0]))
+            f.write('Filtered: {}\n\n'.format(v[1]))
 
 
 def stats_and_filter(species_dir, dst_mx, filter_ranges):
