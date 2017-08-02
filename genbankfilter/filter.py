@@ -7,6 +7,10 @@ from collections import namedtuple
 
 
 def generate_stats(species_dir, dst_mx):
+    """
+    Generate a data frame containing all of the stats for genomes
+    in species_dir.
+    """
 
     fastas = (f for f in os.listdir(species_dir) if f.endswith('fasta'))
     file_names, contig_totals, assembly_sizes, n_counts = [], [], [], []
@@ -141,7 +145,6 @@ def filter_med_ad(criteria, passed, failed, summary, f_range):
                     dev_ref]
     failed = passed.index[abs(passed[criteria] - passed[criteria].median()) >=
                           dev_ref].tolist()
-
     lower = passed[criteria].median() - dev_ref
     upper = passed[criteria].median() + dev_ref
     range_str = '{:.0f}-{:.0f}'.format(lower, upper)
