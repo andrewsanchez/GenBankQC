@@ -1,12 +1,16 @@
 import os
-import pandas as pd
-from collections import namedtuple
-from Bio import SeqIO
-import glob
 import re
+import shutil
+import pandas as pd
+from Bio import SeqIO
+from collections import namedtuple
 
 
 def generate_stats(species_dir, dst_mx):
+    """
+    Generate a data frame containing all of the stats for genomes
+    in species_dir.
+    """
 
     fastas = (f for f in os.listdir(species_dir) if f.endswith('fasta'))
     file_names, contig_totals, assembly_sizes, n_counts = [], [], [], []
@@ -41,7 +45,44 @@ def generate_stats(species_dir, dst_mx):
     return stats
 
 
-def filter_Ns(stats, failed, max_n_count):
+def filter_all(species_dir, stats, filter_ranges):
+    """
+    This function strings together all of the steps
+    involved in filtering your genomes.
+    """
+
+    max_n_count, c_range, s_range, m_range = filter_ranges
+    summary = {}
+    failed = pd.DataFrame(index=stats.index, columns=stats.columns)
+
+    # Filter based on N's first
+    passed_N_count, failed_N_count, failed = filter_Ns(stats, summary, failed,
+                                                       max_n_count)
+    # Filter contigs
+    if check_df_len(passed_N_count):
+        filter_results = filter_contigs(stats, passed_N_count, c_range, failed,
+                                        summary)
+        passed = filter_results.passed
+    else:
+        print("Filtering based on unknown bases resulted in < 5 genomes.  "
+              "Filtering will not commence past this stage.")
+    for criteria in ["Assembly_Size", "MASH"]:
+        if check_df_len(passed):
+            filter_results = filter_med_ad(criteria, passed, failed, summary,
+                                           s_range)
+            passed = filter_results.passed
+        else:
+            print("Filtering based on {} resulted in < 5 genomes.  "
+                  "Filtering will not commence past this stage.".format(
+                      criteria))
+            break
+
+    failed.drop(list(passed.index), inplace=True)
+    write_summary(species_dir, summary, filter_ranges)
+    return failed, passed
+
+
+def filter_Ns(stats, summary, failed, max_n_count):
     """
     Identify genomes with too many unknown bases.
     """
@@ -50,120 +91,15 @@ def filter_Ns(stats, failed, max_n_count):
     failed["N_Count"][passed_N_count.index] = "+"
     for i in failed_N_count.index:
         failed["N_Count"][i] = stats["N_Count"][i]
+    summary["N_Count"] = (max_n_count, len(failed_N_count))
     return passed_N_count, failed_N_count, failed
 
 
-def check_df_len(df, num=5):
-    """
-    Verify that df has > than num genomes
-    """
-    if len(df) > num:
-        return True
-    else:
-        return False
-
-
-def filter_all(species_dir, stats, filter_ranges):
-
-    max_n_count, c_range, s_range, m_range = filter_ranges
-    franges_str = "{}_{}_{}".format(c_range, s_range, m_range)
-    filter_summary = pd.DataFrame(index=[franges_str])
-    failed = pd.DataFrame(index=stats.index, columns=stats.columns)
-
-    # Filter based on N's first
-    passed_N_count, failed_N_count, failed = filter_Ns(stats, failed,
-                                                       max_n_count)
-    filter_summary.set_value(franges_str, "N's", len(failed_N_count))
-
-    # Filter using special function for contigs
-    if check_df_len(passed_N_count):
-        filter_contigs_results = filter_contigs(stats, passed_N_count,
-                                                franges_str, c_range, failed,
-                                                filter_summary)
-        passed_contigs = filter_contigs_results.passed
-        failed_contigs = filter_contigs_results.failed
-
-        if check_df_len(passed_contigs):
-            filter_assembly_size_results = filter_med_ad("Assembly_Size",
-                                                         passed_contigs, failed, filter_summary,
-                                                         s_range, franges_str)
-            passed_assembly_size = filter_assembly_size_results.passed
-            failed_assembly_size = filter_assembly_size_results.failed
-
-            if check_df_len(passed_assembly_size):
-                filter_MASH_results = filter_med_ad("MASH",
-                                                    passed_contigs, failed, filter_summary,
-                                                    m_range, franges_str)
-                passed_final = filter_MASH_results.passed
-                failed_MASH = filter_MASH_results.failed
-
-            else:
-                passed_final = passed_assembly_size
-                print(
-                    "Removing genomes outside the range of {}-{} for assembly size resulted in < 5 genomes.\n\
-                        Filtering will not commence past this stage."
-                    .format(assembly_lower, assembly_upper))
-        else:
-            passed_final = passed_II
-            print(
-                "Removing genomes outside the range of acceptable number of contigs resulted in < 5 genomes.\n\
-                    Filtering will not commence past this stage.")
-    else:
-        passed_final = passed_I
-        print(
-            "Removing genomes with > than {} N's resulted in dataset with < 5 genomes.\n\
-                Filtering will not commence past this stage."
-            .format(max_n_count))
-
-    failed.drop(list(passed_final.index), inplace=True)
-    filter_summary.set_value(franges_str, "Filtered", "{}/{}".format(
-        len(failed), len(stats)))
-    return filter_summary, failed, passed_final
-
-
-def filter_med_ad(criteria, passed, failed, filter_summary, f_range, franges_str):
-    """
-    Filter based on median absolute deviation
-    """
-    # Get the median absolute deviation
-    med_ad = abs(passed[criteria] -
-                          passed[criteria].median()).mean(
-                          )
-    dev_ref = med_ad * f_range
-    passed = passed[
-        abs(passed[criteria] -
-            passed[criteria].median()) <= dev_ref]
-    failed = []
-    for i in passed.index:
-        if i not in passed.index:
-            failed[criteria][i] = stats[criteria][i]
-            failed.append(i)
-        # else:
-        #     failed[criteria][i] = "+"
-
-    lower = passed[criteria].median() - dev_ref
-    upper = passed[criteria].median() + dev_ref
-    filter_summary.set_value(franges_str, criteria,
-                             len(failed))
-    filter_summary.set_value(franges_str,
-                             '{}_Range'.format(criteria),
-                             "{:.0f}-{:.0f}".format(
-                                 lower, upper))
-
-    results = namedtuple("filter_results", ["passed", "failed"])
-    filter_results = results(passed, failed)
-
-    return filter_results
-
-
-def filter_contigs(stats, passed_N_count, franges_str, c_range, failed,
-                   filter_summary):
+def filter_contigs(stats, passed_N_count, c_range, failed, summary):
 
     contigs = passed_N_count["Contigs"]
-    contigs_above_median = contigs[contigs >= contigs.median()]
-    contigs_below_median = contigs[contigs <= contigs.median()]
-    # Only look at genomes with > 10 contigs to avoid throwing off the Median AD
-    # Save genomes with < 10 contigs to add them back in later.
+    # Only look at genomes with > 10 contigs to avoid throwing off the
+    # Median AD Save genomes with < 10 contigs to add them back in later.
     not_enough_contigs = contigs[contigs <= 10]
     contigs = contigs[contigs > 10]
     contigs_med_ad = abs(contigs -
@@ -172,12 +108,12 @@ def filter_contigs(stats, passed_N_count, franges_str, c_range, failed,
     contigs = contigs[abs(contigs - contigs.median()) <= contigs_dev_ref]
     # Add genomes with < 10 contigs back in
     contigs = pd.concat([contigs, not_enough_contigs])
-    contigs_lower = contigs.median() - contigs_dev_ref
-    contigs_upper = contigs.median() + contigs_dev_ref
+    lower = contigs.median() - contigs_dev_ref
+    upper = contigs.median() + contigs_dev_ref
 
     # Avoid returning empty DataFrame when no genomes are removed above
     if len(contigs) == len(passed_N_count):
-        passed_contigs = passed_I
+        passed_contigs = passed_N_count
         failed_contigs = []
     else:
         failed_contigs = [
@@ -190,25 +126,67 @@ def filter_contigs(stats, passed_N_count, franges_str, c_range, failed,
         for i in contigs.index:
             failed["Contigs"][i] = "+"
 
-    filter_summary.set_value(franges_str, "Contigs", len(failed_contigs))
-    filter_summary.set_value(franges_str,
-                             "Contigs_Range", "{:.0f}-{:.0f}".format(
-                                 contigs_lower, contigs_upper))
-
-    results = namedtuple("filter_contigs_results",
-                                        ["passed", "failed"])
+    range_str = "{:.0f}-{:.0f}".format(lower, upper)
+    summary["Contigs"] = (range_str, len(failed_contigs))
+    results = namedtuple("filter_contigs_results", ["passed", "failed"])
     filter_contigs_results = results(passed_contigs, failed_contigs)
 
     return filter_contigs_results
+
+
+def filter_med_ad(criteria, passed, failed, summary, f_range):
+    """
+    Filter based on median absolute deviation
+    """
+    # Get the median absolute deviation
+    med_ad = abs(passed[criteria] - passed[criteria].median()).mean()
+    dev_ref = med_ad * f_range
+    passed = passed[abs(passed[criteria] - passed[criteria].median()) <=
+                    dev_ref]
+    failed = passed.index[abs(passed[criteria] - passed[criteria].median()) >=
+                          dev_ref].tolist()
+    lower = passed[criteria].median() - dev_ref
+    upper = passed[criteria].median() + dev_ref
+    range_str = '{:.0f}-{:.0f}'.format(lower, upper)
+    summary[criteria] = (range_str, len(failed))
+    results = namedtuple("filter_results", ["passed", "failed"])
+    filter_results = results(passed, failed)
+
+    return filter_results
+
+
+def check_df_len(df, num=5):
+    """
+    Verify that df has > than num genomes
+    """
+    if len(df) > num:
+        return True
+    else:
+        return False
+
+
+def write_summary(species_dir, summary, filter_ranges):
+    """
+    Write a summary of the filtering results.
+    """
+    max_n_count, c_range, s_range, m_range = filter_ranges
+    out = 'summary_{}-{}-{}-{}.txt'.format(max_n_count, c_range, s_range,
+                                           m_range)
+    out = os.path.join(species_dir, out)
+    if os.path.isfile(out):
+        os.remove(out)
+    with open(out, 'a') as f:
+        for k, v in summary.items():
+            f.write('{}\n'.format(k))
+            f.write('Range: {}\n'.format(v[0]))
+            f.write('Filtered: {}\n\n'.format(v[1]))
 
 
 def stats_and_filter(species_dir, dst_mx, filter_ranges):
     stats = generate_stats(species_dir, dst_mx)
     stats.to_csv(os.path.join(species_dir, 'stats.csv'))
     results = filter_all(species_dir, stats, filter_ranges)
-    filter_summary, failed, passed_final = results
-    filter_summary.to_csv(
-        os.path.join(species_dir, 'summary.csv'), index_label='Filter Ranges')
+    failed, passed_final = results
     failed.to_csv(os.path.join(species_dir, 'failed.csv'))
     passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
 
@@ -273,47 +251,3 @@ def clean_up(species_dir):
     for f in files:
         if os.path.isfile(f):
             os.remove(f)
-
-
-# Convenience
-def pre_process_all(genbank_mirror):
-
-    x = 1
-    total_species = len(os.listdir(genbank_mirror))
-    for d in os.listdir(genbank_mirror):
-        fasta_dir = os.path.join(genbank_mirror, d)
-        info_dir = os.path.join(fasta_dir, "info")
-        all_dist = os.path.join(genbank_mirror, d, "all_dist.msh")
-        if not os.path.isfile(all_dist):
-            try:
-                dst_mx = pd.read_csv(all_dist, index_col=0, delimiter="\t")
-                clean_up_matrix(info_dir, dst_mx)  # cleans up matrix in place
-                print("Formatted matrix for {}".format(d))
-                print("{} out of {}".format(x, total_species))
-                x += 1
-            except FileNotFoundError:
-                continue
-            except pd.io.parsers.EmptyDataError:
-                continue
-        else:
-            continue
-
-
-# Convenience
-def generate_stats_genbank(genbank_mirror):
-
-    x = 1
-    all_genbank_species = os.listdir(genbank_mirror)
-    for d in all_genbank_species:
-        print("generating stats for {}".format(d))
-        fasta_dir = os.path.join(genbank_mirror, d)
-        info_dir = os.path.join(fasta_dir, "info")
-        dst_mx_all = os.path.join(info_dir, "dst_mx_all.csv")
-        stats = os.path.join(info_dir, "stats.csv")
-        if os.path.isfile(dst_mx_all) and not os.path.isfile(stats):
-            generate_fasta_stats(fasta_dir,
-                                 pd.read_csv(
-                                     dst_mx_all, index_col=0, delimiter="\t"))
-            print("Generated stats for {} out of {}".format(
-                x, len(all_genbank_species)))
-            x += 1
