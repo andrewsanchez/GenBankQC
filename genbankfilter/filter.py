@@ -2,11 +2,15 @@ import os
 import re
 import shutil
 import pandas as pd
+import numpy as np
 from Bio import SeqIO
+from Bio import Phylo
+from Bio.Phylo.TreeConstruction import _DistanceMatrix
+from Bio.Phylo.TreeConstruction import DistanceTreeConstructor
 from collections import namedtuple
 
 
-def generate_stats(species_dir, dst_mx):
+def generate_stats(species_dir, dmx):
     """
     Generate a data frame containing all of the stats for genomes
     in species_dir.
@@ -35,7 +39,7 @@ def generate_stats(species_dir, dst_mx):
         n_counts.append(sum(N_Count))
 
     SeqDataSet = list(
-        zip(n_counts, contig_totals, assembly_sizes, dst_mx.mean()))
+        zip(n_counts, contig_totals, assembly_sizes, dmx.mean()))
     stats = pd.DataFrame(
         data=SeqDataSet,
         index=file_names,
@@ -182,8 +186,30 @@ def write_summary(species_dir, summary, filter_ranges):
             f.write('Filtered: {}\n\n'.format(v[1]))
 
 
-def stats_and_filter(species_dir, dst_mx, filter_ranges):
-    stats = generate_stats(species_dir, dst_mx)
+def dmx_to_tree(dmx):
+    """
+    Convert dmx to a nested representation of the
+    lower diagonal of the distance matrix. Generate
+    a _DistanceMatrix object and construct a tree.
+    """
+    m = dmx.as_matrix()
+    trild = np.tril(m, k=0)
+
+    nested_dmx = []
+    mx_len = len(trild)
+    for i in np.arange(0, mx_len):
+        tmp = trild[i, :i+1]
+        nested_dmx.append(tmp.tolist())
+
+    names = dmx.index.tolist()
+    bio_dmx = _DistanceMatrix(names, nested_dmx)
+    constructor = DistanceTreeConstructor()
+    tree = constructor.nj(bio_dmx)
+    return tree
+
+
+def stats_and_filter(species_dir, dmx, filter_ranges):
+    stats = generate_stats(species_dir, dmx)
     stats.to_csv(os.path.join(species_dir, 'stats.csv'))
     results = filter_all(species_dir, stats, filter_ranges)
     failed, passed_final = results
@@ -240,14 +266,14 @@ def link_passed_genomes(species_dir, passed_final, passed_dir):
 def clean_up(species_dir):
 
     sketch_file = os.path.join(species_dir, "all.msh")
-    dst_mx = os.path.join(species_dir, "dst_mx.csv")
+    dmx = os.path.join(species_dir, "dmx.csv")
     filter_log = os.path.join(species_dir, "filter_log.txt")
 
     info = os.path.join(species_dir, "info")
     if not os.path.isdir(info):
         os.mkdir(info)
 
-    files = [sketch_file, dst_mx, filter_log]
+    files = [sketch_file, dmx, filter_log]
     for f in files:
         if os.path.isfile(f):
             os.remove(f)

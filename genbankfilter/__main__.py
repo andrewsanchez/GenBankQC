@@ -100,8 +100,8 @@ def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range,
     #         mash_stats_and_filter()
 
     if filter_only:
-        dst_mx = pd.read_csv(os.path.join(species_dir, 'dst_mx.txt'), index_col=0, sep="\t")
-        filter.stats_and_filter(species_dir, dst_mx, filter_ranges)
+        dmx = pd.read_csv(os.path.join(species_dir, 'dmx.txt'), index_col=0, sep="\t")
+        filter.stats_and_filter(species_dir, dmx, filter_ranges)
     else:
-        dst_mx = mash.mash(species_dir)
-        filter.stats_and_filter(species_dir, dst_mx, filter_ranges)
+        dmx = mash.mash(species_dir)
+        filter.stats_and_filter(species_dir, dmx, filter_ranges)
