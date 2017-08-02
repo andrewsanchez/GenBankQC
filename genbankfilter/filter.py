@@ -102,7 +102,6 @@ def filter_all(species_dir, stats, filter_ranges):
     else:
         print("Filtering based on unknown bases resulted in < 5 genomes.  "
               "Filtering will not commence past this stage.")
-
     for criteria in ["Assembly_Size", "MASH"]:
         if check_df_len(passed):
             filter_results = filter_med_ad(criteria, passed, failed, summary,
@@ -128,17 +127,13 @@ def filter_med_ad(criteria, passed, failed, summary, f_range):
     dev_ref = med_ad * f_range
     passed = passed[abs(passed[criteria] - passed[criteria].median()) <=
                     dev_ref]
-    failed = []
-    for i in passed.index:
-        if i not in passed.index:
-            failed[criteria][i] = stats[criteria][i]
-            failed.append(i)
-        # else:
-        #     failed[criteria][i] = "+"
+    failed = passed.index[abs(passed[criteria] - passed[criteria].median()) >=
+                          dev_ref].tolist()
 
     lower = passed[criteria].median() - dev_ref
     upper = passed[criteria].median() + dev_ref
-    summary[criteria] = ('{:.0f}-{:.0f}'.format(lower, upper), len(failed))
+    range_str = '{:.0f}-{:.0f}'.format(lower, upper)
+    summary[criteria] = (range_str, len(failed))
     results = namedtuple("filter_results", ["passed", "failed"])
     filter_results = results(passed, failed)
 
@@ -148,8 +143,6 @@ def filter_med_ad(criteria, passed, failed, summary, f_range):
 def filter_contigs(stats, passed_N_count, c_range, failed, summary):
 
     contigs = passed_N_count["Contigs"]
-    contigs_above_median = contigs[contigs >= contigs.median()]
-    contigs_below_median = contigs[contigs <= contigs.median()]
     # Only look at genomes with > 10 contigs to avoid throwing off the
     # Median AD Save genomes with < 10 contigs to add them back in later.
     not_enough_contigs = contigs[contigs <= 10]
@@ -165,7 +158,7 @@ def filter_contigs(stats, passed_N_count, c_range, failed, summary):
 
     # Avoid returning empty DataFrame when no genomes are removed above
     if len(contigs) == len(passed_N_count):
-        passed_contigs = passed_I
+        passed_contigs = passed_N_count
         failed_contigs = []
     else:
         failed_contigs = [
@@ -178,8 +171,8 @@ def filter_contigs(stats, passed_N_count, c_range, failed, summary):
         for i in contigs.index:
             failed["Contigs"][i] = "+"
 
-    summary["Contigs"] = ("{:.0f}-{:.0f}".format(lower, upper),
-                          len(failed_contigs))
+    range_str = "{:.0f}-{:.0f}".format(lower, upper)
+    summary["Contigs"] = (range_str, len(failed_contigs))
     results = namedtuple("filter_contigs_results", ["passed", "failed"])
     filter_contigs_results = results(passed_contigs, failed_contigs)
 
