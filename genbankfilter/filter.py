@@ -1,6 +1,6 @@
 import os
-import glob
 import re
+import shutil
 import pandas as pd
 from Bio import SeqIO
 from collections import namedtuple
@@ -62,7 +62,8 @@ def write_summary(species_dir, summary, filter_ranges):
     out = 'summary_{}-{}-{}-{}.txt'.format(max_n_count, c_range, s_range,
                                            m_range)
     out = os.path.join(species_dir, out)
-    if os.path.isfile(out): os.remove(out)
+    if os.path.isfile(out):
+        os.remove(out)
     with open(out, 'a') as f:
         for k, v in summary.items():
             f.write('{}\n'.format(k))
@@ -149,8 +150,8 @@ def filter_contigs(stats, passed_N_count, c_range, failed, summary):
     contigs = passed_N_count["Contigs"]
     contigs_above_median = contigs[contigs >= contigs.median()]
     contigs_below_median = contigs[contigs <= contigs.median()]
-    # Only look at genomes with > 10 contigs to avoid throwing off the Median AD
-    # Save genomes with < 10 contigs to add them back in later.
+    # Only look at genomes with > 10 contigs to avoid throwing off the
+    # Median AD Save genomes with < 10 contigs to add them back in later.
     not_enough_contigs = contigs[contigs <= 10]
     contigs = contigs[contigs > 10]
     contigs_med_ad = abs(contigs -
@@ -254,47 +255,3 @@ def clean_up(species_dir):
     for f in files:
         if os.path.isfile(f):
             os.remove(f)
-
-
-# Convenience
-def pre_process_all(genbank_mirror):
-
-    x = 1
-    total_species = len(os.listdir(genbank_mirror))
-    for d in os.listdir(genbank_mirror):
-        fasta_dir = os.path.join(genbank_mirror, d)
-        info_dir = os.path.join(fasta_dir, "info")
-        all_dist = os.path.join(genbank_mirror, d, "all_dist.msh")
-        if not os.path.isfile(all_dist):
-            try:
-                dst_mx = pd.read_csv(all_dist, index_col=0, delimiter="\t")
-                clean_up_matrix(info_dir, dst_mx)  # cleans up matrix in place
-                print("Formatted matrix for {}".format(d))
-                print("{} out of {}".format(x, total_species))
-                x += 1
-            except FileNotFoundError:
-                continue
-            except pd.io.parsers.EmptyDataError:
-                continue
-        else:
-            continue
-
-
-# Convenience
-def generate_stats_genbank(genbank_mirror):
-
-    x = 1
-    all_genbank_species = os.listdir(genbank_mirror)
-    for d in all_genbank_species:
-        print("generating stats for {}".format(d))
-        fasta_dir = os.path.join(genbank_mirror, d)
-        info_dir = os.path.join(fasta_dir, "info")
-        dst_mx_all = os.path.join(info_dir, "dst_mx_all.csv")
-        stats = os.path.join(info_dir, "stats.csv")
-        if os.path.isfile(dst_mx_all) and not os.path.isfile(stats):
-            generate_fasta_stats(fasta_dir,
-                                 pd.read_csv(
-                                     dst_mx_all, index_col=0, delimiter="\t"))
-            print("Generated stats for {} out of {}".format(
-                x, len(all_genbank_species)))
-            x += 1
