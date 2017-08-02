@@ -54,40 +54,40 @@ def paste(species_dir):
 
 def dist(species_dir):
 
-    dst_mx_path = os.path.join(species_dir, 'dst_mx.txt')
+    dmx_path = os.path.join(species_dir, 'dmx.txt')
     paste_file = os.path.join(species_dir, 'all.msh')
-    remove_old(dst_mx_path)
+    remove_old(dmx_path)
     dist_cmd = "mash dist -t '{}' '{}' > '{}'".format(paste_file, paste_file,
-                                                      dst_mx_path)
+                                                      dmx_path)
     subprocess.Popen(dist_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
-    dst_mx = format_dst_mx(dst_mx_path)
-    return dst_mx
+    dmx = format_dmx(dmx_path)
+    return dmx
 
 
 def mash(species_dir):
     sketch_dir(species_dir)
     paste(species_dir)
-    dst_mx = dist(species_dir)
-    return dst_mx
+    dmx = dist(species_dir)
+    return dmx
 
 
-def format_dst_mx(dst_mx_path):
+def format_dmx(dmx_path):
     """
     Set indices and headers to the accession ID's
     """
 
-    dst_mx = pd.read_csv(dst_mx_path, index_col=0, sep="\t")
+    dmx = pd.read_csv(dmx_path, index_col=0, sep="\t")
     new_index = []
     new_columns = []
-    for i in dst_mx.index:
+    for i in dmx.index:
         name = i.split("/")[-1].strip(".fasta")
         new_index.append(name)
         new_columns.append(name)
 
-    dst_mx.index = new_index
-    dst_mx.columns = new_columns
-    dst_mx.to_csv(dst_mx_path, sep="\t")
-    return dst_mx
+    dmx.index = new_index
+    dmx.columns = new_columns
+    dmx.to_csv(dmx_path, sep="\t")
+    return dmx
 
 
 def remove_old(f):
