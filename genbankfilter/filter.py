@@ -49,7 +49,7 @@ def generate_stats(species_dir, dmx):
     return stats
 
 
-def filter_all(species_dir, stats, filter_ranges):
+def filter_all(species_dir, stats, tree, filter_ranges):
     """
     This function strings together all of the steps
     involved in filtering your genomes.
@@ -61,11 +61,11 @@ def filter_all(species_dir, stats, filter_ranges):
 
     # Filter based on N's first
     passed_N_count, failed_N_count, failed = filter_Ns(stats, summary, failed,
-                                                       max_n_count)
+                                                       tree, max_n_count)
     # Filter contigs
     if check_df_len(passed_N_count):
         filter_results = filter_contigs(stats, passed_N_count, c_range, failed,
-                                        summary)
+                                        summary, tree)
         passed = filter_results.passed
     else:
         print("Filtering based on unknown bases resulted in < 5 genomes.  "
@@ -73,7 +73,7 @@ def filter_all(species_dir, stats, filter_ranges):
     for criteria in ["Assembly_Size", "MASH"]:
         if check_df_len(passed):
             filter_results = filter_med_ad(criteria, passed, failed, summary,
-                                           s_range)
+                                           tree, s_range)
             passed = filter_results.passed
         else:
             print("Filtering based on {} resulted in < 5 genomes.  "
@@ -83,10 +83,12 @@ def filter_all(species_dir, stats, filter_ranges):
 
     failed.drop(list(passed.index), inplace=True)
     write_summary(species_dir, summary, filter_ranges)
+    Phylo.write(tree, 'tree.xml', 'phyloxml')
+    Phylo.write(tree, 'tree.nxs', 'nexus')
     return failed, passed
 
 
-def filter_Ns(stats, summary, failed, max_n_count):
+def filter_Ns(stats, summary, failed, tree, max_n_count):
     """
     Identify genomes with too many unknown bases.
     """
@@ -96,10 +98,11 @@ def filter_Ns(stats, summary, failed, max_n_count):
     for i in failed_N_count.index:
         failed["N_Count"][i] = stats["N_Count"][i]
     summary["N_Count"] = (max_n_count, len(failed_N_count))
+    color_clade(tree, 'red', failed_N_count.index)
     return passed_N_count, failed_N_count, failed
 
 
-def filter_contigs(stats, passed_N_count, c_range, failed, summary):
+def filter_contigs(stats, passed_N_count, c_range, failed, summary, tree):
 
     contigs = passed_N_count["Contigs"]
     # Only look at genomes with > 10 contigs to avoid throwing off the
@@ -129,7 +132,7 @@ def filter_contigs(stats, passed_N_count, c_range, failed, summary):
             failed["Contigs"][i] = stats["Contigs"][i]
         for i in contigs.index:
             failed["Contigs"][i] = "+"
-
+    color_clade(tree, 'blue', failed_contigs)
     range_str = "{:.0f}-{:.0f}".format(lower, upper)
     summary["Contigs"] = (range_str, len(failed_contigs))
     results = namedtuple("filter_contigs_results", ["passed", "failed"])
@@ -138,7 +141,7 @@ def filter_contigs(stats, passed_N_count, c_range, failed, summary):
     return filter_contigs_results
 
 
-def filter_med_ad(criteria, passed, failed, summary, f_range):
+def filter_med_ad(criteria, passed, failed, summary, tree, f_range):
     """
     Filter based on median absolute deviation
     """
@@ -155,7 +158,8 @@ def filter_med_ad(criteria, passed, failed, summary, f_range):
     summary[criteria] = (range_str, len(failed))
     results = namedtuple("filter_results", ["passed", "failed"])
     filter_results = results(passed, failed)
-
+    # need a way to dynamically color based on criteria
+    color_clade(tree, 'green', failed)
     return filter_results
 
 
@@ -208,10 +212,21 @@ def dmx_to_tree(dmx):
     return tree
 
 
+def color_clade(tree, rbg, to_color):
+    """
+    Color the tree
+    """
+    for genome in to_color:
+        genome_id = re.match('.*(GCA_\d+\.\d)', genome).group(1)
+        clade = next(tree.find_clades(name=genome_id))
+        clade.color = rbg
+
+
 def stats_and_filter(species_dir, dmx, filter_ranges):
     stats = generate_stats(species_dir, dmx)
     stats.to_csv(os.path.join(species_dir, 'stats.csv'))
-    results = filter_all(species_dir, stats, filter_ranges)
+    tree = dmx_to_tree(dmx)
+    results = filter_all(species_dir, stats, tree, filter_ranges)
     failed, passed_final = results
     failed.to_csv(os.path.join(species_dir, 'failed.csv'))
     passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
