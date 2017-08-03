@@ -12,9 +12,11 @@ setup(name=package,
       install_requires=[
           'click',
           'ncbitk',
+          'biopython',
+          'matplotlib'
       ],
       entry_points='''
       [console_scripts]
       gbfilter=genbankfilter.__main__:cli
       ''',
-)
+      )
