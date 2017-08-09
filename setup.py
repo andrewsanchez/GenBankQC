@@ -11,9 +11,11 @@ setup(name=package,
       url='',
       install_requires=[
           'click',
-          'ncbitk',
+          'pandas',
           'biopython',
-          'matplotlib'
+          'matplotlib',
+          'scipy',
+          'ncbitk',
       ],
       entry_points='''
       [console_scripts]
