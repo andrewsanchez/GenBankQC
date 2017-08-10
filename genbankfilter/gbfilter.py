@@ -83,8 +83,10 @@ def filter_all(species_dir, stats, tree, filter_ranges):
 
     failed.drop(list(passed.index), inplace=True)
     write_summary(species_dir, summary, filter_ranges)
-    Phylo.write(tree, 'tree.xml', 'phyloxml')
-    Phylo.write(tree, 'tree.nxs', 'nexus')
+    tree.render(os.path.join(species_dir, 'tree.png'))
+    tree.render(os.path.join(species_dir, 'tree.svg'))
+    tree.render(os.path.join(species_dir, 'tree.pdf'))
+    tree.show()
     return failed, passed
 
 
@@ -132,7 +134,7 @@ def filter_contigs(stats, passed_N_count, c_range, failed, summary, tree):
             failed["Contigs"][i] = stats["Contigs"][i]
         for i in contigs.index:
             failed["Contigs"][i] = "+"
-    color_clade(tree, 'blue', failed_contigs)
+    color_clade(tree, 'pink', failed_contigs)
     range_str = "{:.0f}-{:.0f}".format(lower, upper)
     summary["Contigs"] = (range_str, len(failed_contigs))
     results = namedtuple("filter_contigs_results", ["passed", "failed"])
@@ -190,12 +192,14 @@ def write_summary(species_dir, summary, filter_ranges):
             f.write('Filtered: {}\n\n'.format(v[1]))
 
 
-def dmx_to_tree(dmx):
+def dmx_to_tree(dmx, species_dir):
     """
     Convert dmx to a nested representation of the
     lower diagonal of the distance matrix. Generate
     a _DistanceMatrix object and construct a tree.
     """
+    from ete3 import Tree
+    nw_file = os.path.join(species_dir, 'tree.nw')
     m = dmx.as_matrix()
     trild = np.tril(m, k=0)
 
@@ -209,23 +213,40 @@ def dmx_to_tree(dmx):
     bio_dmx = _DistanceMatrix(names, nested_dmx)
     constructor = DistanceTreeConstructor()
     tree = constructor.nj(bio_dmx)
+    Phylo.write(tree, nw_file, 'newick')
+    tree = Tree(nw_file, 1)
+    tree = style_tree(tree)
     return tree
 
 
-def color_clade(tree, rbg, to_color):
+def style_tree(tree):
+    from ete3 import NodeStyle
+    nstyle = NodeStyle()
+    nstyle["shape"] = "sphere"
+    nstyle["size"] = 2
+    nstyle["fgcolor"] = "black"
+    for n in tree.traverse():
+        n.set_style(nstyle)
+    return tree
+
+
+def color_clade(tree, rgb, to_color):
+    """Color nodes using ete3
     """
-    Color the tree
-    """
+    from ete3 import NodeStyle
     for genome in to_color:
-        genome_id = re.match('.*(GCA_\d+\.\d)', genome).group(1)
-        clade = next(tree.find_clades(name=genome_id))
-        clade.color = rbg
+        genome = re.match('.*(GCA_\d+\.\d)', genome).group(1)
+        n = tree.get_leaves_by_name(genome).pop()
+        nstyle = NodeStyle()
+        nstyle["fgcolor"] = rgb
+        nstyle["size"] = 5
+        n.set_style(nstyle)
 
 
 def stats_and_filter(species_dir, dmx, filter_ranges):
     stats = generate_stats(species_dir, dmx)
     stats.to_csv(os.path.join(species_dir, 'stats.csv'))
-    tree = dmx_to_tree(dmx)
+    tree = dmx_to_tree(dmx, species_dir)
     results = filter_all(species_dir, stats, tree, filter_ranges)
     failed, passed_final = results
     failed.to_csv(os.path.join(species_dir, 'failed.csv'))

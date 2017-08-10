@@ -1,2 +1,2 @@
 import genbankfilter.mash as mash
-import genbankfilter.filter as filter
+import genbankfilter.gbfilter as gbfilter

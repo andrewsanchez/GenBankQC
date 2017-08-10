@@ -52,12 +52,12 @@ class TestMash(unittest.TestCase):
         mash.sketch_dir(self.genbank)
         all_msh = mash.paste(self.species_dir)
         dst_mx = mash.dist(self.species_dir)
-        stats = filter.generate_stats(self.species_dir, dst_mx)
+        stats = gbfilter.generate_stats(self.species_dir, dst_mx)
         filter_ranges = 200, 2, 2, 2
-        filter_summary, failed, passed_final = filter.filter_med_ad(
+        filter_summary, failed, passed_final = gbfilter.filter_med_ad(
             self.species_dir, stats, filter_ranges)
-        passed_dir = filter.check_passed_dir(self.species_dir)
-        filter.link_passed_genomes(self.species_dir, passed_final, passed_dir)
+        passed_dir = gbfilter.check_passed_dir(self.species_dir)
+        gbfilter.link_passed_genomes(self.species_dir, passed_final, passed_dir)
         self.assertTrue(os.path.isfile(all_msh))
         self.assertIsInstance(dst_mx, pd.DataFrame)
         self.assertIsInstance(stats, pd.DataFrame)

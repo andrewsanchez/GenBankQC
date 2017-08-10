@@ -5,7 +5,7 @@ import pandas as pd
 import click
 
 from genbankfilter import mash
-from genbankfilter import filter
+from genbankfilter import gbfilter
 
 
 def just_filter():
@@ -88,7 +88,7 @@ def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range,
     click.echo('Assembly size:  {}'.format(s_range))
     click.echo('MASH distances:  {}'.format(m_range))
 
-    if not filter.min_fastas_check(species_dir):
+    if not gbfilter.min_fastas_check(species_dir):
         click.echo("{} contains less than 5 genomes.".format(species_dir))
         pass
     # elif os.path.isfile(os.path.join(species_dir, "info", "stats.csv")):
@@ -101,7 +101,7 @@ def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range,
 
     if filter_only:
         dmx = pd.read_csv(os.path.join(species_dir, 'dmx.txt'), index_col=0, sep="\t")
-        filter.stats_and_filter(species_dir, dmx, filter_ranges)
+        gbfilter.stats_and_filter(species_dir, dmx, filter_ranges)
     else:
         dmx = mash.mash(species_dir)
-        filter.stats_and_filter(species_dir, dmx, filter_ranges)
+        gbfilter.stats_and_filter(species_dir, dmx, filter_ranges)

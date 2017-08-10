@@ -2,8 +2,6 @@
 
 import os
 import re
-import argparse
-import glob
 import subprocess
 import pandas as pd
 
