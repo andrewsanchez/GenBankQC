@@ -19,6 +19,6 @@ setup(name=package,
       ],
       entry_points='''
       [console_scripts]
-      gbfilter=genbankfilter.__main__:cli
+      gbf=genbankfilter.__main__:cli
       ''',
       )

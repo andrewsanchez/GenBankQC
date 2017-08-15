@@ -3,9 +3,8 @@ import argparse
 import logging
 import pandas as pd
 import click
-
-from genbankfilter import mash
-from genbankfilter import gbfilter
+import genbankfilter.filter as gbf
+import genbankfilter.mash as mash
 
 
 def just_filter():
