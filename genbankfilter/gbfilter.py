@@ -219,6 +219,20 @@ def dmx_to_tree(dmx, species_dir):
     return tree
 
 
+def nested_matrix(matrix):
+    """
+    Create a nested representation of the
+    lower triangular matrix
+    """
+    trild = np.tril(matrix, k=0)
+    nested_dmx = []
+    mx_len = len(trild)
+    for i in np.arange(0, mx_len):
+        tmp = trild[i, :i+1]
+        nested_dmx.append(tmp.tolist())
+    return nested_dmx
+
+
 def style_tree(tree):
     from ete3 import NodeStyle
     nstyle = NodeStyle()
