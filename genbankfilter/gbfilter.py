@@ -100,7 +100,7 @@ def filter_Ns(stats, summary, failed, tree, max_n_count):
     for i in failed_N_count.index:
         failed["N_Count"][i] = stats["N_Count"][i]
     summary["N_Count"] = (max_n_count, len(failed_N_count))
-    color_clade(tree, 'red', failed_N_count.index)
+    color_clade(tree, 'N_Count', failed_N_count.index)
     return passed_N_count, failed_N_count, failed
 
 
@@ -134,7 +134,7 @@ def filter_contigs(stats, passed_N_count, c_range, failed, summary, tree):
             failed["Contigs"][i] = stats["Contigs"][i]
         for i in contigs.index:
             failed["Contigs"][i] = "+"
-    color_clade(tree, 'pink', failed_contigs)
+    color_clade(tree, 'Contigs', failed_contigs)
     range_str = "{:.0f}-{:.0f}".format(lower, upper)
     summary["Contigs"] = (range_str, len(failed_contigs))
     results = namedtuple("filter_contigs_results", ["passed", "failed"])
@@ -161,7 +161,7 @@ def filter_med_ad(criteria, passed, failed, summary, tree, f_range):
     results = namedtuple("filter_results", ["passed", "failed"])
     filter_results = results(passed, failed)
     # need a way to dynamically color based on criteria
-    color_clade(tree, 'green', failed)
+    color_clade(tree, criteria, failed)
     return filter_results
 
 
@@ -230,15 +230,21 @@ def style_tree(tree):
     return tree
 
 
-def color_clade(tree, rgb, to_color):
+def color_clade(tree, criteria, to_color):
     """Color nodes using ete3
     """
     from ete3 import NodeStyle
+
+    colors = {"N_Count": "red",
+              "Contigs": "green",
+              "MASH": "blue",
+              "Assembly_Size": "yellow"}
+
     for genome in to_color:
         genome = re.match('.*(GCA_\d+\.\d)', genome).group(1)
         n = tree.get_leaves_by_name(genome).pop()
         nstyle = NodeStyle()
-        nstyle["fgcolor"] = rgb
+        nstyle["fgcolor"] = colors[criteria]
         nstyle["size"] = 5
         n.set_style(nstyle)
 
