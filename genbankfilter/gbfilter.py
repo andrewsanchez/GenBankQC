@@ -266,6 +266,18 @@ def stats_and_filter(species_dir, dmx, filter_ranges):
     passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
 
 
+def filter_only(species_dir, dmx, filter_ranges):
+    dmx = os.path.join(species_dir, 'dmx.txt')
+    dmx = pd.read_csv(dmx, index_col=0, sep="\t")
+    stats = os.path.join(species_dir, 'stats.csv')
+    stats = pd.read_csv(stats, index_col=0)
+    tree = dmx_to_tree(dmx, species_dir)
+    results = filter_all(species_dir, stats, tree, filter_ranges)
+    failed, passed_final = results
+    failed.to_csv(os.path.join(species_dir, 'failed.csv'))
+    passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
+
+
 def assess_fastas(fasta_dir):
 
     # Check for empty FASTA's and move them before running MASH
