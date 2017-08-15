@@ -201,15 +201,8 @@ def dmx_to_tree(dmx, species_dir):
     from ete3 import Tree
     nw_file = os.path.join(species_dir, 'tree.nw')
     m = dmx.as_matrix()
-    trild = np.tril(m, k=0)
-
-    nested_dmx = []
-    mx_len = len(trild)
-    for i in np.arange(0, mx_len):
-        tmp = trild[i, :i+1]
-        nested_dmx.append(tmp.tolist())
-
     names = dmx.index.tolist()
+    nested_dmx = nested_matrix(m)
     bio_dmx = _DistanceMatrix(names, nested_dmx)
     constructor = DistanceTreeConstructor()
     tree = constructor.nj(bio_dmx)
