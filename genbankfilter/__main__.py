@@ -41,8 +41,7 @@ def stats_are_current():
     '-l',
     '--filter-level',
     help='Value to be used for all filters',
-    type=float,
-    default=3.0)
+    type=float,)
 @click.option(
     '-n',
     '--max_n_count',
@@ -53,20 +52,23 @@ def stats_are_current():
     '-c',
     '--c-range',
     help='Filtering level for number of contigs',
-    type=float)
+    type=float,
+    default=3.0)
 @click.option(
     '-s',
     '--s-range',
     help='Filtering level for the assembly size',
-    type=float)
+    type=float,
+    default=3.0)
 @click.option(
-    '-m', '--m-range', help='Filtering level for MASH distances', type=float)
+    '-m', '--m-range', help='Filtering level for MASH distances', type=float,
+    default=3.0)
 @click.option(
     '-f',
     '--filter-only',
-    help="Run filtering without running MASH.  Use this option "
-    "if your species directory already contains the distance matrix "
-    "and you want to run the filters with different parameters",
+    help="Run filtering without running MASH or stats.  Use this option "
+    "if your species directory already contains the distance matrix, "
+    "stats.csv, and you want to run the filters with different parameters",
     default=False,
     is_flag=True)
 @click.argument('species-dir', type=click.Path(exists=True, file_okay=False))
@@ -77,11 +79,9 @@ def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range,
     """
 
     if filter_level:
-        c_range = filter_level
-        s_range = filter_level
-        m_range = filter_level
-
-    filter_ranges = max_n_count, c_range, s_range, m_range
+        filter_ranges = max_n_count, filter_level, filter_level, filter_level
+    else:
+        filter_ranges = max_n_count, c_range, s_range, m_range
     click.echo('Filtering levels:')
     click.echo('Max Unknowns:  {}'.format(max_n_count))
     click.echo('Contigs:  {}'.format(c_range))
@@ -100,8 +100,7 @@ def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range,
     #         mash_stats_and_filter()
 
     if filter_only:
-        dmx = pd.read_csv(os.path.join(species_dir, 'dmx.txt'), index_col=0, sep="\t")
-        gbfilter.stats_and_filter(species_dir, dmx, filter_ranges)
+        gbfilter.filter_only(species_dir, dmx, filter_ranges)
     else:
         dmx = mash.mash(species_dir)
         gbfilter.stats_and_filter(species_dir, dmx, filter_ranges)
