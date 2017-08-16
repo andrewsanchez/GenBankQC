@@ -35,7 +35,6 @@ def sketch_dir(directory):
 
     genome_paths = find_all_genome_paths(directory)
     for genome_path in genome_paths:
-        genome_path = os.path.join(directory, genome_path)
         sketch_genome(genome_path)
 
 
