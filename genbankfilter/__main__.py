@@ -87,7 +87,7 @@ def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range,
     click.echo('Assembly size:  {}'.format(s_range))
     click.echo('MASH distances:  {}'.format(m_range))
 
-    if not gbfilter.min_fastas_check(species_dir):
+    if not gbf.min_fastas_check(species_dir):
         click.echo("{} contains less than 5 genomes.".format(species_dir))
         pass
     # elif os.path.isfile(os.path.join(species_dir, "info", "stats.csv")):
@@ -99,7 +99,7 @@ def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range,
     #         mash_stats_and_filter()
 
     if filter_only:
-        gbfilter.filter_only(species_dir, dmx, filter_ranges)
+        gbf.filter_only(species_dir, dmx, filter_ranges)
     else:
         dmx = mash.mash(species_dir)
-        gbfilter.stats_and_filter(species_dir, dmx, filter_ranges)
+        gbf.stats_and_filter(species_dir, dmx, filter_ranges)
