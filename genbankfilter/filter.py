@@ -267,7 +267,7 @@ def color_clade(tree, criteria, to_color):
               "Assembly_Size": "yellow"}
 
     for genome in to_color:
-        genome = re.match('.*(GCA_\d+\.\d)', genome).group(1)
+        #genome = re.match('.*(GCA_\d+\.\d)', genome).group(1)
         n = tree.get_leaves_by_name(genome).pop()
         nstyle = NodeStyle()
         nstyle["fgcolor"] = colors[criteria]

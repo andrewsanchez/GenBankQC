@@ -39,12 +39,13 @@ def sketch_dir(directory):
 
 
 def paste(species_dir):
-
+    """
+    Generate a master sketch file representing all genomes in species_dir/*msh
+    """
     paste_file = os.path.join(species_dir, 'all.msh')
     remove_old(paste_file)
     sketches = os.path.join(species_dir, "GCA*msh")
     paste_cmd = "mash paste {} {}".format(paste_file, sketches)
-    print(paste_cmd * 10)
     subprocess.Popen(paste_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
     return paste_file
 
@@ -76,7 +77,7 @@ def format_dmx(dmx_path):
     dmx = pd.read_csv(dmx_path, index_col=0, sep="\t")
     genome_ids = []
     for i in dmx.index:
-        genome_id = re.match('.*(GCA_\d+\.\d)', i).group(1)
+        genome_id = re.match('.*(GCA_\d+\.\d.*)(.fasta)', i).group(1)
         genome_ids.append(genome_id)
     dmx.index = genome_ids
     dmx.columns = genome_ids
