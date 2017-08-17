@@ -202,8 +202,9 @@ def dmx_to_tree(dmx, species_dir):
     names = dmx.index.tolist()
     nested_dmx = nested_matrix(m)
     bio_dmx = _DistanceMatrix(names, nested_dmx)
-    with open("dmx.phylip", "w") as f:
-        dm.format_phyilp(f)
+    # TODO: Remove if exists
+    with open(os.path.join(species_dir, "dmx.phylip")) as f:
+        bio_dmx.format_phylip(f)
     constructor = DistanceTreeConstructor()
     tree = constructor.nj(bio_dmx)
     Phylo.write(tree, nw_file, 'newick')
