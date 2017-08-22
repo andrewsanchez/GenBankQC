@@ -29,7 +29,6 @@ def generate_stats(species_dir, dmx):
     Generate a data frame containing all of the stats for genomes
     in species_dir.
     """
-
     fastas = (f for f in os.listdir(species_dir) if f.endswith('fasta'))
     file_names, contig_totals, assembly_sizes, n_counts = [], [], [], []
 
@@ -38,10 +37,7 @@ def generate_stats(species_dir, dmx):
         name = re.search('(GCA.*)(.fasta)', f).group(1)
 
         # Get all contigs for current FASTA
-        try:
-            contigs = [seq.seq for seq in SeqIO.parse(fasta, "fasta")]
-        except UnicodeDecodeError:
-            print("{} threw UnicodeDecodeError".format(f))
+        contigs, contig_count = get_contigs(f)
         # Length of each contig
         assembly_size = sum([len(str(seq)) for seq in contigs])
         # N_Count for each contig
@@ -49,7 +45,7 @@ def generate_stats(species_dir, dmx):
 
         file_names.append(name)
         assembly_sizes.append(assembly_size)
-        contig_totals.append(len(contigs))
+        contig_totals.append(contig_count)
         n_counts.append(sum(N_Count))
 
     SeqDataSet = list(zip(n_counts, contig_totals, assembly_sizes, dmx.mean()))
