@@ -10,6 +10,20 @@ from Bio.Phylo.TreeConstruction import DistanceTreeConstructor
 from collections import namedtuple
 
 
+def get_contigs(fasta):
+    """
+    Return a list of of Bio.Seq.Seq objects for fasta and len of the list,
+    i.e. the number of contigs.
+    """
+    try:
+        contigs = [seq.seq for seq in SeqIO.parse(fasta, "fasta")]
+        contig_count = len(contigs)
+    except UnicodeDecodeError:
+            print("{} threw UnicodeDecodeError".format(fasta))
+
+    return contigs, contig_count
+
+
 def generate_stats(species_dir, dmx):
     """
     Generate a data frame containing all of the stats for genomes
