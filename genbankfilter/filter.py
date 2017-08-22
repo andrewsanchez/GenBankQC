@@ -200,14 +200,18 @@ def dmx_to_tree(dmx, species_dir):
     nested_dmx = nested_matrix(m)
     bio_dmx = _DistanceMatrix(names, nested_dmx)
     # TODO: Remove if exists
-    with open(os.path.join(species_dir, "dmx.phylip")) as f:
+    phylip_dmx = os.path.join(species_dir, "dmx.phylip")
+    with open(phylip_dmx, "w") as f:
         bio_dmx.format_phylip(f)
     constructor = DistanceTreeConstructor()
     tree = constructor.nj(bio_dmx)
     Phylo.write(tree, nw_file, 'newick')
+    # TODO: Move reading/reading of tree outside of this function
+    # ssould not have to reconstruct tree everytime filtering is run
     tree = Tree(nw_file, 1)
-    tree = style_tree(tree)
+    tree = base_node_style(tree)
     return tree
+
 
 def estimate_tree_constructor_runtime(n):
     """
