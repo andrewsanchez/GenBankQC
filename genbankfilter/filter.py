@@ -230,7 +230,7 @@ def estimate_tree_constructor_runtime(n):
     constructor = DistanceTreeConstructor()
     tree = constructor.nj(bio_dmx)
     return tree
-    
+
 
 def nested_matrix(matrix):
     """
@@ -281,7 +281,6 @@ def color_clade(tree, criteria, to_color):
               "Assembly_Size": "yellow"}
 
     for genome in to_color:
-        #genome = re.match('.*(GCA_\d+\.\d)', genome).group(1)
         n = tree.get_leaves_by_name(genome).pop()
         nstyle = NodeStyle()
         nstyle["fgcolor"] = colors[criteria]
