@@ -99,7 +99,7 @@ def cli(mash_exe, filter_level, max_n_count, c_range, s_range, m_range,
     #         mash_stats_and_filter()
 
     if filter_only:
-        gbf.filter_only(species_dir, dmx, filter_ranges)
+        gbf.filter_only(species_dir, filter_ranges)
     else:
         dmx = mash.mash(species_dir)
         gbf.stats_and_filter(species_dir, dmx, filter_ranges)
