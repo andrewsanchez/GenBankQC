@@ -79,12 +79,9 @@ def filter_all(species_dir, stats, tree, filter_ranges):
                   "Filtering will not commence past this stage.".format(
                       criteria))
             break
-
     failed.drop(list(passed.index), inplace=True)
     write_summary(species_dir, summary, filter_ranges)
-    tree.render(os.path.join(species_dir, 'tree.png'))
-    tree.render(os.path.join(species_dir, 'tree.svg'))
-    tree.render(os.path.join(species_dir, 'tree.pdf'))
+    style_and_render_trees(species_dir, tree, filter_ranges)
     return failed, passed
 
 
@@ -245,14 +242,27 @@ def nested_matrix(matrix):
     return nested_dmx
 
 
-def style_tree(tree):
-    from ete3 import NodeStyle
+def style_and_render_trees(species_dir, tree, filter_ranges):
+    from ete3 import TreeStyle
+    max_n_count, c_range, s_range, m_range = filter_ranges
+    out = 'tree_{}-{}-{}-{}'.format(max_n_count, c_range, s_range, m_range)
+    ts = TreeStyle()
+    ts.branch_vertical_margin = 10
+    ts.show_leaf_name = False
+    tree.render(os.path.join(species_dir, '{}.png'.format(out)), tree_style=ts)
+    tree.render(os.path.join(species_dir, '{}.svg'.format(out)), tree_style=ts)
+    tree.render(os.path.join(species_dir, '{}.pdf'.format(out)), tree_style=ts)
+
+
+def base_node_style(tree):
+    from ete3 import NodeStyle, AttrFace
     nstyle = NodeStyle()
     nstyle["shape"] = "sphere"
     nstyle["size"] = 2
     nstyle["fgcolor"] = "black"
     for n in tree.traverse():
         n.set_style(nstyle)
+        n.add_face(AttrFace('name', ftype='Arial', fsize=8), column=0)
     return tree
 
 
