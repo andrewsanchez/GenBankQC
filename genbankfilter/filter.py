@@ -10,26 +10,29 @@ from Bio.Phylo.TreeConstruction import DistanceTreeConstructor
 from collections import namedtuple
 
 
-def get_contigs(fasta):
+def get_contigs(fasta, contig_totals):
     """
-    Return a list of of Bio.Seq.Seq objects for fasta and len of the list,
-    i.e. the number of contigs.
+    Return a list of of Bio.Seq.Seq objects for fasta and calculate
+    the total the number of contigs.
     """
     try:
         contigs = [seq.seq for seq in SeqIO.parse(fasta, "fasta")]
         contig_count = len(contigs)
+        contig_totals.append(contig_count)
     except UnicodeDecodeError:
             print("{} threw UnicodeDecodeError".format(fasta))
 
     return contigs, contig_count
 
 
-def get_assembly_size(contigs):
+def get_assembly_size(contigs, assembly_sizes):
     """
-    Return to total assembly size by calculating the sum of all contig lengths
+    Calculate the sum of all contig lengths
     """
     contig_lengths = (len(str(seq)) for seq in contigs)
-    return sum(contig_lengths)
+    assembly_size = sum(contig_lengths)
+    assembly_sizes.append(assembly_size)
+    return assembly_size
 
 
 def get_N_count(contigs, n_counts):
@@ -60,18 +63,10 @@ def generate_stats(species_dir, dmx):
     file_names, contig_totals, assembly_sizes, n_counts = [], [], [], []
     for f in fastas:
         name = re.search('(GCA.*)(.fasta)', f).group(1)
-
-        # Get all contigs for current FASTA
-        contigs, contig_count = get_contigs(f)
-        # Length of each contig
-        assembly_size = get_assembly_size(contigs)
-        # N_Count for each contig
-        N_Count = [len(re.findall("[^ATCG]", str(seq))) for seq in contigs]
-
         file_names.append(name)
-        assembly_sizes.append(assembly_size)
-        contig_totals.append(contig_count)
-        n_counts.append(sum(N_Count))
+        contigs, contig_count = get_contigs(f, contig_totals)
+        get_assembly_size(contigs, assembly_sizes)
+        get_N_count(contigs, n_counts)
 
     SeqDataSet = list(zip(n_counts, contig_totals, assembly_sizes, dmx.mean()))
     stats = pd.DataFrame(
