@@ -97,12 +97,18 @@ def filter_all(species_dir, stats, tree, filter_ranges):
                                         summary, tree)
         passed = filter_results.passed
     else:
+        # TODO: Filtering will commence beyond this stage........
+        # maybe just include this in the if statement above?
         print("Filtering based on unknown bases resulted in < 5 genomes.  "
               "Filtering will not commence past this stage.")
     for criteria in ["Assembly_Size", "MASH"]:
+        if criteria == 'Assembly_Size':
+            f_range = srange
+        elif criteria == "MASH":
+            f_range = m_range
         if check_df_len(passed):
             filter_results = filter_med_ad(criteria, passed, failed, summary,
-                                           tree, s_range)
+                                           tree, f_range)
             passed = filter_results.passed
         else:
             print("Filtering based on {} resulted in < 5 genomes.  "
@@ -125,6 +131,7 @@ def filter_Ns(stats, summary, failed, tree, max_n_count):
     for i in failed_N_count.index:
         failed["N_Count"][i] = stats["N_Count"][i]
     summary["N_Count"] = (max_n_count, len(failed_N_count))
+    ## TODO: move outside this function
     color_clade(tree, 'N_Count', failed_N_count.index)
     return passed_N_count, failed_N_count, failed
 
