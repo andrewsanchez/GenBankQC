@@ -328,11 +328,15 @@ def stats_and_filter(species_dir, dmx, filter_ranges):
     passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
 
 
+def read_dmx(species_dir):
+    dmx = os.path.join(species_dir, 'dmx.txt')
+    dmx = pd.read_csv(dmx, index_col=0, sep="\t")
+    return dmx
+
+
 # TODO: Put tree stuff in different function
 def filter_only(species_dir, filter_ranges):
     from ete3 import Tree
-    dmx = os.path.join(species_dir, 'dmx.txt')
-    dmx = pd.read_csv(dmx, index_col=0, sep="\t")
     stats = os.path.join(species_dir, 'stats.csv')
     stats = pd.read_csv(stats, index_col=0)
     nw_file = os.path.join(species_dir, 'tree.nw')
