@@ -315,6 +315,7 @@ def stats_and_filter(species_dir, dmx, filter_ranges):
     passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
 
 
+# TODO: Put tree stuff in different function
 def filter_only(species_dir, filter_ranges):
     from ete3 import Tree
     dmx = os.path.join(species_dir, 'dmx.txt')
