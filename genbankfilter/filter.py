@@ -24,6 +24,14 @@ def get_contigs(fasta):
     return contigs, contig_count
 
 
+def get_assembly_size(contigs):
+    """
+    Return to total assembly size by calculating the sum of all contig lengths
+    """
+    contig_lengths = (len(str(seq)) for seq in contigs)
+    return sum(contig_lengths)
+
+
 def generate_stats(species_dir, dmx):
     """
     Generate a data frame containing all of the stats for genomes
@@ -33,13 +41,12 @@ def generate_stats(species_dir, dmx):
     file_names, contig_totals, assembly_sizes, n_counts = [], [], [], []
 
     for f in fastas:
-        fasta = (os.path.join(species_dir, f))
         name = re.search('(GCA.*)(.fasta)', f).group(1)
 
         # Get all contigs for current FASTA
         contigs, contig_count = get_contigs(f)
         # Length of each contig
-        assembly_size = sum([len(str(seq)) for seq in contigs])
+        assembly_size = get_assembly_size(contigs)
         # N_Count for each contig
         N_Count = [len(re.findall("[^ATCG]", str(seq))) for seq in contigs]
 
