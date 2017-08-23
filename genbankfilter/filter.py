@@ -103,7 +103,7 @@ def filter_all(species_dir, stats, tree, filter_ranges):
               "Filtering will not commence past this stage.")
     for criteria in ["Assembly_Size", "MASH"]:
         if criteria == 'Assembly_Size':
-            f_range = srange
+            f_range = s_range
         elif criteria == "MASH":
             f_range = m_range
         if check_df_len(passed):
