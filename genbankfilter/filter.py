@@ -32,6 +32,17 @@ def get_assembly_size(contigs):
     return sum(contig_lengths)
 
 
+def get_N_count(contigs, n_counts):
+    """
+    Count the number of unknown bases, i.e. all bases that are not in [ATCG]
+    """
+    N_count = sum([len(re.findall("[^ATCG]", str(seq))) for seq in contigs])
+    n_counts.append(N_count)
+    return N_count
+
+
+
+
 def generate_stats(species_dir, dmx):
     """
     Generate a data frame containing all of the stats for genomes
