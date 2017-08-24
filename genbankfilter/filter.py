@@ -91,8 +91,8 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     # TODO: Creating summary dict can prob be it's own function
     summary["N_Count"] = (max_n_count, len(failed_N_count))
     if check_df_len(passed):
-        filter_results = filter_contigs(stats, passed, c_range,
-                                        summary, tree)
+        filter_results = filter_contigs(stats, passed, c_range, summary)
+        color_clade(tree, 'Contigs', filter_results.failed_contigs)
         passed = filter_results.passed
         for criteria in ["Assembly_Size", "MASH"]:
             if criteria == 'Assembly_Size':
@@ -120,14 +120,14 @@ def filter_Ns(stats, max_n_count):
     """
     Filter out genomes with too many unknown bases.
     """
-    passed_N_count = stats[stats["N_Count"] <= max_n_count]
+    passed = stats[stats["N_Count"] <= max_n_count]
     failed_N_count = stats[stats["N_Count"] >= max_n_count]
-    return passed_N_count, failed_N_count
+    return passed, failed_N_count
 
 
-def filter_contigs(stats, passed_N_count, c_range, summary, tree):
+def filter_contigs(stats, passed, c_range, summary):
 
-    contigs = passed_N_count["Contigs"]
+    contigs = passed["Contigs"]
     # Only look at genomes with > 10 contigs to avoid throwing off the
     # Median AD Save genomes with < 10 contigs to add them back in later.
     not_enough_contigs = contigs[contigs <= 10]
@@ -141,17 +141,16 @@ def filter_contigs(stats, passed_N_count, c_range, summary, tree):
     contigs = pd.concat([contigs, not_enough_contigs])
     lower = contigs.median() - contigs_dev_ref
     upper = contigs.median() + contigs_dev_ref
-
     # Avoid returning empty DataFrame when no genomes are removed above
-    if len(contigs) == len(passed_N_count):
-        passed_contigs = passed_N_count
+    if len(contigs) == len(passed):
+        passed_contigs = passed
         failed_contigs = []
     else:
         failed_contigs = [
-            i for i in passed_N_count.index if i not in contigs.index
+            i for i in passed.index if i not in contigs.index
         ]
-        passed_contigs = passed_N_count.drop(failed_contigs)
-    color_clade(tree, 'Contigs', failed_contigs)
+        passed_contigs = passed.drop(failed_contigs)
+    # TODO: remove summary stuff
     range_str = "{:.0f}-{:.0f}".format(lower, upper)
     summary["Contigs"] = (range_str, len(failed_contigs))
     results = namedtuple("filter_contigs_results", ["passed", "failed"])
