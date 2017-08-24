@@ -87,32 +87,30 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     max_n_count, c_range, s_range, m_range = filter_ranges
     summary = {}
     # Filter based on N's first
-    passed_N_count, failed_N_count = filter_Ns(stats, summary, tree,
-                                               max_n_count)
+    passed, failed_N_count = filter_Ns(stats, summary, tree,
+                                       max_n_count)
     # Filter contigs
-    if check_df_len(passed_N_count):
-        filter_results = filter_contigs(stats, passed_N_count, c_range,
+    if check_df_len(passed):
+        filter_results = filter_contigs(stats, passed, c_range,
                                         summary, tree)
         passed = filter_results.passed
+        for criteria in ["Assembly_Size", "MASH"]:
+            if criteria == 'Assembly_Size':
+                f_range = s_range
+            elif criteria == "MASH":
+                f_range = m_range
+            if check_df_len(passed):
+                filter_results = filter_med_ad(criteria, passed, summary,
+                                               tree, f_range)
+                passed = filter_results.passed
+            else:
+                print("Filtering based on {} resulted in < 5 genomes.  "
+                      "Filtering will not commence past this stage.".format(
+                        criteria))
+                break
     else:
-        # TODO: Filtering will commence beyond this stage........
-        # maybe just include this in the if statement above?
         print("Filtering based on unknown bases resulted in < 5 genomes.  "
               "Filtering will not commence past this stage.")
-    for criteria in ["Assembly_Size", "MASH"]:
-        if criteria == 'Assembly_Size':
-            f_range = s_range
-        elif criteria == "MASH":
-            f_range = m_range
-        if check_df_len(passed):
-            filter_results = filter_med_ad(criteria, passed, summary,
-                                           tree, f_range)
-            passed = filter_results.passed
-        else:
-            print("Filtering based on {} resulted in < 5 genomes.  "
-                  "Filtering will not commence past this stage.".format(
-                      criteria))
-            break
     write_summary(species_dir, summary, filter_ranges)
     style_and_render_trees(species_dir, tree, filter_ranges)
     return passed
