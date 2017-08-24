@@ -1,6 +1,4 @@
 import os
-import argparse
-import logging
 import pandas as pd
 import click
 import genbankfilter.filter as gbf
@@ -40,7 +38,7 @@ def stats_are_current():
     '-l',
     '--filter-level',
     help='Value to be used for all filters',
-    type=float,)
+    type=float, )
 @click.option(
     '-n',
     '--max_n_count',
@@ -60,7 +58,10 @@ def stats_are_current():
     type=float,
     default=3.0)
 @click.option(
-    '-m', '--m-range', help='Filtering level for MASH distances', type=float,
+    '-m',
+    '--m-range',
+    help='Filtering level for MASH distances',
+    type=float,
     default=3.0)
 @click.option(
     '-f',
