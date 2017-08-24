@@ -182,7 +182,6 @@ def filter_med_ad(criteria, passed, summary, tree, f_range):
     summary[criteria] = (range_str, len(failed))
     results = namedtuple("filter_results", ["passed", "failed"])
     filter_results = results(passed, failed)
-    # need a way to dynamically color based on criteria
     color_clade(tree, criteria, failed)
     return filter_results
 
