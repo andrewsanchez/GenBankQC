@@ -33,6 +33,14 @@ class TestFilter(unittest.TestCase):
         self.assertTrue(type(passed_N_count) == gbf.pd.DataFrame)
         self.assertTrue(type(failed_N_count) == gbf.pd.DataFrame)
 
+    def test_filter_contigs(self):
+        passed = self.stats
+        summary = {}
+        filter_results = gbf.filter_contigs(self.stats, passed, 3.0, summary)
+        passed, failed = filter_results
+        self.assertTrue(type(passed) == gbf.pd.DataFrame)
+        self.assertTrue(type(failed) == list)
+
 
 if __name__ == '__main__':
     unittest.main()
