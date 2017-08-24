@@ -7,6 +7,9 @@ class TestFilter(unittest.TestCase):
     def setUp(self):
         self.species_dir = "genbankfilter/test/resources/Buchnera_aphidicola"
         self.fastas = gbf.get_all_fastas(self.species_dir)
+        stats = os.path.join(self.species_dir, 'stats.csv')
+        self.stats = gbf.pd.read_csv(
+            os.path.join(self.species_dir, 'stats.csv'), index_col=0)
 
     def test_stats_functions(self):
         from Bio.Seq import Seq
@@ -26,9 +29,7 @@ class TestFilter(unittest.TestCase):
         self.assertTrue(type(stats) == gbf.pd.DataFrame)
 
     def test_filter_Ns(self):
-        stats = os.path.join(self.species_dir, 'stats.csv')
-        stats = gbf.pd.read_csv(stats, index_col=0)
-        passed_N_count, failed_N_count = gbf.filter_Ns(stats, 200)
+        passed_N_count, failed_N_count = gbf.filter_Ns(self.stats, 200)
         self.assertTrue(type(passed_N_count) == gbf.pd.DataFrame)
         self.assertTrue(type(failed_N_count) == gbf.pd.DataFrame)
 
