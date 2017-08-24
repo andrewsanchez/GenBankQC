@@ -86,9 +86,10 @@ def filter_all(species_dir, stats, tree, filter_ranges):
 
     max_n_count, c_range, s_range, m_range = filter_ranges
     summary = {}
-    passed, failed_N_count = filter_Ns(stats, summary, tree,
-                                       max_n_count)
+    passed, failed_N_count = filter_Ns(stats, max_n_count)
     color_clade(tree, 'N_Count', failed_N_count.index)
+    # TODO: Creating summary dict can prob be it's own function
+    summary["N_Count"] = (max_n_count, len(failed_N_count))
     if check_df_len(passed):
         filter_results = filter_contigs(stats, passed, c_range,
                                         summary, tree)
@@ -115,14 +116,12 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     return passed
 
 
-def filter_Ns(stats, summary, max_n_count):
+def filter_Ns(stats, max_n_count):
     """
     Filter out genomes with too many unknown bases.
     """
     passed_N_count = stats[stats["N_Count"] <= max_n_count]
     failed_N_count = stats[stats["N_Count"] >= max_n_count]
-    # TODO: This doesn't need to happen here
-    summary["N_Count"] = (max_n_count, len(failed_N_count))
     return passed_N_count, failed_N_count
 
 
