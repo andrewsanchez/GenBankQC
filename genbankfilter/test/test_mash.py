@@ -1,12 +1,10 @@
 import tempfile
 import unittest
 import os
-import re
 import shutil
 import pandas as pd
-
-from genbankfilter import mash
-from genbankfilter import filter
+import genbankfilter.filter as gbf
+import genbankfilter.mash as mash
 
 
 class TestMash(unittest.TestCase):
@@ -48,21 +46,12 @@ class TestMash(unittest.TestCase):
         for sketch in sketches:
             self.assertTrue(os.path.isfile(sketch))
 
-    def test_paste_dist_stats(self):
+    def test_paste_and_dist(self):
         mash.sketch_dir(self.genbank)
         all_msh = mash.paste(self.species_dir)
         dst_mx = mash.dist(self.species_dir)
-        stats = gbfilter.generate_stats(self.species_dir, dst_mx)
-        filter_ranges = 200, 2, 2, 2
-        filter_summary, failed, passed_final = gbfilter.filter_med_ad(
-            self.species_dir, stats, filter_ranges)
-        passed_dir = gbfilter.check_passed_dir(self.species_dir)
-        gbfilter.link_passed_genomes(self.species_dir, passed_final, passed_dir)
         self.assertTrue(os.path.isfile(all_msh))
         self.assertIsInstance(dst_mx, pd.DataFrame)
-        self.assertIsInstance(stats, pd.DataFrame)
-        self.assertTrue(passed_dir)
-        self.assertIsInstance(filter_summary, pd.DataFrame)
 
     def tearDown(self):
         shutil.rmtree(self.genbank)
