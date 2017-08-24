@@ -1,3 +1,4 @@
+import os
 import unittest
 import genbankfilter.filter as gbf
 
@@ -23,6 +24,13 @@ class TestFilter(unittest.TestCase):
         dmx = gbf.read_dmx(self.species_dir)
         stats = gbf.generate_stats(self.species_dir, dmx)
         self.assertTrue(type(stats) == gbf.pd.DataFrame)
+
+    def test_filter_Ns(self):
+        stats = os.path.join(self.species_dir, 'stats.csv')
+        stats = gbf.pd.read_csv(stats, index_col=0)
+        passed_N_count, failed_N_count = gbf.filter_Ns(stats, 200)
+        self.assertTrue(type(passed_N_count) == gbf.pd.DataFrame)
+        self.assertTrue(type(failed_N_count) == gbf.pd.DataFrame)
 
 
 if __name__ == '__main__':
