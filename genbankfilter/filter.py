@@ -86,14 +86,12 @@ def filter_all(species_dir, stats, tree, filter_ranges):
 
     max_n_count, c_range, s_range, m_range = filter_ranges
     summary = {}
-    failed = pd.DataFrame(index=stats.index, columns=stats.columns)
-
     # Filter based on N's first
-    passed_N_count, failed_N_count, failed = filter_Ns(stats, summary, failed,
-                                                       tree, max_n_count)
+    passed_N_count, failed_N_count = filter_Ns(stats, summary, tree,
+                                               max_n_count)
     # Filter contigs
     if check_df_len(passed_N_count):
-        filter_results = filter_contigs(stats, passed_N_count, c_range, failed,
+        filter_results = filter_contigs(stats, passed_N_count, c_range,
                                         summary, tree)
         passed = filter_results.passed
     else:
@@ -107,7 +105,7 @@ def filter_all(species_dir, stats, tree, filter_ranges):
         elif criteria == "MASH":
             f_range = m_range
         if check_df_len(passed):
-            filter_results = filter_med_ad(criteria, passed, failed, summary,
+            filter_results = filter_med_ad(criteria, passed, summary,
                                            tree, f_range)
             passed = filter_results.passed
         else:
@@ -115,36 +113,33 @@ def filter_all(species_dir, stats, tree, filter_ranges):
                   "Filtering will not commence past this stage.".format(
                       criteria))
             break
-    failed.drop(list(passed.index), inplace=True)
     write_summary(species_dir, summary, filter_ranges)
     style_and_render_trees(species_dir, tree, filter_ranges)
-    return failed, passed
+    return passed
 
 
-def filter_Ns(stats, summary, failed, tree, max_n_count):
+def filter_Ns(stats, summary, tree, max_n_count):
     """
-    Identify genomes with too many unknown bases.
+    Filter out genomes with too many unknown bases.
     """
     passed_N_count = stats[stats["N_Count"] <= max_n_count]
     failed_N_count = stats[stats["N_Count"] >= max_n_count]
-    failed["N_Count"][passed_N_count.index] = "+"
-    for i in failed_N_count.index:
-        failed["N_Count"][i] = stats["N_Count"][i]
     summary["N_Count"] = (max_n_count, len(failed_N_count))
-    ## TODO: move outside this function
+    # TODO: move outside this function
     color_clade(tree, 'N_Count', failed_N_count.index)
-    return passed_N_count, failed_N_count, failed
+    return passed_N_count, failed_N_count
 
 
-def filter_contigs(stats, passed_N_count, c_range, failed, summary, tree):
+def filter_contigs(stats, passed_N_count, c_range, summary, tree):
 
     contigs = passed_N_count["Contigs"]
     # Only look at genomes with > 10 contigs to avoid throwing off the
     # Median AD Save genomes with < 10 contigs to add them back in later.
     not_enough_contigs = contigs[contigs <= 10]
     contigs = contigs[contigs > 10]
+    # Median absolute deviation
     contigs_med_ad = abs(contigs -
-                         contigs.median()).mean()  # Median absolute deviation
+                         contigs.median()).mean()
     contigs_dev_ref = contigs_med_ad * c_range
     contigs = contigs[abs(contigs - contigs.median()) <= contigs_dev_ref]
     # Add genomes with < 10 contigs back in
@@ -161,11 +156,6 @@ def filter_contigs(stats, passed_N_count, c_range, failed, summary, tree):
             i for i in passed_N_count.index if i not in contigs.index
         ]
         passed_contigs = passed_N_count.drop(failed_contigs)
-
-        for i in failed_contigs:
-            failed["Contigs"][i] = stats["Contigs"][i]
-        for i in contigs.index:
-            failed["Contigs"][i] = "+"
     color_clade(tree, 'Contigs', failed_contigs)
     range_str = "{:.0f}-{:.0f}".format(lower, upper)
     summary["Contigs"] = (range_str, len(failed_contigs))
@@ -175,7 +165,7 @@ def filter_contigs(stats, passed_N_count, c_range, failed, summary, tree):
     return filter_contigs_results
 
 
-def filter_med_ad(criteria, passed, failed, summary, tree, f_range):
+def filter_med_ad(criteria, passed, summary, tree, f_range):
     """
     Filter based on median absolute deviation
     """
@@ -330,8 +320,7 @@ def stats_and_filter(species_dir, dmx, filter_ranges):
     stats.to_csv(os.path.join(species_dir, 'stats.csv'))
     tree = dmx_to_tree(dmx, species_dir)
     results = filter_all(species_dir, stats, tree, filter_ranges)
-    failed, passed_final = results
-    failed.to_csv(os.path.join(species_dir, 'failed.csv'))
+    passed_final = results
     passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
 
 
@@ -350,8 +339,7 @@ def filter_only(species_dir, filter_ranges):
     tree = Tree(nw_file, 1)
     tree = base_node_style(tree)
     results = filter_all(species_dir, stats, tree, filter_ranges)
-    failed, passed_final = results
-    failed.to_csv(os.path.join(species_dir, 'failed.csv'))
+    passed_final = results
     passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
 
 
