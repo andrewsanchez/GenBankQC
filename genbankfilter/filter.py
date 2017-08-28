@@ -85,6 +85,7 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     """
 
     max_n_count, c_range, s_range, m_range = filter_ranges
+    criteria_and_franges = criteria_dict(filter_ranges)
     summary = {}
     passed, failed_N_count = filter_Ns(stats, max_n_count)
     color_clade(tree, 'N_Count', failed_N_count.index)
@@ -95,13 +96,9 @@ def filter_all(species_dir, stats, tree, filter_ranges):
         color_clade(tree, 'Contigs', filter_results.failed_contigs)
         passed = filter_results.passed
         for criteria in ["Assembly_Size", "MASH"]:
-            if criteria == 'Assembly_Size':
-                f_range = s_range
-            elif criteria == "MASH":
-                f_range = m_range
             if check_df_len(passed):
                 filter_results = filter_med_ad(criteria, passed, summary,
-                                               tree, f_range)
+                                               tree, criteria_and_franges)
                 passed = filter_results.passed
             else:
                 print("Filtering based on {} resulted in < 5 genomes.  "
@@ -114,6 +111,16 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     write_summary(species_dir, summary, filter_ranges)
     style_and_render_trees(species_dir, tree, filter_ranges)
     return passed
+
+
+def criteria_dict(filter_ranges):
+    max_n_count, c_range, s_range, m_range = filter_ranges
+    criteria = {}
+    criteria["N_count"] = max_n_count
+    criteria["contigs"] = c_range
+    criteria["assembly_size"] = s_range
+    criteria["MASH"] = m_range
+    return criteria
 
 
 def filter_Ns(stats, max_n_count):
@@ -159,10 +166,11 @@ def filter_contigs(stats, passed, c_range, summary):
     return filter_contigs_results
 
 
-def filter_med_ad(criteria, passed, summary, tree, f_range):
+def filter_med_ad(criteria, passed, summary, tree, criteria_and_franges):
     """
     Filter based on median absolute deviation
     """
+    f_range = criteria_and_franges[criteria]
     # Get the median absolute deviation
     med_ad = abs(passed[criteria] - passed[criteria].median()).mean()
     dev_ref = med_ad * f_range
