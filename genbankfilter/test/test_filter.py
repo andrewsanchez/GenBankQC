@@ -7,9 +7,10 @@ class TestFilter(unittest.TestCase):
     def setUp(self):
         self.species_dir = "genbankfilter/test/resources/Buchnera_aphidicola"
         self.fastas = gbf.get_all_fastas(self.species_dir)
-        stats = os.path.join(self.species_dir, 'stats.csv')
         self.stats = gbf.pd.read_csv(
             os.path.join(self.species_dir, 'stats.csv'), index_col=0)
+        self.filter_ranges = [200, 3, 3, 3]
+        self.criteria_and_franges = gbf.criteria_dict(self.filter_ranges)
 
     def test_stats_functions(self):
         from Bio.Seq import Seq
@@ -40,6 +41,12 @@ class TestFilter(unittest.TestCase):
         passed, failed = filter_results
         self.assertTrue(type(passed) == gbf.pd.DataFrame)
         self.assertTrue(type(failed) == list)
+
+    def test_filter_med_ad(self):
+        results = gbf.filter_med_ad("MASH", self.stats, {},
+                                    self.criteria_and_franges)
+        self.assertTrue(type(results.passed) == gbf.pd.DataFrame)
+        self.assertTrue(type(results.failed) == list)
 
 
 if __name__ == '__main__':
