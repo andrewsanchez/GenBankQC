@@ -98,8 +98,10 @@ def filter_all(species_dir, stats, tree, filter_ranges):
         for criteria in ["Assembly_Size", "MASH"]:
             if check_df_len(passed):
                 filter_results = filter_med_ad(criteria, passed, summary,
-                                               tree, criteria_and_franges)
+                                               criteria_and_franges)
                 passed = filter_results.passed
+                failed = filter_results.passed
+                color_clade(tree, criteria, failed)
             else:
                 print("Filtering based on {} resulted in < 5 genomes.  "
                       "Filtering will not commence past this stage.".format(
@@ -166,7 +168,7 @@ def filter_contigs(stats, passed, c_range, summary):
     return filter_contigs_results
 
 
-def filter_med_ad(criteria, passed, summary, tree, criteria_and_franges):
+def filter_med_ad(criteria, passed, summary, criteria_and_franges):
     """
     Filter based on median absolute deviation
     """
@@ -184,7 +186,6 @@ def filter_med_ad(criteria, passed, summary, tree, criteria_and_franges):
     summary[criteria] = (range_str, len(failed))
     results = namedtuple("filter_results", ["passed", "failed"])
     filter_results = results(passed, failed)
-    color_clade(tree, criteria, failed)
     return filter_results
 
 
