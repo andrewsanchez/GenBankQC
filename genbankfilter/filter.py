@@ -175,7 +175,7 @@ def filter_contigs(stats, passed, c_range, summary):
     return filter_contigs_results
 
 
-def filter_med_ad(criteria, passed, summary, criteria_and_franges):
+def filter_med_ad(passed, summary, criteria, criteria_and_franges):
     """
     Filter based on median absolute deviation
     """
@@ -185,8 +185,8 @@ def filter_med_ad(criteria, passed, summary, criteria_and_franges):
     dev_ref = med_ad * f_range
     passed = passed[abs(passed[criteria] - passed[criteria].median()) <=
                     dev_ref]
-    failed = passed.index[abs(passed[criteria] - passed[criteria].median()) >=
-                          dev_ref].tolist()
+    failed = passed.index[abs(
+        passed[criteria] - passed[criteria].median()) >= dev_ref].tolist()
     lower = passed[criteria].median() - dev_ref
     upper = passed[criteria].median() + dev_ref
     range_str = '{:.0f}-{:.0f}'.format(lower, upper)
