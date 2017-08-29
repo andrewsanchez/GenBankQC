@@ -83,7 +83,6 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     This function strings together all of the steps
     involved in filtering your genomes.
     """
-
     max_n_count, c_range, s_range, m_range = filter_ranges
     criteria_and_franges = criteria_dict(filter_ranges)
     summary = {}
@@ -93,23 +92,31 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     summary["N_Count"] = (max_n_count, len(failed_N_count))
     if check_df_len(passed):
         filter_results = filter_contigs(stats, passed, c_range, summary)
-        color_clade(tree, 'Contigs', filter_results.failed_contigs)
+        color_clade(tree, 'Contigs', filter_results.failed)
         passed = filter_results.passed
-        for criteria in ["Assembly_Size", "MASH"]:
-            if check_df_len(passed):
-                filter_results = filter_med_ad(criteria, passed, summary,
-                                               criteria_and_franges)
-                passed = filter_results.passed
-                failed = filter_results.passed
-                color_clade(tree, criteria, failed)
-            else:
-                print("Filtering based on {} resulted in < 5 genomes.  "
-                      "Filtering will not commence past this stage.".format(
-                        criteria))
-                break
     else:
         print("Filtering based on unknown bases resulted in < 5 genomes.  "
               "Filtering will not commence past this stage.")
+    criteria = "Assembly_Size"
+    if check_df_len(passed):
+        filter_results = filter_med_ad(passed, summary, criteria,
+                                       criteria_and_franges)
+        color_clade(tree, "Assembly_Size", filter_results.failed)
+        passed = filter_results.passed
+    else:
+        print("Filtering based on {} resulted in < 5 genomes.  "
+              "Filtering will not commence past this stage.".format(
+                    criteria))
+    criteria = "MASH"
+    if check_df_len(passed):
+        filter_results = filter_med_ad(passed, summary, criteria,
+                                       criteria_and_franges)
+        color_clade(tree, "Assembly_Size", filter_results.failed)
+        passed = filter_results.passed
+    else:
+        print("Filtering based on {} resulted in < 5 genomes.  "
+              "Filtering will not commence past this stage.".format(
+                criteria))
     write_summary(species_dir, summary, filter_ranges)
     style_and_render_trees(species_dir, tree, filter_ranges)
     return passed
