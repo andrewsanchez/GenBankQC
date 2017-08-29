@@ -85,35 +85,26 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     max_n_count, c_range, s_range, m_range = filter_ranges
     criteria_and_franges = criteria_dict(filter_ranges)
     summary = {}
+    criteria = "N_Count"
     passed, failed_N_count = filter_Ns(stats, max_n_count)
-    color_clade(tree, 'N_Count', failed_N_count.index)
-    # TODO: Creating summary dict can prob be it's own function
-    summary["N_Count"] = (max_n_count, len(failed_N_count))
-    if check_df_len(passed):
+    color_clade(tree, criteria, failed_N_count.index)
+    summary[criteria] = (max_n_count, len(failed_N_count))
+    if check_df_len(passed, criteria):
         filter_results = filter_contigs(stats, passed, c_range, summary)
         color_clade(tree, 'Contigs', filter_results.failed)
         passed = filter_results.passed
-    else:
-        print("Filtering based on unknown bases resulted in < 5 genomes.  "
-              "Filtering will not commence past this stage.")
     criteria = "Assembly_Size"
-    if check_df_len(passed):
+    if check_df_len(passed, criteria):
         filter_results = filter_med_ad(passed, summary, criteria,
                                        criteria_and_franges)
         color_clade(tree, "Assembly_Size", filter_results.failed)
         passed = filter_results.passed
-    else:
-        print("Filtering based on {} resulted in < 5 genomes.  "
-              "Filtering will not commence past this stage.".format(criteria))
     criteria = "MASH"
-    if check_df_len(passed):
+    if check_df_len(passed, criteria):
         filter_results = filter_med_ad(passed, summary, criteria,
                                        criteria_and_franges)
         color_clade(tree, "Assembly_Size", filter_results.failed)
         passed = filter_results.passed
-    else:
-        print("Filtering based on {} resulted in < 5 genomes.  "
-              "Filtering will not commence past this stage.".format(criteria))
     write_summary(species_dir, summary, filter_ranges)
     style_and_render_trees(species_dir, tree, filter_ranges)
     return passed
@@ -190,13 +181,16 @@ def filter_med_ad(passed, summary, criteria, criteria_and_franges):
     return filter_results
 
 
-def check_df_len(df, num=5):
+def check_df_len(df, criteria, num=5):
     """
     Verify that df has > than num genomes
     """
     if len(df) > num:
         return True
     else:
+        # TODO: Just pass and return false here.
+        # info in this print statement will be apparent in summary
+        print("Filtering based on {} resulted in less than 5 genomes.")
         return False
 
 
