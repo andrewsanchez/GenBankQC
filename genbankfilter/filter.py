@@ -20,7 +20,7 @@ def get_contigs(fasta, contig_totals):
         contig_count = len(contigs)
         contig_totals.append(contig_count)
     except UnicodeDecodeError:
-            print("{} threw UnicodeDecodeError".format(fasta))
+        print("{} threw UnicodeDecodeError".format(fasta))
 
     return contigs, contig_count
 
@@ -48,8 +48,7 @@ def get_all_fastas(species_dir, ext="fasta"):
     """
     Returns a generator for every file ending with ext
     """
-    fastas = (os.path.join(species_dir, f)
-              for f in os.listdir(species_dir)
+    fastas = (os.path.join(species_dir, f) for f in os.listdir(species_dir)
               if f.endswith('fasta'))
     return fastas
 
@@ -105,8 +104,7 @@ def filter_all(species_dir, stats, tree, filter_ranges):
         passed = filter_results.passed
     else:
         print("Filtering based on {} resulted in < 5 genomes.  "
-              "Filtering will not commence past this stage.".format(
-                    criteria))
+              "Filtering will not commence past this stage.".format(criteria))
     criteria = "MASH"
     if check_df_len(passed):
         filter_results = filter_med_ad(passed, summary, criteria,
@@ -115,8 +113,7 @@ def filter_all(species_dir, stats, tree, filter_ranges):
         passed = filter_results.passed
     else:
         print("Filtering based on {} resulted in < 5 genomes.  "
-              "Filtering will not commence past this stage.".format(
-                criteria))
+              "Filtering will not commence past this stage.".format(criteria))
     write_summary(species_dir, summary, filter_ranges)
     style_and_render_trees(species_dir, tree, filter_ranges)
     return passed
@@ -149,8 +146,7 @@ def filter_contigs(stats, passed, c_range, summary):
     not_enough_contigs = contigs[contigs <= 10]
     contigs = contigs[contigs > 10]
     # Median absolute deviation
-    contigs_med_ad = abs(contigs -
-                         contigs.median()).mean()
+    contigs_med_ad = abs(contigs - contigs.median()).mean()
     contigs_dev_ref = contigs_med_ad * c_range
     contigs = contigs[abs(contigs - contigs.median()) <= contigs_dev_ref]
     # Add genomes with < 10 contigs back in
@@ -162,9 +158,7 @@ def filter_contigs(stats, passed, c_range, summary):
         passed_contigs = passed
         failed_contigs = []
     else:
-        failed_contigs = [
-            i for i in passed.index if i not in contigs.index
-        ]
+        failed_contigs = [i for i in passed.index if i not in contigs.index]
         passed_contigs = passed.drop(failed_contigs)
     # TODO: remove summary stuff
     range_str = "{:.0f}-{:.0f}".format(lower, upper)
@@ -185,8 +179,8 @@ def filter_med_ad(passed, summary, criteria, criteria_and_franges):
     dev_ref = med_ad * f_range
     passed = passed[abs(passed[criteria] - passed[criteria].median()) <=
                     dev_ref]
-    failed = passed.index[abs(
-        passed[criteria] - passed[criteria].median()) >= dev_ref].tolist()
+    failed = passed.index[abs(passed[criteria] - passed[criteria].median()) >=
+                          dev_ref].tolist()
     lower = passed[criteria].median() - dev_ref
     upper = passed[criteria].median() + dev_ref
     range_str = '{:.0f}-{:.0f}'.format(lower, upper)
@@ -282,7 +276,7 @@ def nested_matrix(matrix):
     nested_dmx = []
     mx_len = len(trild)
     for i in np.arange(0, mx_len):
-        tmp = trild[i, :i+1]
+        tmp = trild[i, :i + 1]
         nested_dmx.append(tmp.tolist())
     return nested_dmx
 
@@ -316,10 +310,12 @@ def color_clade(tree, criteria, to_color):
     """
     from ete3 import NodeStyle
 
-    colors = {"N_Count": "red",
-              "Contigs": "green",
-              "MASH": "blue",
-              "Assembly_Size": "yellow"}
+    colors = {
+        "N_Count": "red",
+        "Contigs": "green",
+        "MASH": "blue",
+        "Assembly_Size": "yellow"
+    }
 
     for genome in to_color:
         n = tree.get_leaves_by_name(genome).pop()
