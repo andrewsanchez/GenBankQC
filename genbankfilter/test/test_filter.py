@@ -43,10 +43,9 @@ class TestFilter(unittest.TestCase):
         self.assertTrue(type(failed) == list)
 
     def test_filter_med_ad(self):
-        results = gbf.filter_med_ad("MASH", self.stats, {},
+        results = gbf.filter_med_ad(self.stats, {}, "MASH",
                                     self.criteria_and_franges)
         self.assertTrue(type(results.passed) == gbf.pd.DataFrame)
-        self.assertTrue(type(results.failed) == list)
 
 
 if __name__ == '__main__':
