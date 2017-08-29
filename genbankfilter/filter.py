@@ -229,7 +229,6 @@ def dmx_to_tree(dmx, species_dir):
     lower diagonal of the distance matrix. Generate
     a _DistanceMatrix object and construct a tree.
     """
-    from ete3 import Tree
     nw_file = os.path.join(species_dir, 'tree.nw')
     m = dmx.as_matrix()
     names = dmx.index.tolist()
@@ -244,8 +243,14 @@ def dmx_to_tree(dmx, species_dir):
     Phylo.write(tree, nw_file, 'newick')
     # TODO: Move reading/reading of tree outside of this function
     # ssould not have to reconstruct tree everytime filtering is run
-    tree = Tree(nw_file, 1)
+    tree = read_nw_tree(nw_file)
     tree = base_node_style(tree)
+    return tree
+
+
+def read_nw_tree(nw_file):
+    from ete3 import Tree
+    tree = Tree(nw_file, 1)
     return tree
 
 
