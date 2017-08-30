@@ -296,6 +296,8 @@ def base_node_style(tree):
     for n in tree.traverse():
         n.set_style(nstyle)
         n.add_face(AttrFace('name', ftype='Arial', fsize=8), column=0)
+    # midpoint root tree
+    tree.set_outgroup(tree.get_midpoint_outgroup())
     return tree
 
 
