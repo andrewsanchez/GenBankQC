@@ -331,6 +331,9 @@ def stats_and_filter(species_dir, dmx, filter_ranges):
 
 
 def read_dmx(species_dir):
+    """
+    Return a pd.DataFrame representation of the distance matrix
+    """
     dmx = os.path.join(species_dir, 'dmx.txt')
     dmx = pd.read_csv(dmx, index_col=0, sep="\t")
     return dmx
