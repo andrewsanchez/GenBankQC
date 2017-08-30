@@ -1,11 +1,17 @@
 import os
+import shutil
 import unittest
+import tempfile
 import genbankfilter.filter as gbf
 
 
 class TestFilter(unittest.TestCase):
     def setUp(self):
-        self.species_dir = "genbankfilter/test/resources/Buchnera_aphidicola"
+        self.tmp = tempfile.mkdtemp()
+        self.genbank = os.path.join(self.tmp, 'genbank')
+        shutil.copytree('genbankfilter/test/resources/', self.genbank)
+        self.species = 'Buchnera_aphidicola'
+        self.species_dir = os.path.join(self.genbank, self.species)
         self.fastas = gbf.get_all_fastas(self.species_dir)
         self.stats = gbf.pd.read_csv(
             os.path.join(self.species_dir, 'stats.csv'), index_col=0)
@@ -61,6 +67,9 @@ class TestFilter(unittest.TestCase):
         nested_mx = gbf.nested_matrix(dmx)
         self.assertTrue((type(nested_mx) == list))
         self.assertTrue(len(nested_mx) != 0)
+
+    def tearDown(self):
+        shutil.rmtree(self.genbank)
 
 
 if __name__ == '__main__':
