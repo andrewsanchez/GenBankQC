@@ -11,6 +11,7 @@ class TestFilter(unittest.TestCase):
             os.path.join(self.species_dir, 'stats.csv'), index_col=0)
         self.filter_ranges = [200, 3, 3, 3]
         self.criteria_and_franges = gbf.criteria_dict(self.filter_ranges)
+        self.nw_file = os.path.join(self.species_dir, 'tree.nw')
 
     def test_stats_functions(self):
         from Bio.Seq import Seq
@@ -46,6 +47,20 @@ class TestFilter(unittest.TestCase):
         results = gbf.filter_med_ad(self.stats, {}, "MASH",
                                     self.criteria_and_franges)
         self.assertTrue(type(results.passed) == gbf.pd.DataFrame)
+
+    def test_read_tree(self):
+        tree = gbf.read_nw_tree(self.nw_file)
+        self.assertTrue(type(tree) == gbf.Tree)
+
+    def test_read_dmx(self):
+        dmx = gbf.read_dmx(self.species_dir)
+        self.assertTrue(type(dmx) == gbf.pd.DataFrame)
+
+    def test_nested_dmx(self):
+        dmx = gbf.read_dmx(self.species_dir)
+        nested_mx = gbf.nested_matrix(dmx)
+        self.assertTrue((type(nested_mx) == list))
+        self.assertTrue(len(nested_mx) != 0)
 
 
 if __name__ == '__main__':
