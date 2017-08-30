@@ -3,7 +3,6 @@ import unittest
 import os
 import shutil
 import pandas as pd
-import genbankfilter.filter as gbf
 import genbankfilter.mash as mash
 
 
