@@ -212,6 +212,11 @@ def write_summary(species_dir, summary, filter_ranges):
             f.write('Filtered: {}\n\n'.format(v[1]))
 
 
+def read_nw_tree(nw_file):
+    tree = Tree(nw_file, 1)
+    return tree
+
+
 def dmx_to_tree(dmx, species_dir):
     """
     Convert dmx to a nested representation of the
@@ -234,12 +239,6 @@ def dmx_to_tree(dmx, species_dir):
     # ssould not have to reconstruct tree everytime filtering is run
     tree = read_nw_tree(nw_file)
     tree = base_node_style(tree)
-    return tree
-
-
-def read_nw_tree(nw_file):
-    from ete3 import Tree
-    tree = Tree(nw_file, 1)
     return tree
 
 
