@@ -11,6 +11,14 @@ from Bio.Phylo.TreeConstruction import DistanceTreeConstructor
 from collections import namedtuple
 
 
+color_map = {
+    "N_Count": "red",
+    "Contigs": "green",
+    "MASH": "blue",
+    "Assembly_Size": "purple"
+}
+
+
 def get_contigs(fasta, contig_totals):
     """
     Return a list of of Bio.Seq.Seq objects for fasta and calculate
