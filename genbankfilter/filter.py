@@ -161,7 +161,7 @@ def filter_contigs(stats, passed, c_range, summary):
         failed_contigs = [i for i in passed.index if i not in contigs.index]
         passed_contigs = passed.drop(failed_contigs)
     # TODO: remove summary stuff
-    range_str = "{:.0f}-{:.0f}".format(lower, upper)
+    range_str = "0-{:.0f}".format(upper)
     summary["Contigs"] = (range_str, len(failed_contigs))
     results = namedtuple("filter_contigs_results", ["passed", "failed"])
     filter_contigs_results = results(passed_contigs, failed_contigs)
@@ -183,7 +183,7 @@ def filter_med_ad(passed, summary, criteria, criteria_and_franges):
                           dev_ref].tolist()
     lower = passed[criteria].median() - dev_ref
     upper = passed[criteria].median() + dev_ref
-    range_str = '{:.0f}-{:.0f}'.format(lower, upper)
+    range_str = '{:.3f}-{:.3f}'.format(lower, upper)
     summary[criteria] = (range_str, len(failed))
     results = namedtuple("filter_results", ["passed", "failed"])
     filter_results = results(passed, failed)
