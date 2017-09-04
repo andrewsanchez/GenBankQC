@@ -333,18 +333,11 @@ def color_clade(tree, criteria, to_color):
     """
     from ete3 import NodeStyle
 
-    colors = {
-        "N_Count": "red",
-        "Contigs": "green",
-        "MASH": "blue",
-        "Assembly_Size": "yellow"
-    }
-
     for genome in to_color:
         n = tree.get_leaves_by_name(genome).pop()
         nstyle = NodeStyle()
-        nstyle["fgcolor"] = colors[criteria]
-        nstyle["size"] = 5
+        nstyle["fgcolor"] = color_map[criteria]
+        nstyle["size"] = 6
         n.set_style(nstyle)
 
 
