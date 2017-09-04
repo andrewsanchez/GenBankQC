@@ -8,6 +8,8 @@ from Bio import SeqIO
 from Bio import Phylo
 from Bio.Phylo.TreeConstruction import _DistanceMatrix
 from Bio.Phylo.TreeConstruction import DistanceTreeConstructor
+from genbankfilter.Species import Species
+
 from collections import namedtuple
 
 
@@ -17,6 +19,10 @@ color_map = {
     "MASH": "blue",
     "Assembly_Size": "purple"
 }
+
+
+class FilteredSpecies(Species):
+    pass
 
 
 def get_contigs(fasta, contig_totals):

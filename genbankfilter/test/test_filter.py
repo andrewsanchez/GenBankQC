@@ -12,12 +12,19 @@ class TestFilter(unittest.TestCase):
         shutil.copytree('genbankfilter/test/resources/', self.genbank)
         self.species = 'Buchnera_aphidicola'
         self.species_dir = os.path.join(self.genbank, self.species)
+        self.B_aphidicola = gbf.FilteredSpecies(self.species_dir)
         self.fastas = gbf.get_all_fastas(self.species_dir)
         self.stats = gbf.pd.read_csv(
             os.path.join(self.species_dir, 'stats.csv'), index_col=0)
         self.filter_ranges = [200, 3, 3, 3]
         self.criteria_and_franges = gbf.criteria_dict(self.filter_ranges)
         self.nw_file = os.path.join(self.species_dir, 'tree.nw')
+
+    def test_FilteredSpecies(self):
+        from pandas import DataFrame
+        from ete3 import Tree
+        self.assertEqual(type(self.B_aphidicola.stats), DataFrame)
+        self.assertEqual(type(self.B_aphidicola.tree), Tree)
 
     def test_stats_functions(self):
         from Bio.Seq import Seq
