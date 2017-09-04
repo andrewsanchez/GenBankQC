@@ -100,22 +100,22 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     summary[criteria] = (max_n_count, len(failed_N_count))
     if check_df_len(passed, criteria):
         filter_results = filter_contigs(stats, passed, c_range, summary)
-        color_clade(tree, 'Contigs', filter_results.failed)
+        color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
     criteria = "Assembly_Size"
     if check_df_len(passed, criteria):
         filter_results = filter_med_ad(passed, summary, criteria,
                                        criteria_and_franges)
-        color_clade(tree, "Assembly_Size", filter_results.failed)
+        color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
     criteria = "MASH"
     if check_df_len(passed, criteria):
         filter_results = filter_med_ad(passed, summary, criteria,
                                        criteria_and_franges)
-        color_clade(tree, "Assembly_Size", filter_results.failed)
+        color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
     write_summary(species_dir, summary, filter_ranges)
-    style_and_render_trees(species_dir, tree, filter_ranges)
+    style_and_render_tree(species_dir, tree, filter_ranges)
     return passed
 
 
