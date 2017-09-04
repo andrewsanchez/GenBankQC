@@ -22,7 +22,29 @@ color_map = {
 
 
 class FilteredSpecies(Species):
-    pass
+
+    color_map = {
+        "N_Count": "red",
+        "Contigs": "green",
+        "MASH": "blue",
+        "Assembly_Size": "purple"
+    }
+
+    def __init__(self, species_dir, max_n_count=200, c_range=3.0, s_range=3.0,
+                 m_range=3.0):
+        Species.__init__(self, species_dir)
+        self.max_n_count = max_n_count
+        self.c_range = c_range
+        self.s_range = s_range
+        self.m_range = m_range
+        # probably won't need this
+        self.filter_ranges = [max_n_count, c_range, s_range, m_range]
+        self.criteria_dict = {
+            "Contigs": self.c_range,
+            "Assembly_Size": self.s_range,
+            "MASH": self.m_range,
+            "N_count": self.max_n_count
+        }
 
 
 def get_contigs(fasta, contig_totals):
@@ -98,7 +120,7 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     involved in filtering your genomes.
     """
     max_n_count, c_range, s_range, m_range = filter_ranges
-    criteria_and_franges = criteria_dict(filter_ranges)
+    criteria_dict = criteria_dict(filter_ranges)
     summary = {}
     criteria = "N_Count"
     passed, failed_N_count = filter_Ns(stats, max_n_count)
@@ -111,28 +133,18 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     criteria = "Assembly_Size"
     if check_df_len(passed, criteria):
         filter_results = filter_med_ad(passed, summary, criteria,
-                                       criteria_and_franges)
+                                       criteria_dict)
         color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
     criteria = "MASH"
     if check_df_len(passed, criteria):
         filter_results = filter_med_ad(passed, summary, criteria,
-                                       criteria_and_franges)
+                                       criteria_dict)
         color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
     write_summary(species_dir, summary, filter_ranges)
     style_and_render_tree(species_dir, tree, filter_ranges)
     return passed
-
-
-def criteria_dict(filter_ranges):
-    max_n_count, c_range, s_range, m_range = filter_ranges
-    criteria = {}
-    criteria["N_count"] = max_n_count
-    criteria["Contigs"] = c_range
-    criteria["Assembly_Size"] = s_range
-    criteria["MASH"] = m_range
-    return criteria
 
 
 def filter_Ns(stats, max_n_count):
@@ -175,11 +187,11 @@ def filter_contigs(stats, passed, c_range, summary):
     return filter_contigs_results
 
 
-def filter_med_ad(passed, summary, criteria, criteria_and_franges):
+def filter_med_ad(passed, summary, criteria, criteria_dict):
     """
     Filter based on median absolute deviation
     """
-    f_range = criteria_and_franges[criteria]
+    f_range = criteria_dict[criteria]
     # Get the median absolute deviation
     med_ad = abs(passed[criteria] - passed[criteria].median()).mean()
     dev_ref = med_ad * f_range
