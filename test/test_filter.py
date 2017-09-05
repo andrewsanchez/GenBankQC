@@ -106,5 +106,16 @@ class TestFilteredSpecies(unittest.TestCase):
         self.assertTrue(type(self.B_aphidicola.failed_N_count) ==
                         gbf.pd.DataFrame)
 
+    def test_filter_contigs(self):
+        self.B_aphidicola.passed = self.B_aphidicola.stats
+        self.B_aphidicola.filter_contigs()
+        self.assertEqual(
+            type(self.B_aphidicola.filter_contigs_results.passed),
+            gbf.pd.DataFrame)
+        self.assertEqual(
+            type(self.B_aphidicola.filter_contigs_results.failed),
+            list)
+
+
 if __name__ == '__main__':
     unittest.main()

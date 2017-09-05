@@ -57,6 +57,30 @@ class FilteredSpecies(Species):
         self.failed_N_count = self.stats[self.stats["N_Count"] >=
                                          self.max_n_count]
 
+    def filter_contigs(self):
+
+        contigs = self.passed["Contigs"]
+        # Only look at genomes with > 10 contigs to avoid throwing off the
+        # Median AD Save genomes with < 10 contigs to add them back in later.
+        not_enough_contigs = contigs[contigs <= 10]
+        contigs = contigs[contigs > 10]
+        # Median absolute deviation
+        contigs_med_ad = abs(contigs - contigs.median()).mean()
+        contigs_dev_ref = contigs_med_ad * self.c_range
+        contigs = contigs[abs(contigs - contigs.median()) <= contigs_dev_ref]
+        # Add genomes with < 10 contigs back in
+        contigs = pd.concat([contigs, not_enough_contigs])
+        upper = contigs.median() + contigs_dev_ref
+        # Avoid returning empty DataFrame when no genomes are removed above
+        if len(contigs) == len(self.passed):
+            passed_contigs = self.passed
+            failed_contigs = []
+        else:
+            failed_contigs = [i for i in self.passed.index
+                              if i not in contigs.index]
+            passed_contigs = self.passed.drop(failed_contigs)
+        results = namedtuple("filter_contigs_results", ["passed", "failed"])
+        self.filter_contigs_results = results(passed_contigs, failed_contigs)
 
 def get_contigs(fasta, contig_totals):
     """
