@@ -49,7 +49,7 @@ class FilteredSpecies(Species):
     def __str__(self):
         str(self.criteria_dict)
 
-    def filter_Ns(self):
+    def filter_unknown_bases(self):
         """
         Filter out genomes with too many unknown bases.
         """
