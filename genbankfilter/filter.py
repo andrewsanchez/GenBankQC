@@ -100,6 +100,11 @@ class FilteredSpecies(Species):
         lower = self.passed[criteria].median() - dev_ref
         upper = self.passed[criteria].median() + dev_ref
 
+    def color_tree(self):
+        pass
+        
+
+
 def get_contigs(fasta, contig_totals):
     """
     Return a list of of Bio.Seq.Seq objects for fasta and calculate
@@ -165,6 +170,30 @@ def generate_stats(species_dir, dmx):
         dtype="float64")
 
     return stats
+
+
+def _filter_all(FilteredSpecies):
+    """
+    This function strings together all of the steps
+    involved in filtering your genomes.
+    """
+    FilteredSpecies.filter_unknown_bases()
+    color_clade(FilteredSpecies.tree, "N_Count",
+                FilteredSpecies.failed_N_count)
+    if check_df_len(FilteredSpecies.passed, "N_Count"):
+        FilteredSpecies.filter_contigs()
+        color_clade(FilteredSpecies.tree, "Contigs",
+                    FilteredSpecies.failed)
+    if check_df_len(FilteredSpecies.passed, "Assembly_Size"):
+        FilteredSpecies.filter_med_ad("Assembly_Size")
+        color_clade(FilteredSpecies.tree, "Assembly_Size",
+                    FilteredSpecies.failed)
+    if check_df_len(FilteredSpecies.passed, "MASH"):
+        filter_med_ad("MASH")
+        color_clade(FilteredSpecies.tree, "MASH",
+                    FilteredSpecies.failed)
+    style_and_render_tree(FilteredSpecies.species_dir, FilteredSpecies.tree,
+                          FilteredSpecies.filter_ranges)
 
 
 def filter_all(species_dir, stats, tree, filter_ranges):
