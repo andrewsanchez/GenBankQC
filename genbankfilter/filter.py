@@ -46,6 +46,17 @@ class FilteredSpecies(Species):
             "N_count": self.max_n_count
         }
 
+    def __str__(self):
+        str(self.criteria_dict)
+
+    def filter_Ns(self):
+        """
+        Filter out genomes with too many unknown bases.
+        """
+        self.passed = self.stats[self.stats["N_Count"] <= self.max_n_count]
+        self.failed_N_count = self.stats[self.stats["N_Count"] >=
+                                         self.max_n_count]
+
 
 def get_contigs(fasta, contig_totals):
     """
