@@ -107,14 +107,23 @@ class TestFilteredSpecies(unittest.TestCase):
                         gbf.pd.DataFrame)
 
     def test_filter_contigs(self):
-        self.B_aphidicola.passed = self.B_aphidicola.stats
         self.B_aphidicola.filter_contigs()
-        self.assertEqual(
-            type(self.B_aphidicola.filter_contigs_results.passed),
-            gbf.pd.DataFrame)
-        self.assertEqual(
-            type(self.B_aphidicola.filter_contigs_results.failed),
-            list)
+        self.assertEqual(type(self.B_aphidicola.passed),
+                         gbf.pd.DataFrame)
+        self.assertEqual(type(self.B_aphidicola.failed), list)
+
+    def test_filter_med_ad(self):
+        self.B_aphidicola.filter_med_ad("MASH")
+        self.assertEqual(type(self.B_aphidicola.passed),
+                         gbf.pd.DataFrame)
+        self.assertEqual(type(self.B_aphidicola.failed), list)
+        self.B_aphidicola.filter_med_ad("Assembly_Size")
+        self.assertEqual(type(self.B_aphidicola.passed),
+                         gbf.pd.DataFrame)
+        self.assertEqual(type(self.B_aphidicola.failed), list)
+
+    def tearDown(self):
+        shutil.rmtree(self.genbank)
 
 
 if __name__ == '__main__':

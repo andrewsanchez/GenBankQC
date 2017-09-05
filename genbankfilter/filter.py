@@ -76,6 +76,25 @@ class FilteredSpecies(Species):
             self.passed = self.passed
             self.failed = []
         else:
+            self.failed = [i for i in self.passed.index
+                           if i not in contigs.index]
+            self.passed = self.passed.drop(self.failed)
+
+    def filter_med_ad(self, criteria):
+        """ Filter based on median absolute deviation."""
+        f_range = self.criteria_dict[criteria]
+        # Get the median absolute deviation
+        med_ad = abs(self.passed[criteria] -
+                     self.passed[criteria].median()).mean()
+        dev_ref = med_ad * f_range
+        self.passed = self.passed[abs(
+            self.passed[criteria] -
+            self.passed[criteria].median()) <= dev_ref]
+        self.failed = self.passed.index[abs(
+            self.passed[criteria] -
+            self.passed[criteria].median()) >= dev_ref].tolist()
+        lower = self.passed[criteria].median() - dev_ref
+        upper = self.passed[criteria].median() + dev_ref
 
 def get_contigs(fasta, contig_totals):
     """
