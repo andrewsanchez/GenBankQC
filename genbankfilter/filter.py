@@ -257,6 +257,16 @@ def filter_med_ad(passed, summary, criteria, criteria_dict):
     return filter_results
 
 
+def criteria_dict(filter_ranges):
+    max_n_count, c_range, s_range, m_range = filter_ranges
+    criteria = {}
+    criteria["N_count"] = max_n_count
+    criteria["Contigs"] = c_range
+    criteria["Assembly_Size"] = s_range
+    criteria["MASH"] = m_range
+    return criteria
+
+
 def check_df_len(df, criteria, num=5):
     """
     Verify that df has > than num genomes

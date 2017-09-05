@@ -17,7 +17,7 @@ class TestFilter(unittest.TestCase):
         self.stats = gbf.pd.read_csv(
             os.path.join(self.species_dir, 'stats.csv'), index_col=0)
         self.filter_ranges = [200, 3, 3, 3]
-        # self.criteria_and_franges = gbf.criteria_dict(self.filter_ranges)
+        self.criteria_and_franges = gbf.criteria_dict(self.filter_ranges)
         self.nw_file = os.path.join(self.species_dir, 'tree.nw')
 
     def test_stats_functions(self):
