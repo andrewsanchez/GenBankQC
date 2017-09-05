@@ -103,7 +103,7 @@ def get_all_fastas(species_dir, ext="fasta"):
 
 def generate_stats(species_dir, dmx):
     """
-    Generate a data frame containing all of the stats for genomes
+    Generate a pandas DataFrame containing all of the stats for genomes
     in species_dir.
     """
     fastas = get_all_fastas(species_dir)
