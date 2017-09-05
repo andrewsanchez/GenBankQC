@@ -38,6 +38,7 @@ class FilteredSpecies(Species):
         self.s_range = s_range
         self.m_range = m_range
         # probably won't need this
+        self.passed = self.stats
         self.filter_ranges = [max_n_count, c_range, s_range, m_range]
         self.criteria_dict = {
             "Contigs": self.c_range,
@@ -58,7 +59,6 @@ class FilteredSpecies(Species):
                                          self.max_n_count]
 
     def filter_contigs(self):
-
         contigs = self.passed["Contigs"]
         # Only look at genomes with > 10 contigs to avoid throwing off the
         # Median AD Save genomes with < 10 contigs to add them back in later.
@@ -73,14 +73,9 @@ class FilteredSpecies(Species):
         upper = contigs.median() + contigs_dev_ref
         # Avoid returning empty DataFrame when no genomes are removed above
         if len(contigs) == len(self.passed):
-            passed_contigs = self.passed
-            failed_contigs = []
+            self.passed = self.passed
+            self.failed = []
         else:
-            failed_contigs = [i for i in self.passed.index
-                              if i not in contigs.index]
-            passed_contigs = self.passed.drop(failed_contigs)
-        results = namedtuple("filter_contigs_results", ["passed", "failed"])
-        self.filter_contigs_results = results(passed_contigs, failed_contigs)
 
 def get_contigs(fasta, contig_totals):
     """
