@@ -100,6 +100,9 @@ class TestFilteredSpecies(unittest.TestCase):
         self.assertEqual(type(self.B_aphidicola.stats), gbf.pd.DataFrame)
         self.assertEqual(type(self.B_aphidicola.tree), gbf.Tree)
 
+    def test_str(self):
+        print(self.B_aphidicola)
+    
     def test_filter_unknown_bases(self):
         self.B_aphidicola.filter_unknown_bases()
         self.assertTrue(type(self.B_aphidicola.passed) == gbf.pd.DataFrame)
