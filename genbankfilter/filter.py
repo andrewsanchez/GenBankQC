@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+import collections
 import pandas as pd
 import numpy as np
 from ete3 import Tree
@@ -20,6 +21,7 @@ color_map = {
     "Assembly_Size": "purple"
 }
 
+filter_criteria = ["Contings", "Assembly_Size", "MASH", "N_count"]
 
 class FilteredSpecies(Species):
 
@@ -37,18 +39,20 @@ class FilteredSpecies(Species):
         self.c_range = c_range
         self.s_range = s_range
         self.m_range = m_range
-        # probably won't need this
         self.passed = self.stats
         self.filter_ranges = [max_n_count, c_range, s_range, m_range]
-        self.criteria_dict = {
-            "Contigs": self.c_range,
-            "Assembly_Size": self.s_range,
-            "MASH": self.m_range,
-            "N_count": self.max_n_count
-        }
+        self._criteria_dict = collections.defaultdict(dict)
+        self._criteria_dict["N_count"]["tolerance"] = self.max_n_count
+        self._criteria_dict["Contigs"]["tolerance"] = self.c_range
+        self._criteria_dict["MASH"]["tolerance"] = self.m_range
+        self._criteria_dict["Assembly_Size"]["tolerance"] = self.s_range
+        self._criteria_dict["N_count"]["color"] = "red"
+        self._criteria_dict["Contigs"]["color"] = "green"
+        self._criteria_dict["MASH"]["color"] = "blue"
+        self._criteria_dict["Assembly_Size"]["color"] = "purple"
 
     def __str__(self):
-        str(self.criteria_dict)
+        return str(dict(self._criteria_dict))
 
     def filter_unknown_bases(self):
         """
@@ -82,7 +86,7 @@ class FilteredSpecies(Species):
 
     def filter_med_ad(self, criteria):
         """ Filter based on median absolute deviation."""
-        f_range = self.criteria_dict[criteria]
+        f_range = self._criteria_dict[criteria]["tolerance"]
         # Get the median absolute deviation
         med_ad = abs(self.passed[criteria] -
                      self.passed[criteria].median()).mean()
