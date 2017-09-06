@@ -41,7 +41,7 @@ class FilteredSpecies(Species):
         self.c_range = c_range
         self.s_range = s_range
         self.m_range = m_range
-        self.passed = self.stats
+        self.passed = pd.DataFrame(columns=self.stats.columns)
         self.filter_ranges = [max_n_count, c_range, s_range, m_range]
         self._criteria_dict = collections.defaultdict(dict)
         self._criteria_dict["N_count"]["tolerance"] = self.max_n_count
