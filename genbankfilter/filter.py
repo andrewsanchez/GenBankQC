@@ -191,7 +191,7 @@ def _filter_all(FilteredSpecies):
         color_clade(FilteredSpecies.tree, "Assembly_Size",
                     FilteredSpecies.failed)
     if check_df_len(FilteredSpecies.passed, "MASH"):
-        filter_med_ad("MASH")
+        FilteredSpecies.filter_med_ad("MASH")
         color_clade(FilteredSpecies.tree, "MASH",
                     FilteredSpecies.failed)
     style_and_render_tree(FilteredSpecies.species_dir, FilteredSpecies.tree,
