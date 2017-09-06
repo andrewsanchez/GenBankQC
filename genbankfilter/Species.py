@@ -1,15 +1,6 @@
 import os
-import re
-import shutil
 import pandas as pd
-import numpy as np
 from ete3 import Tree
-from Bio import SeqIO
-from Bio import Phylo
-from Bio.Phylo.TreeConstruction import _DistanceMatrix
-from Bio.Phylo.TreeConstruction import DistanceTreeConstructor
-
-from collections import namedtuple
 
 
 class Species:
