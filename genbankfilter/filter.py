@@ -4,14 +4,15 @@ import shutil
 import collections
 import pandas as pd
 import numpy as np
+from collections import namedtuple
 from ete3 import Tree
 from Bio import SeqIO
 from Bio import Phylo
 from Bio.Phylo.TreeConstruction import _DistanceMatrix
 from Bio.Phylo.TreeConstruction import DistanceTreeConstructor
-from genbankfilter.Species import Species
 
-from collections import namedtuple
+
+from genbankfilter.Species import Species
 
 
 color_map = {
@@ -22,6 +23,7 @@ color_map = {
 }
 
 filter_criteria = ["Contings", "Assembly_Size", "MASH", "N_count"]
+
 
 class FilteredSpecies(Species):
 
