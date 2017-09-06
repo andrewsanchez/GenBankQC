@@ -102,28 +102,25 @@ class TestFilteredSpecies(unittest.TestCase):
 
     def test_str(self):
         print(self.B_aphidicola)
-    
+
     def test_filter_unknown_bases(self):
         self.B_aphidicola.filter_unknown_bases()
-        self.assertTrue(type(self.B_aphidicola.passed) == gbf.pd.DataFrame)
-        self.assertTrue(type(self.B_aphidicola.failed_N_count) ==
-                        gbf.pd.DataFrame)
+        self.assertIsInstance(self.B_aphidicola.passed, gbf.pd.DataFrame)
+        self.assertIsInstance(self.B_aphidicola.failed_N_count, gbf.pd.Index)
 
     def test_filter_contigs(self):
         self.B_aphidicola.filter_contigs()
-        self.assertEqual(type(self.B_aphidicola.passed),
-                         gbf.pd.DataFrame)
-        self.assertEqual(type(self.B_aphidicola.failed), list)
+        self.assertIsInstance(self.B_aphidicola.passed, gbf.pd.DataFrame)
+        self.assertIsInstance(self.B_aphidicola.failed, list)
 
     def test_filter_med_ad(self):
-        self.B_aphidicola.filter_med_ad("MASH")
-        self.assertEqual(type(self.B_aphidicola.passed),
-                         gbf.pd.DataFrame)
-        self.assertEqual(type(self.B_aphidicola.failed), list)
-        self.B_aphidicola.filter_med_ad("Assembly_Size")
-        self.assertEqual(type(self.B_aphidicola.passed),
-                         gbf.pd.DataFrame)
-        self.assertEqual(type(self.B_aphidicola.failed), list)
+        for criteria in ["MASH", "Assembly_Size"]:
+            self.B_aphidicola.filter_med_ad(criteria)
+            self.assertIsInstance(self.B_aphidicola.passed, gbf.pd.DataFrame)
+            self.assertIsInstance(self.B_aphidicola.failed, list)
+
+    def test_filter_all(self):
+        gbf._filter_all(self.B_aphidicola)
 
     def tearDown(self):
         shutil.rmtree(self.genbank)
