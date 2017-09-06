@@ -61,8 +61,8 @@ class FilteredSpecies(Species):
         Filter out genomes with too many unknown bases.
         """
         self.passed = self.stats[self.stats["N_Count"] <= self.max_n_count]
-        self.failed_N_count = self.stats[self.stats["N_Count"] >=
-                                         self.max_n_count]
+        self.failed_N_count = self.stats.index[self.stats["N_Count"] >=
+                                               self.max_n_count]
 
     def filter_contigs(self):
         contigs = self.passed["Contigs"]
