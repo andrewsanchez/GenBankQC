@@ -18,11 +18,11 @@ from genbankfilter.Species import Species
 color_map = {
     "N_Count": "red",
     "Contigs": "green",
-    "MASH": "blue",
+    "MASH": "orange",
     "Assembly_Size": "purple"
 }
 
-filter_criteria = ["Contings", "Assembly_Size", "MASH", "N_count"]
+filter_criteria = ["Contigs", "Assembly_Size", "MASH", "N_Count"]
 
 
 class FilteredSpecies(Species):
@@ -30,7 +30,7 @@ class FilteredSpecies(Species):
     color_map = {
         "N_Count": "red",
         "Contigs": "green",
-        "MASH": "blue",
+        "MASH": "orange",
         "Assembly_Size": "purple"
     }
 
@@ -44,13 +44,13 @@ class FilteredSpecies(Species):
         self.passed = pd.DataFrame(columns=self.stats.columns)
         self.filter_ranges = [max_n_count, c_range, s_range, m_range]
         self._criteria_dict = collections.defaultdict(dict)
-        self._criteria_dict["N_count"]["tolerance"] = self.max_n_count
+        self._criteria_dict["N_Count"]["tolerance"] = self.max_n_count
         self._criteria_dict["Contigs"]["tolerance"] = self.c_range
         self._criteria_dict["MASH"]["tolerance"] = self.m_range
         self._criteria_dict["Assembly_Size"]["tolerance"] = self.s_range
-        self._criteria_dict["N_count"]["color"] = "red"
+        self._criteria_dict["N_Count"]["color"] = "red"
         self._criteria_dict["Contigs"]["color"] = "green"
-        self._criteria_dict["MASH"]["color"] = "blue"
+        self._criteria_dict["MASH"]["color"] = "orange"
         self._criteria_dict["Assembly_Size"]["color"] = "purple"
 
     def __str__(self):
@@ -132,13 +132,13 @@ def get_assembly_size(contigs, assembly_sizes):
     return assembly_size
 
 
-def get_N_count(contigs, n_counts):
+def get_N_Count(contigs, n_counts):
     """
     Count the number of unknown bases, i.e. all bases that are not in [ATCG]
     """
-    N_count = sum([len(re.findall("[^ATCG]", str(seq))) for seq in contigs])
-    n_counts.append(N_count)
-    return N_count
+    N_Count = sum([len(re.findall("[^ATCG]", str(seq))) for seq in contigs])
+    n_counts.append(N_Count)
+    return N_Count
 
 
 def get_all_fastas(species_dir, ext="fasta"):
@@ -162,7 +162,7 @@ def generate_stats(species_dir, dmx):
         file_names.append(name)
         contigs, contig_count = get_contigs(f, contig_totals)
         get_assembly_size(contigs, assembly_sizes)
-        get_N_count(contigs, n_counts)
+        get_N_Count(contigs, n_counts)
 
     SeqDataSet = list(zip(n_counts, contig_totals, assembly_sizes, dmx.mean()))
     stats = pd.DataFrame(
@@ -179,21 +179,18 @@ def _filter_all(FilteredSpecies):
     This function strings together all of the steps
     involved in filtering your genomes.
     """
+    base_node_style(FilteredSpecies.tree)
     FilteredSpecies.filter_unknown_bases()
-    color_clade(FilteredSpecies.tree, "N_Count",
-                FilteredSpecies.failed_N_count)
+    FilteredSpecies.color_clade("N_Count")
     if check_df_len(FilteredSpecies.passed, "N_Count"):
         FilteredSpecies.filter_contigs()
-        color_clade(FilteredSpecies.tree, "Contigs",
-                    FilteredSpecies.failed)
+        FilteredSpecies.color_clade("Contigs")
     if check_df_len(FilteredSpecies.passed, "Assembly_Size"):
         FilteredSpecies.filter_med_ad("Assembly_Size")
-        color_clade(FilteredSpecies.tree, "Assembly_Size",
-                    FilteredSpecies.failed)
+        FilteredSpecies.color_clade("Assembly_Size")
     if check_df_len(FilteredSpecies.passed, "MASH"):
         FilteredSpecies.filter_med_ad("MASH")
-        color_clade(FilteredSpecies.tree, "MASH",
-                    FilteredSpecies.failed)
+        FilteredSpecies.color_clade("MASH")
     style_and_render_tree(FilteredSpecies.species_dir, FilteredSpecies.tree,
                           FilteredSpecies.filter_ranges)
 
@@ -207,9 +204,9 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     criteria_dict = criteria_dict(filter_ranges)
     summary = {}
     criteria = "N_Count"
-    passed, failed_N_count = filter_Ns(stats, max_n_count)
-    color_clade(tree, criteria, failed_N_count.index)
-    summary[criteria] = (max_n_count, len(failed_N_count))
+    passed, failed_N_Count = filter_Ns(stats, max_n_count)
+    color_clade(tree, criteria, failed_N_Count.index)
+    summary[criteria] = (max_n_count, len(failed_N_Count))
     if check_df_len(passed, criteria):
         filter_results = filter_contigs(stats, passed, c_range, summary)
         color_clade(tree, criteria, filter_results.failed)
@@ -236,8 +233,8 @@ def filter_Ns(stats, max_n_count):
     Filter out genomes with too many unknown bases.
     """
     passed = stats[stats["N_Count"] <= max_n_count]
-    failed_N_count = stats[stats["N_Count"] >= max_n_count]
-    return passed, failed_N_count
+    failed_N_Count = stats[stats["N_Count"] >= max_n_count]
+    return passed, failed_N_Count
 
 
 def filter_contigs(stats, passed, c_range, summary):
@@ -295,7 +292,7 @@ def filter_med_ad(passed, summary, criteria, criteria_dict):
 def criteria_dict(filter_ranges):
     max_n_count, c_range, s_range, m_range = filter_ranges
     criteria = {}
-    criteria["N_count"] = max_n_count
+    criteria["N_Count"] = max_n_count
     criteria["Contigs"] = c_range
     criteria["Assembly_Size"] = s_range
     criteria["MASH"] = m_range
@@ -437,7 +434,6 @@ def base_node_style(tree):
             nf.margin_left = 3
             n.add_face(nf, column=0)
         else:  n.name = ' '
-    return tree
 
 
 def color_clade(tree, criteria, to_color):
