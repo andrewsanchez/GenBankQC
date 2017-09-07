@@ -124,6 +124,10 @@ class TestFilteredSpecies(unittest.TestCase):
 
     def test_filter_all(self):
         gbf._filter_all(self.B_aphidicola)
+        tree_svg = os.path.join(self.species_dir, "tree_200-3.0-3.0-3.0.svg")
+        shutil.move(tree_svg, "/Users/andrew/scratch/test_tree.svg")
+        tree_svg = "/Users/andrew/scratch/test_tree.svg"
+        subprocess.Popen("open {}".format(tree_svg), shell=True)
 
     def tearDown(self):
         shutil.rmtree(self.genbank)
