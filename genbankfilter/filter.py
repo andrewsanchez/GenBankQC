@@ -120,14 +120,13 @@ class FilteredSpecies(Species):
         nstyle["fgcolor"] = "black"
         for n in self.tree.traverse():
             n.set_style(nstyle)
-            # if not n.name.startswith('Inner'):
-            #     nf = AttrFace('name', fsize=8)
-            #     nf.margin_right = 100
-            #     nf.margin_left = 3
-            #     n.add_face(nf, column=0)
-            # else:
-            #     pass
-                # n.name = ' '
+            if not n.name.startswith('Inner'):
+                nf = AttrFace('name', fsize=8)
+                nf.margin_right = 100
+                nf.margin_left = 3
+                n.add_face(nf, column=0)
+            else:
+                n.name = ' '
 
     def color_clade(self, criteria):
         """Color nodes using ete3 """
@@ -213,7 +212,7 @@ def _filter_all(FilteredSpecies):
     This function strings together all of the steps
     involved in filtering your genomes.
     """
-    base_node_style(FilteredSpecies.tree)
+    FilteredSpecies.base_node_style()
     FilteredSpecies.filter_unknown_bases()
     FilteredSpecies.color_clade("N_Count")
     if check_df_len(FilteredSpecies.passed, "N_Count"):
