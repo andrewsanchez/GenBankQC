@@ -2,6 +2,7 @@ import os
 import shutil
 import unittest
 import tempfile
+import subprocess
 import genbankfilter.filter as gbf
 
 
@@ -106,7 +107,9 @@ class TestFilteredSpecies(unittest.TestCase):
     def test_filter_unknown_bases(self):
         self.B_aphidicola.filter_unknown_bases()
         self.assertIsInstance(self.B_aphidicola.passed, gbf.pd.DataFrame)
-        self.assertIsInstance(self.B_aphidicola.failed_N_count, gbf.pd.Index)
+        self.assertIsInstance(
+            self.B_aphidicola._criteria_dict["N_Count"]["failed"],
+            gbf.pd.Index)
 
     def test_filter_contigs(self):
         self.B_aphidicola.filter_contigs()
