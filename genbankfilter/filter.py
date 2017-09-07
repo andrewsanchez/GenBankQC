@@ -102,9 +102,33 @@ class FilteredSpecies(Species):
         lower = self.passed[criteria].median() - dev_ref
         upper = self.passed[criteria].median() + dev_ref
 
-    def color_tree(self):
-        pass
-        
+    def base_node_style(self):
+        from ete3 import NodeStyle, AttrFace
+        nstyle = NodeStyle()
+        nstyle["shape"] = "sphere"
+        nstyle["size"] = 2
+        nstyle["fgcolor"] = "black"
+        for n in self.tree.traverse():
+            n.set_style(nstyle)
+            # if not n.name.startswith('Inner'):
+            #     nf = AttrFace('name', fsize=8)
+            #     nf.margin_right = 100
+            #     nf.margin_left = 3
+            #     n.add_face(nf, column=0)
+            # else:
+            #     pass
+                # n.name = ' '
+
+    def color_clade(self, criteria):
+        """Color nodes using ete3 """
+        from ete3 import NodeStyle
+
+        for genome in self._criteria_dict[criteria]["failed"]:
+            n = self.tree.get_leaves_by_name(genome).pop()
+            nstyle = NodeStyle()
+            nstyle["fgcolor"] = self._criteria_dict[criteria]["color"]
+            nstyle["size"] = 6
+            n.set_style(nstyle)
 
 
 def get_contigs(fasta, contig_totals):
