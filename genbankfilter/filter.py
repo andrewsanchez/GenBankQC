@@ -61,8 +61,10 @@ class FilteredSpecies(Species):
         Filter out genomes with too many unknown bases.
         """
         self.passed = self.stats[self.stats["N_Count"] <= self.max_n_count]
-        self.failed_N_count = self.stats.index[self.stats["N_Count"] >=
-                                               self.max_n_count]
+        self._criteria_dict["N_Count"]["failed"] = self.stats.index[
+            self.stats["N_Count"] >= self.max_n_count]
+        # self.failed_N_Count = self.stats.index[self.stats["N_Count"] >=
+        #                                        self.max_n_count]
 
     def filter_contigs(self):
         contigs = self.passed["Contigs"]
@@ -81,9 +83,13 @@ class FilteredSpecies(Species):
         if len(contigs) == len(self.passed):
             self.passed = self.passed
             self.failed = []
+            self._criteria_dict["Contigs"]["failed"] = []
         else:
             self.failed = [i for i in self.passed.index
                            if i not in contigs.index]
+            self._criteria_dict["Contigs"]["failed"] = [
+                i for i in self.passed.index
+                if i not in contigs.index]
             self.passed = self.passed.drop(self.failed)
 
     def filter_med_ad(self, criteria):
@@ -93,9 +99,13 @@ class FilteredSpecies(Species):
         med_ad = abs(self.passed[criteria] -
                      self.passed[criteria].median()).mean()
         dev_ref = med_ad * f_range
+        # self._criteria_dict[criteria]["passed"] = 
         self.passed = self.passed[abs(
             self.passed[criteria] -
             self.passed[criteria].median()) <= dev_ref]
+        self._criteria_dict[criteria]["failed"] = self.passed.index[abs(
+            self.passed[criteria] -
+            self.passed[criteria].median()) >= dev_ref].tolist()
         self.failed = self.passed.index[abs(
             self.passed[criteria] -
             self.passed[criteria].median()) >= dev_ref].tolist()
