@@ -80,7 +80,7 @@ class FilteredSpecies(Species):
         contigs = contigs[abs(contigs - contigs.median()) <= contigs_dev_ref]
         # Add genomes with < 10 contigs back in
         contigs = pd.concat([contigs, not_enough_contigs])
-        upper = contigs.median() + contigs_dev_ref
+        self.max_contigs = contigs.median() + contigs_dev_ref
         # Avoid returning empty DataFrame when no genomes are removed above
         if len(contigs) == len(self.passed):
             self.passed = self.passed
