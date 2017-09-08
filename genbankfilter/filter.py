@@ -34,13 +34,15 @@ class FilteredSpecies(Species):
         "Assembly_Size": "purple"
     }
 
-    def __init__(self, species_dir, max_n_count=200, c_range=3.0, s_range=3.0,
-                 m_range=3.0):
+    def __init__(self, species_dir, max_n_count=1000, c_range=4.0, s_range=3.0,
+                 m_range=1.0):
         Species.__init__(self, species_dir)
         self.max_n_count = max_n_count
         self.c_range = c_range
         self.s_range = s_range
         self.m_range = m_range
+        self.tolerance_label = '{}-{}-{}-{}'.format(
+            max_n_count, c_range, s_range, m_range)
         self.passed = pd.DataFrame(columns=self.stats.columns)
         self.filter_ranges = [max_n_count, c_range, s_range, m_range]
         self._criteria_dict = collections.defaultdict(dict)
@@ -54,7 +56,7 @@ class FilteredSpecies(Species):
         self._criteria_dict["Assembly_Size"]["color"] = "purple"
 
     def __str__(self):
-        return str(dict(self._criteria_dict))
+        return self.species + '\n' + str(dict(self._criteria_dict))
 
     def filter_unknown_bases(self):
         """
