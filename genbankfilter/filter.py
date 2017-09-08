@@ -141,6 +141,42 @@ class FilteredSpecies(Species):
             nstyle["size"] = 6
             n.set_style(nstyle)
 
+    # Might be better in a layout function
+    def style_and_render_tree(self, file_types=["svg"]):
+        from ete3 import TreeStyle, TextFace, CircleFace
+        # midpoint root tree
+        self.tree.set_outgroup(self.tree.get_midpoint_outgroup())
+        ts = TreeStyle()
+        title_face = TextFace(self.species, fsize=20)
+        ts.title.add_face(title_face, column=0)
+        ts.branch_vertical_margin = 10
+        ts.show_leaf_name = False
+        # Legend
+        for k, v in color_map.items():
+            failures = "Filtered: {}".format(len(self._criteria_dict[k]["failed"]))
+            failures = TextFace(failures, fgcolor=v)
+            failures.margin_bottom = 5
+            tolerance = "Tolerance: {}".format(self._criteria_dict[k]["tolerance"])
+            tolerance = TextFace(tolerance, fgcolor=v)
+            tolerance.margin_bottom = 5
+            f = TextFace(k, fgcolor=v)
+            f.margin_bottom = 5
+            f.margin_right = 40
+            cf = CircleFace(3, v, style="sphere")
+            cf.margin_bottom = 5
+            cf.margin_right = 5
+            ts.legend.add_face(f, column=1)
+            ts.legend.add_face(cf, column=2)
+            ts.legend.add_face(failures, 1)
+            ts.legend.add_face(TextFace(""), 2)
+            ts.legend.add_face(tolerance, 1)
+            ts.legend.add_face(TextFace(""), 2)
+        for f in file_types:
+            out_tree = os.path.join(self.species_dir,
+                                    'tree_{}.{}'.format(self.tolerance_label,
+                                                        f))
+            self.tree.render(out_tree, tree_style=ts)
+
 
 def get_contigs(fasta, contig_totals):
     """
@@ -226,8 +262,7 @@ def _filter_all(FilteredSpecies):
     if check_df_len(FilteredSpecies.passed, "MASH"):
         FilteredSpecies.filter_med_ad("MASH")
         FilteredSpecies.color_clade("MASH")
-    style_and_render_tree(FilteredSpecies.species_dir, FilteredSpecies.tree,
-                          FilteredSpecies.filter_ranges)
+    FilteredSpecies.style_and_render_tree()
 
 
 def filter_all(species_dir, stats, tree, filter_ranges):
@@ -425,34 +460,6 @@ def nested_matrix(matrix):
         tmp = trild[i, :i + 1]
         nested_dmx.append(tmp.tolist())
     return nested_dmx
-
-
-def style_and_render_tree(species_dir, tree, filter_ranges,
-                          file_types=["png", "svg"]):
-    from ete3 import TreeStyle, TextFace, CircleFace
-    # not be a reliable way to get species name
-    species = species_dir.split('/')[-1]
-    max_n_count, c_range, s_range, m_range = filter_ranges
-    ts = TreeStyle()
-    ts.title.add_face(TextFace(species, fsize=20), column=0)
-    # midpoint root tree
-    tree.set_outgroup(tree.get_midpoint_outgroup())
-    ts.branch_vertical_margin = 10
-    ts.show_leaf_name = False
-    # Legend
-    for k, v in color_map.items():
-        f = TextFace(k, fgcolor=v)
-        f.margin_bottom = 5
-        f.margin_right = 30
-        cf = CircleFace(3, v, style="sphere")
-        cf.margin_bottom = 5
-        cf.margin_right = 5
-        ts.legend.add_face(f, column=1)
-        ts.legend.add_face(cf, column=2)
-    for f in file_types:
-        out = 'tree_{}-{}-{}-{}'.format(max_n_count, c_range, s_range, m_range)
-        out = os.path.join(species_dir, '{}.{}'.format(out, f))
-        tree.render(out, tree_style=ts)
 
 
 def base_node_style(tree):
