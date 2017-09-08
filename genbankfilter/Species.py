@@ -12,6 +12,7 @@ class Species:
 
     def __init__(self, species_dir):
         self.species_dir = species_dir
+        self.species = species_dir.strip('/').split('/')[-1]
         stats = os.path.join(self.species_dir, 'stats.csv')
         if os.path.isfile(stats):
             self.stats = pd.read_csv(stats, index_col=0)
