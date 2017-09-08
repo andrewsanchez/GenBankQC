@@ -64,7 +64,7 @@ class FilteredSpecies(Species):
         """
         self.passed = self.stats[self.stats["N_Count"] <= self.max_n_count]
         self._criteria_dict["N_Count"]["failed"] = self.stats.index[
-            self.stats["N_Count"] >= self.max_n_count]
+            self.stats["N_Count"] > self.max_n_count]
         # self.failed_N_Count = self.stats.index[self.stats["N_Count"] >=
         #                                        self.max_n_count]
 
