@@ -1,22 +1,181 @@
 import os
 import re
 import shutil
+import collections
 import pandas as pd
 import numpy as np
+from collections import namedtuple
 from ete3 import Tree
 from Bio import SeqIO
 from Bio import Phylo
 from Bio.Phylo.TreeConstruction import _DistanceMatrix
 from Bio.Phylo.TreeConstruction import DistanceTreeConstructor
-from collections import namedtuple
+
+
+from genbankfilter.Species import Species
 
 
 color_map = {
     "N_Count": "red",
     "Contigs": "green",
-    "MASH": "blue",
+    "MASH": "orange",
     "Assembly_Size": "purple"
 }
+
+filter_criteria = ["Contigs", "Assembly_Size", "MASH", "N_Count"]
+
+
+class FilteredSpecies(Species):
+
+    color_map = {
+        "N_Count": "red",
+        "Contigs": "green",
+        "MASH": "orange",
+        "Assembly_Size": "purple"
+    }
+
+    def __init__(self, species_dir, max_n_count=1000, c_range=4.0, s_range=3.0,
+                 m_range=1.0):
+        Species.__init__(self, species_dir)
+        self.max_n_count = max_n_count
+        self.c_range = c_range
+        self.s_range = s_range
+        self.m_range = m_range
+        self.tolerance_label = '{}-{}-{}-{}'.format(
+            max_n_count, c_range, s_range, m_range)
+        self.passed = pd.DataFrame(columns=self.stats.columns)
+        self.filter_ranges = [max_n_count, c_range, s_range, m_range]
+        self._criteria_dict = collections.defaultdict(dict)
+        self._criteria_dict["N_Count"]["tolerance"] = self.max_n_count
+        self._criteria_dict["Contigs"]["tolerance"] = self.c_range
+        self._criteria_dict["MASH"]["tolerance"] = self.m_range
+        self._criteria_dict["Assembly_Size"]["tolerance"] = self.s_range
+        self._criteria_dict["N_Count"]["color"] = "red"
+        self._criteria_dict["Contigs"]["color"] = "green"
+        self._criteria_dict["MASH"]["color"] = "orange"
+        self._criteria_dict["Assembly_Size"]["color"] = "purple"
+
+    def __str__(self):
+        return self.species + '\n' + str(dict(self._criteria_dict))
+
+    def filter_unknown_bases(self):
+        """
+        Filter out genomes with too many unknown bases.
+        """
+        self.passed = self.stats[self.stats["N_Count"] <= self.max_n_count]
+        self._criteria_dict["N_Count"]["failed"] = self.stats.index[
+            self.stats["N_Count"] > self.max_n_count]
+        # self.failed_N_Count = self.stats.index[self.stats["N_Count"] >=
+        #                                        self.max_n_count]
+
+    def filter_contigs(self):
+        contigs = self.passed["Contigs"]
+        # Only look at genomes with > 10 contigs to avoid throwing off the
+        # Median AD Save genomes with < 10 contigs to add them back in later.
+        not_enough_contigs = contigs[contigs <= 10]
+        contigs = contigs[contigs > 10]
+        # Median absolute deviation
+        contigs_med_ad = abs(contigs - contigs.median()).mean()
+        contigs_dev_ref = contigs_med_ad * self.c_range
+        contigs = contigs[abs(contigs - contigs.median()) <= contigs_dev_ref]
+        # Add genomes with < 10 contigs back in
+        contigs = pd.concat([contigs, not_enough_contigs])
+        self.max_contigs = contigs.median() + contigs_dev_ref
+        # Avoid returning empty DataFrame when no genomes are removed above
+        if len(contigs) == len(self.passed):
+            self.passed = self.passed
+            self.failed = []
+            self._criteria_dict["Contigs"]["failed"] = []
+        else:
+            self.failed = [i for i in self.passed.index
+                           if i not in contigs.index]
+            self._criteria_dict["Contigs"]["failed"] = [
+                i for i in self.passed.index
+                if i not in contigs.index]
+            self.passed = self.passed.drop(self.failed)
+
+    def filter_med_ad(self, criteria):
+        """ Filter based on median absolute deviation."""
+        f_range = self._criteria_dict[criteria]["tolerance"]
+        # Get the median absolute deviation
+        med_ad = abs(self.passed[criteria] -
+                     self.passed[criteria].median()).mean()
+        dev_ref = med_ad * f_range
+        # self._criteria_dict[criteria]["passed"] = 
+        self.passed = self.passed[abs(
+            self.passed[criteria] -
+            self.passed[criteria].median()) <= dev_ref]
+        self._criteria_dict[criteria]["failed"] = self.passed.index[abs(
+            self.passed[criteria] -
+            self.passed[criteria].median()) >= dev_ref].tolist()
+        self.failed = self.passed.index[abs(
+            self.passed[criteria] -
+            self.passed[criteria].median()) >= dev_ref].tolist()
+        lower = self.passed[criteria].median() - dev_ref
+        upper = self.passed[criteria].median() + dev_ref
+
+    def base_node_style(self):
+        from ete3 import NodeStyle, AttrFace
+        nstyle = NodeStyle()
+        nstyle["shape"] = "sphere"
+        nstyle["size"] = 2
+        nstyle["fgcolor"] = "black"
+        for n in self.tree.traverse():
+            n.set_style(nstyle)
+            if not n.name.startswith('Inner'):
+                nf = AttrFace('name', fsize=8)
+                nf.margin_right = 100
+                nf.margin_left = 3
+                n.add_face(nf, column=0)
+            else:
+                n.name = ' '
+
+    def color_clade(self, criteria):
+        """Color nodes using ete3 """
+        from ete3 import NodeStyle
+
+        for genome in self._criteria_dict[criteria]["failed"]:
+            n = self.tree.get_leaves_by_name(genome).pop()
+            nstyle = NodeStyle()
+            nstyle["fgcolor"] = self._criteria_dict[criteria]["color"]
+            nstyle["size"] = 6
+            n.set_style(nstyle)
+
+    # Might be better in a layout function
+    def style_and_render_tree(self, file_types=["svg"]):
+        from ete3 import TreeStyle, TextFace, CircleFace
+        # midpoint root tree
+        self.tree.set_outgroup(self.tree.get_midpoint_outgroup())
+        ts = TreeStyle()
+        title_face = TextFace(self.species, fsize=20)
+        ts.title.add_face(title_face, column=0)
+        ts.branch_vertical_margin = 10
+        ts.show_leaf_name = False
+        # Legend
+        for k, v in color_map.items():
+            failures = "Filtered: {}".format(len(self._criteria_dict[k]["failed"]))
+            failures = TextFace(failures, fgcolor=v)
+            failures.margin_bottom = 5
+            tolerance = "Tolerance: {}".format(self._criteria_dict[k]["tolerance"])
+            tolerance = TextFace(tolerance, fgcolor=v)
+            tolerance.margin_bottom = 5
+            f = TextFace(k, fgcolor=v)
+            f.margin_bottom = 5
+            f.margin_right = 40
+            cf = CircleFace(3, v, style="sphere")
+            cf.margin_bottom = 5
+            cf.margin_right = 5
+            ts.legend.add_face(f, column=1)
+            ts.legend.add_face(cf, column=2)
+            ts.legend.add_face(failures, 1)
+            ts.legend.add_face(TextFace(""), 2)
+            ts.legend.add_face(tolerance, 1)
+            ts.legend.add_face(TextFace(""), 2)
+        for f in file_types:
+            out_tree = os.path.join(self.species_dir,
+                                    'tree_{}.{}'.format(self.tolerance_label,
+                                                        f))
+            self.tree.render(out_tree, tree_style=ts)
 
 
 def get_contigs(fasta, contig_totals):
@@ -44,13 +203,13 @@ def get_assembly_size(contigs, assembly_sizes):
     return assembly_size
 
 
-def get_N_count(contigs, n_counts):
+def get_N_Count(contigs, n_counts):
     """
     Count the number of unknown bases, i.e. all bases that are not in [ATCG]
     """
-    N_count = sum([len(re.findall("[^ATCG]", str(seq))) for seq in contigs])
-    n_counts.append(N_count)
-    return N_count
+    N_Count = sum([len(re.findall("[^ATCG]", str(seq))) for seq in contigs])
+    n_counts.append(N_Count)
+    return N_Count
 
 
 def get_all_fastas(species_dir, ext="fasta"):
@@ -64,7 +223,7 @@ def get_all_fastas(species_dir, ext="fasta"):
 
 def generate_stats(species_dir, dmx):
     """
-    Generate a data frame containing all of the stats for genomes
+    Generate a pandas DataFrame containing all of the stats for genomes
     in species_dir.
     """
     fastas = get_all_fastas(species_dir)
@@ -74,7 +233,7 @@ def generate_stats(species_dir, dmx):
         file_names.append(name)
         contigs, contig_count = get_contigs(f, contig_totals)
         get_assembly_size(contigs, assembly_sizes)
-        get_N_count(contigs, n_counts)
+        get_N_Count(contigs, n_counts)
 
     SeqDataSet = list(zip(n_counts, contig_totals, assembly_sizes, dmx.mean()))
     stats = pd.DataFrame(
@@ -86,18 +245,38 @@ def generate_stats(species_dir, dmx):
     return stats
 
 
+def _filter_all(FilteredSpecies):
+    """
+    This function strings together all of the steps
+    involved in filtering your genomes.
+    """
+    FilteredSpecies.base_node_style()
+    FilteredSpecies.filter_unknown_bases()
+    FilteredSpecies.color_clade("N_Count")
+    if check_df_len(FilteredSpecies.passed, "N_Count"):
+        FilteredSpecies.filter_contigs()
+        FilteredSpecies.color_clade("Contigs")
+    if check_df_len(FilteredSpecies.passed, "Assembly_Size"):
+        FilteredSpecies.filter_med_ad("Assembly_Size")
+        FilteredSpecies.color_clade("Assembly_Size")
+    if check_df_len(FilteredSpecies.passed, "MASH"):
+        FilteredSpecies.filter_med_ad("MASH")
+        FilteredSpecies.color_clade("MASH")
+    FilteredSpecies.style_and_render_tree()
+
+
 def filter_all(species_dir, stats, tree, filter_ranges):
     """
     This function strings together all of the steps
     involved in filtering your genomes.
     """
     max_n_count, c_range, s_range, m_range = filter_ranges
-    criteria_and_franges = criteria_dict(filter_ranges)
+    criteria_dict = criteria_dict(filter_ranges)
     summary = {}
     criteria = "N_Count"
-    passed, failed_N_count = filter_Ns(stats, max_n_count)
-    color_clade(tree, criteria, failed_N_count.index)
-    summary[criteria] = (max_n_count, len(failed_N_count))
+    passed, failed_N_Count = filter_Ns(stats, max_n_count)
+    color_clade(tree, criteria, failed_N_Count.index)
+    summary[criteria] = (max_n_count, len(failed_N_Count))
     if check_df_len(passed, criteria):
         filter_results = filter_contigs(stats, passed, c_range, summary)
         color_clade(tree, criteria, filter_results.failed)
@@ -105,13 +284,13 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     criteria = "Assembly_Size"
     if check_df_len(passed, criteria):
         filter_results = filter_med_ad(passed, summary, criteria,
-                                       criteria_and_franges)
+                                       criteria_dict)
         color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
     criteria = "MASH"
     if check_df_len(passed, criteria):
         filter_results = filter_med_ad(passed, summary, criteria,
-                                       criteria_and_franges)
+                                       criteria_dict)
         color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
     write_summary(species_dir, summary, filter_ranges)
@@ -119,23 +298,13 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     return passed
 
 
-def criteria_dict(filter_ranges):
-    max_n_count, c_range, s_range, m_range = filter_ranges
-    criteria = {}
-    criteria["N_count"] = max_n_count
-    criteria["Contigs"] = c_range
-    criteria["Assembly_Size"] = s_range
-    criteria["MASH"] = m_range
-    return criteria
-
-
 def filter_Ns(stats, max_n_count):
     """
     Filter out genomes with too many unknown bases.
     """
     passed = stats[stats["N_Count"] <= max_n_count]
-    failed_N_count = stats[stats["N_Count"] >= max_n_count]
-    return passed, failed_N_count
+    failed_N_Count = stats[stats["N_Count"] >= max_n_count]
+    return passed, failed_N_Count
 
 
 def filter_contigs(stats, passed, c_range, summary):
@@ -169,11 +338,11 @@ def filter_contigs(stats, passed, c_range, summary):
     return filter_contigs_results
 
 
-def filter_med_ad(passed, summary, criteria, criteria_and_franges):
+def filter_med_ad(passed, summary, criteria, criteria_dict):
     """
     Filter based on median absolute deviation
     """
-    f_range = criteria_and_franges[criteria]
+    f_range = criteria_dict[criteria]
     # Get the median absolute deviation
     med_ad = abs(passed[criteria] - passed[criteria].median()).mean()
     dev_ref = med_ad * f_range
@@ -188,6 +357,16 @@ def filter_med_ad(passed, summary, criteria, criteria_and_franges):
     results = namedtuple("filter_results", ["passed", "failed"])
     filter_results = results(passed, failed)
     return filter_results
+
+
+def criteria_dict(filter_ranges):
+    max_n_count, c_range, s_range, m_range = filter_ranges
+    criteria = {}
+    criteria["N_Count"] = max_n_count
+    criteria["Contigs"] = c_range
+    criteria["Assembly_Size"] = s_range
+    criteria["MASH"] = m_range
+    return criteria
 
 
 def check_df_len(df, criteria, num=5):
@@ -283,34 +462,6 @@ def nested_matrix(matrix):
     return nested_dmx
 
 
-def style_and_render_tree(species_dir, tree, filter_ranges,
-                          file_types=["png", "svg"]):
-    from ete3 import TreeStyle, TextFace, CircleFace
-    # not be a reliable way to get species name
-    species = species_dir.split('/')[-1]
-    max_n_count, c_range, s_range, m_range = filter_ranges
-    ts = TreeStyle()
-    ts.title.add_face(TextFace(species, fsize=20), column=0)
-    # midpoint root tree
-    tree.set_outgroup(tree.get_midpoint_outgroup())
-    ts.branch_vertical_margin = 10
-    ts.show_leaf_name = False
-    # Legend
-    for k, v in color_map.items():
-        f = TextFace(k, fgcolor=v)
-        f.margin_bottom = 5
-        f.margin_right = 30
-        cf = CircleFace(3, v, style="sphere")
-        cf.margin_bottom = 5
-        cf.margin_right = 5
-        ts.legend.add_face(f, column=1)
-        ts.legend.add_face(cf, column=2)
-    for f in file_types:
-        out = 'tree_{}-{}-{}-{}'.format(max_n_count, c_range, s_range, m_range)
-        out = os.path.join(species_dir, '{}.{}'.format(out, f))
-        tree.render(out, tree_style=ts)
-
-
 def base_node_style(tree):
     from ete3 import NodeStyle, AttrFace, TextFace
     nstyle = NodeStyle()
@@ -325,7 +476,6 @@ def base_node_style(tree):
             nf.margin_left = 3
             n.add_face(nf, column=0)
         else:  n.name = ' '
-    return tree
 
 
 def color_clade(tree, criteria, to_color):

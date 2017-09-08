@@ -2,6 +2,7 @@ import os
 import shutil
 import unittest
 import tempfile
+import subprocess
 import genbankfilter.filter as gbf
 
 
@@ -9,9 +10,10 @@ class TestFilter(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
         self.genbank = os.path.join(self.tmp, 'genbank')
-        shutil.copytree('genbankfilter/test/resources/', self.genbank)
+        shutil.copytree('test/resources/', self.genbank)
         self.species = 'Buchnera_aphidicola'
         self.species_dir = os.path.join(self.genbank, self.species)
+        self.B_aphidicola = gbf.FilteredSpecies(self.species_dir)
         self.fastas = gbf.get_all_fastas(self.species_dir)
         self.stats = gbf.pd.read_csv(
             os.path.join(self.species_dir, 'stats.csv'), index_col=0)
@@ -80,6 +82,52 @@ class TestFilter(unittest.TestCase):
             print(p)
             self.assertTrue(os.path.isfile(p[0]))
             self.assertTrue(len(p) == 1)
+
+    def tearDown(self):
+        shutil.rmtree(self.genbank)
+
+
+class TestFilteredSpecies(unittest.TestCase):
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.genbank = os.path.join(self.tmp, 'genbank')
+        shutil.copytree('test/resources/', self.genbank)
+        self.species = 'Buchnera_aphidicola'
+        self.species_dir = os.path.join(self.genbank, self.species)
+        self.B_aphidicola = gbf.FilteredSpecies(self.species_dir)
+
+    def test_init(self):
+        self.assertEqual(type(self.B_aphidicola.stats), gbf.pd.DataFrame)
+        self.assertEqual(type(self.B_aphidicola.tree), gbf.Tree)
+
+    def test_str(self):
+        print(self.B_aphidicola)
+
+    def test_filter_unknown_bases(self):
+        self.B_aphidicola.filter_unknown_bases()
+        self.assertIsInstance(self.B_aphidicola.passed, gbf.pd.DataFrame)
+        self.assertIsInstance(
+            self.B_aphidicola._criteria_dict["N_Count"]["failed"],
+            gbf.pd.Index)
+
+    def test_filter_contigs(self):
+        self.B_aphidicola.filter_contigs()
+        self.assertIsInstance(self.B_aphidicola.passed, gbf.pd.DataFrame)
+        self.assertIsInstance(self.B_aphidicola.failed, list)
+
+    def test_filter_med_ad(self):
+        for criteria in ["MASH", "Assembly_Size"]:
+            self.B_aphidicola.filter_med_ad(criteria)
+            self.assertIsInstance(self.B_aphidicola.passed, gbf.pd.DataFrame)
+            self.assertIsInstance(self.B_aphidicola.failed, list)
+
+    def test_filter_all(self):
+        gbf._filter_all(self.B_aphidicola)
+        tree_svg = os.path.join(self.species_dir, "tree_200-3.0-3.0-3.0.svg")
+        shutil.move(tree_svg, "/Users/andrew/scratch/test_tree.svg")
+        tree_svg = "/Users/andrew/scratch/test_tree.svg"
+        subprocess.Popen("open {}".format(tree_svg), shell=True)
 
     def tearDown(self):
         shutil.rmtree(self.genbank)
