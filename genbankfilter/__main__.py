@@ -3,30 +3,6 @@ import genbankfilter.filter as gbf
 import genbankfilter.mash as mash
 
 
-def just_filter():
-    stats = os.path.join(os.path.join(species_dir, "info"), "stats.csv")
-    stats = pd.read_csv(stats, index_col=0)
-    filter_med_ad(species_dir, stats, max_ns, c_range, s_range, m_range)
-
-
-def stats_are_current():
-    genomes_in_dir = 0
-    for f in os.listdir(species_dir):
-        if f.endswith("fasta"):
-            genomes_in_dir += 1
-    genomes_in_stats = len(stats.index)
-    if genomes_in_dir == genomes_in_stats:
-        print(
-            "stats.csv is current. Filtering will be based on existing stats.csv"
-        )
-        return True
-    else:
-        print(
-            "stats.csv is not current.  MASH will be run and stats.csv will be updated."
-        )
-        return False
-
-
 @click.command()
 @click.option(
     '--mash-exe',
