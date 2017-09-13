@@ -1,5 +1,3 @@
-import os
-import pandas as pd
 import click
 import genbankfilter.filter as gbf
 import genbankfilter.mash as mash
