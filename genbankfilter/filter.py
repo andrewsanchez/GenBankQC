@@ -19,36 +19,21 @@ class FilteredSpecies(Species):
     def __init__(self, species_dir, max_unknowns=200, contigs=3.0,
                  assembly_size=3.0, mash=3.0):
         Species.__init__(self, species_dir)
-        self.tolerance = {
-            "MASH": mash,
-            "Assembly_Size": assembly_size}
-        self.max_unknowns = {
-            "tolerance": max_unknowns,
-            "allowed": max_unknowns,
-            "color": "red",
-            "passed": [],
-            "failed": []}
-        self.contigs = {
-            "tolerance": contigs,
-            "color": "green",
-            "passed": [],
-            "failed": []}
-        self.assembly_size = {
-            "tolerance": assembly_size,
-            "color": "purple",
-            "passed": [],
-            "failed": []}
-        self.mash = {
-            "tolerance": mash,
-            "color": "pink",
-            "passed": [],
-            "failed": []}
-        self.label = '{}-{}-{}-{}'.format(
-            self.max_unknowns["tolerance"],
-            self.contigs["tolerance"],
-            self.assembly_size["tolerance"],
-            self.mash["tolerance"])
+        self.max_unknowns = max_unknowns
+        self.contigs = contigs
+        self.assembly_size = assembly_size
+        self.mash = mash
+        # Tolerance values need to be accessible by the string of their name
+        self.tolerance = {"unknowns": max_unknowns, "contigs": contigs,
+                          "Assembly_Size": assembly_size, "MASH": mash}
         self.failed = {}
+        self.med_abs_devs = {}
+        self.dev_refs = {}
+        self.allowed = {"unknowns": max_unknowns}
+        self.colors = {"unknowns": "red", "contigs": "green",
+                       "mash": "purple", "size": "pink"}
+        self.label = '{}-{}-{}-{}'.format(max_unknowns, contigs,
+                                          assembly_size, mash)
         self.passed = pd.DataFrame(index=self.stats.index,
                                    columns=self.stats.columns)
 
