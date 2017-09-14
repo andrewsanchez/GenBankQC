@@ -150,11 +150,13 @@ class TestFilteredSpecies(unittest.TestCase):
                          baumanii.passed.index.tolist())
         self.assertIsInstance(baumanii.contigs["allowed"], float)
 
-    def test_filter_med_ad(self):
+    def test_filter_med_abs_dev(self):
+        self.B_aphidicola.passed = self.B_aphidicola.stats
         for criteria in ["MASH", "Assembly_Size"]:
-            self.B_aphidicola.filter_med_ad(criteria)
+            self.B_aphidicola.filter_med_abs_dev(criteria)
             self.assertIsInstance(self.B_aphidicola.passed, gbf.pd.DataFrame)
-            self.assertIsInstance(self.B_aphidicola.failed, list)
+            self.assertIsInstance(self.B_aphidicola.failed[criteria],
+                                  gbf.pd.Index)
 
     def test_filter_all(self):
         gbf._filter_all(self.B_aphidicola)
