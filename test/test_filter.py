@@ -100,6 +100,20 @@ class TestFilteredSpecies(unittest.TestCase):
     def test_init(self):
         self.assertEqual(type(self.B_aphidicola.stats), gbf.pd.DataFrame)
         self.assertEqual(type(self.B_aphidicola.tree), gbf.Tree)
+        # Check default values
+        self.assertEqual(self.B_aphidicola.max_unknowns["tolerance"], 200)
+        self.assertEqual(self.B_aphidicola.contigs["tolerance"], 3.0)
+        self.assertEqual(self.B_aphidicola.assembly_size["tolerance"], 3.0)
+        self.assertEqual(self.B_aphidicola.mash["tolerance"], 3.0)
+        self.assertEqual(self.B_aphidicola.label, "200-3.0-3.0-3.0")
+        # Check different values are set properly
+        self.B_aphidicola = gbf.FilteredSpecies(self.species_dir, 300,
+                                                2.0, 2.0, 2.0)
+        self.assertEqual(self.B_aphidicola.max_unknowns["tolerance"], 300)
+        self.assertEqual(self.B_aphidicola.contigs["tolerance"], 2.0)
+        self.assertEqual(self.B_aphidicola.assembly_size["tolerance"], 2.0)
+        self.assertEqual(self.B_aphidicola.mash["tolerance"], 2.0)
+        self.assertEqual(self.B_aphidicola.label, "300-2.0-2.0-2.0")
 
     def test_str(self):
         print(self.B_aphidicola)
