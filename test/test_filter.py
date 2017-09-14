@@ -144,17 +144,20 @@ class TestFilteredSpecies(unittest.TestCase):
                          self.B_aphidicola.failed["unknowns"].tolist())
 
     def test_filter_contigs(self):
-        baumanii = gbf.FilteredSpecies("test/resources/Acinetobacter_baumanii")
-        baumanii.passed = baumanii.stats
-        baumanii.filter_contigs()
-        self.assertEqual(len(baumanii.contigs["passed"]) +
-                         len(baumanii.contigs["failed"]), len(baumanii.stats))
-        self.assertIsInstance(baumanii.passed, gbf.pd.DataFrame)
-        self.assertIsInstance(baumanii.contigs["passed"], gbf.pd.Index)
-        self.assertIsInstance(baumanii.contigs["failed"], gbf.pd.Index)
-        self.assertEqual(baumanii.contigs["passed"].tolist(),
-                         baumanii.passed.index.tolist())
-        self.assertIsInstance(baumanii.contigs["allowed"], float)
+        baumannii = gbf.FilteredSpecies(
+            "test/resources/Acinetobacter_baumannii")
+        baumannii.passed = baumannii.stats
+        baumannii.filter_contigs()
+        self.assertEqual(len(baumannii.passed) +
+                         len(baumannii.failed["contigs"]),
+                         len(baumannii.stats))
+        self.assertIsInstance(baumannii.med_abs_devs["contigs"], float)
+        self.assertIsInstance(baumannii.dev_refs["contigs"], float)
+        self.assertIsInstance(baumannii.allowed["contigs"], float)
+        self.assertIsInstance(baumannii.passed, gbf.pd.DataFrame)
+        self.assertIsInstance(baumannii.failed["contigs"], gbf.pd.Index)
+        self.assertIsInstance(baumannii.allowed["contigs"], float)
+
 
     def test_filter_med_abs_dev(self):
         self.B_aphidicola.passed = self.B_aphidicola.stats
