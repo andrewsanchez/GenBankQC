@@ -48,13 +48,11 @@ class FilteredSpecies(Species):
 
     def filter_unknown_bases(self):
         """Filter out genomes with too many unknown bases."""
-        self.passed = self.stats[self.stats["N_Count"] <=
-                                 self.max_unknowns["tolerance"]]
-        self.max_unknowns["passed"] = self.passed.index
-        self.max_unknowns["failed"] = self.stats.index[
-            self.stats["N_Count"] > self.max_unknowns["tolerance"]]
-        self.failed["unknowns"] = self.max_unknowns["failed"]
-        # Test for expected failures here.
+        # self.passed = self.stats[
+        #     self.stats["N_Count"] <= self.max_unknowns]
+        self.failed["unknowns"] = self.stats.index[
+            self.stats["N_Count"] > self.tolerance["unknowns"]]
+        self.passed = self.stats.drop(self.failed["unknowns"])
 
     def filter_contigs(self):
         # Only look at genomes with > 10 contigs to avoid throwing off the
