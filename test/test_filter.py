@@ -183,12 +183,18 @@ class TestFilteredSpecies(unittest.TestCase):
                               gbf.pd.Index)
 
     def test_filter_med_abs_dev(self):
-        self.B_aphidicola.passed = self.B_aphidicola.stats
+        baumannii = gbf.FilteredSpecies(
+            "test/resources/Acinetobacter_baumannii")
+        baumannii.passed = baumannii.stats
         for criteria in ["MASH", "Assembly_Size"]:
-            self.B_aphidicola.filter_med_abs_dev(criteria)
-            self.assertIsInstance(self.B_aphidicola.passed, gbf.pd.DataFrame)
-            self.assertIsInstance(self.B_aphidicola.failed[criteria],
+            genomes_before_filtering = len(baumannii.passed)
+            baumannii.filter_med_abs_dev(criteria)
+            self.assertIsInstance(baumannii.passed, gbf.pd.DataFrame)
+            self.assertIsInstance(baumannii.failed[criteria],
                                   gbf.pd.Index)
+            self.assertEqual(len(baumannii.passed) +
+                             len(baumannii.failed[criteria]),
+                             genomes_before_filtering)
 
     def test_filter_all(self):
         baumanii = gbf.FilteredSpecies("test/resources/Acinetobacter_baumanii")
