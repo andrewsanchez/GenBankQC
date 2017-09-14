@@ -288,26 +288,26 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     This function strings together all of the steps
     involved in filtering your genomes.
     """
-    max_n_count, c_range, s_range, m_range = filter_ranges
+    max_unknowns, c_range, s_range, m_range = filter_ranges
     criteria_dict = criteria_dict(filter_ranges)
     summary = {}
     criteria = "N_Count"
-    passed, failed_N_Count = filter_Ns(stats, max_n_count)
+    passed, failed_N_Count = filter_Ns(stats, max_unknowns)
     color_clade(tree, criteria, failed_N_Count.index)
-    summary[criteria] = (max_n_count, len(failed_N_Count))
+    summary[criteria] = (max_unknowns, len(failed_N_Count))
     if check_df_len(passed, criteria):
         filter_results = filter_contigs(stats, passed, c_range, summary)
         color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
     criteria = "Assembly_Size"
     if check_df_len(passed, criteria):
-        filter_results = filter_med_ad(passed, summary, criteria,
+        filter_results = filter_med_abs_dev(passed, summary, criteria,
                                        criteria_dict)
         color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
     criteria = "MASH"
     if check_df_len(passed, criteria):
-        filter_results = filter_med_ad(passed, summary, criteria,
+        filter_results = filter_med_abs_dev(passed, summary, criteria,
                                        criteria_dict)
         color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
@@ -316,12 +316,12 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     return passed
 
 
-def filter_Ns(stats, max_n_count):
+def filter_Ns(stats, max_unknowns):
     """
     Filter out genomes with too many unknown bases.
     """
-    passed = stats[stats["N_Count"] <= max_n_count]
-    failed_N_Count = stats[stats["N_Count"] >= max_n_count]
+    passed = stats[stats["N_Count"] <= max_unknowns]
+    failed_N_Count = stats[stats["N_Count"] >= max_unknowns]
     return passed, failed_N_Count
 
 
@@ -333,8 +333,8 @@ def filter_contigs(stats, passed, c_range, summary):
     not_enough_contigs = contigs[contigs <= 10]
     contigs = contigs[contigs > 10]
     # Median absolute deviation
-    contigs_med_ad = abs(contigs - contigs.median()).mean()
-    contigs_dev_ref = contigs_med_ad * c_range
+    contigs_med_abs_dev = abs(contigs - contigs.median()).mean()
+    contigs_dev_ref = contigs_med_abs_dev * c_range
     contigs = contigs[abs(contigs - contigs.median()) <= contigs_dev_ref]
     # Add genomes with < 10 contigs back in
     contigs = pd.concat([contigs, not_enough_contigs])
@@ -356,14 +356,14 @@ def filter_contigs(stats, passed, c_range, summary):
     return filter_contigs_results
 
 
-def filter_med_ad(passed, summary, criteria, criteria_dict):
+def filter_med_abs_dev(passed, summary, criteria, criteria_dict):
     """
     Filter based on median absolute deviation
     """
     f_range = criteria_dict[criteria]
     # Get the median absolute deviation
-    med_ad = abs(passed[criteria] - passed[criteria].median()).mean()
-    dev_ref = med_ad * f_range
+    med_abs_dev = abs(passed[criteria] - passed[criteria].median()).mean()
+    dev_ref = med_abs_dev * f_range
     passed = passed[abs(passed[criteria] - passed[criteria].median()) <=
                     dev_ref]
     failed = passed.index[abs(passed[criteria] - passed[criteria].median()) >=
@@ -378,9 +378,9 @@ def filter_med_ad(passed, summary, criteria, criteria_dict):
 
 
 def criteria_dict(filter_ranges):
-    max_n_count, c_range, s_range, m_range = filter_ranges
+    max_unknowns, c_range, s_range, m_range = filter_ranges
     criteria = {}
-    criteria["N_Count"] = max_n_count
+    criteria["N_Count"] = max_unknowns
     criteria["Contigs"] = c_range
     criteria["Assembly_Size"] = s_range
     criteria["MASH"] = m_range
@@ -404,8 +404,8 @@ def write_summary(species_dir, summary, filter_ranges):
     """
     Write a summary of the filtering results.
     """
-    max_n_count, c_range, s_range, m_range = filter_ranges
-    out = 'summary_{}-{}-{}-{}.txt'.format(max_n_count, c_range, s_range,
+    max_unknowns, c_range, s_range, m_range = filter_ranges
+    out = 'summary_{}-{}-{}-{}.txt'.format(max_unknowns, c_range, s_range,
                                            m_range)
     out = os.path.join(species_dir, out)
     if os.path.isfile(out):
