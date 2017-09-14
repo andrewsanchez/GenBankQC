@@ -12,6 +12,7 @@ class TestFilter(unittest.TestCase):
         shutil.copytree('test/resources/', self.genbank)
         self.species = 'Buchnera_aphidicola'
         self.species_dir = os.path.join(self.genbank, self.species)
+        self.baumannii = os.path.join(self.genbank, "Acinetobacter_baumannii")
         self.B_aphidicola = gbf.FilteredSpecies(self.species_dir)
         self.fastas = gbf.get_all_fastas(self.species_dir)
         self.stats = gbf.pd.read_csv(
@@ -74,11 +75,9 @@ class TestFilter(unittest.TestCase):
         file_types = ["*png", "*svg"]
         tree = gbf.read_nw_tree(self.nw_file)
         gbf.style_and_render_tree(self.species_dir, tree, self.filter_ranges)
-        print(os.listdir(self.species_dir))
         for f in file_types:
             img = os.path.join(self.species_dir, f)
             p = glob(img)
-            print(p)
             self.assertTrue(os.path.isfile(p[0]))
             self.assertTrue(len(p) == 1)
 
@@ -213,16 +212,17 @@ class TestFilteredSpecies(unittest.TestCase):
 
     def test_filter_all(self):
         import subprocess
-        baumannii = gbf.FilteredSpecies(
-            "test/resources/Acinetobacter_baumannii")
+        species_dir = os.path.join(self.genbank, "Acinetobacter_baumannii")
+        baumannii = gbf.FilteredSpecies(species_dir)
         gbf.filter_all(baumannii)
-        print(baumannii)
-        print(baumannii.summary())
-        print(os.listdir(baumannii.species_dir))
         tree_svg = os.path.join(baumannii.species_dir, "tree_200-3.0-3.0-3.0.svg")
-        shutil.move(tree_svg, "/Users/andrew/scratch/test_tree.svg")
-        tree_svg = "/Users/andrew/scratch/test_tree.svg"
-        subprocess.Popen("open {}".format(tree_svg), shell=True)
+        user = subprocess.Popen(
+            "echo $USER",
+            shell=True,
+            stdout=subprocess.PIPE).communicate()[0].decode().strip()
+        shutil.move(tree_svg, "/scratch/{}/test_tree.svg".format(user))
+        # tree_svg = "/Users/andrew/scratch/test_tree.svg"
+        # subprocess.Popen("open {}".format(tree_svg), shell=True)
 
     def tearDown(self):
         shutil.rmtree(self.genbank)
