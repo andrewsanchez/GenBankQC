@@ -15,16 +15,6 @@ from Bio.Phylo.TreeConstruction import DistanceTreeConstructor
 from genbankfilter.Species import Species
 
 
-color_map = {
-    "N_Count": "red",
-    "Contigs": "green",
-    "MASH": "orange",
-    "Assembly_Size": "purple"
-}
-
-filter_criteria = ["Contigs", "Assembly_Size", "MASH", "N_Count"]
-
-
 class FilteredSpecies(Species):
 
     color_map = {
