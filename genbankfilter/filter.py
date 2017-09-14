@@ -31,7 +31,7 @@ class FilteredSpecies(Species):
         self.dev_refs = {}
         self.allowed = {"unknowns": max_unknowns}
         self.colors = {"unknowns": "red", "contigs": "green",
-                       "mash": "purple", "size": "pink"}
+                       "MASH": "purple", "Assembly_Size": "orange"}
         self.label = '{}-{}-{}-{}'.format(max_unknowns, contigs,
                                           assembly_size, mash)
         self.passed = pd.DataFrame(index=self.stats.index,
@@ -129,10 +129,10 @@ class FilteredSpecies(Species):
         """Color nodes using ete3 """
         from ete3 import NodeStyle
 
-        for genome in self._criteria_dict[criteria]["failed"]:
+        for genome in self.failed[criteria]:
             n = self.tree.get_leaves_by_name(genome).pop()
             nstyle = NodeStyle()
-            nstyle["fgcolor"] = self._criteria_dict[criteria]["color"]
+            nstyle["fgcolor"] = self.colors[criteria]
             nstyle["size"] = 6
             n.set_style(nstyle)
 
@@ -147,11 +147,11 @@ class FilteredSpecies(Species):
         ts.branch_vertical_margin = 10
         ts.show_leaf_name = False
         # Legend
-        for k, v in color_map.items():
-            failures = "Filtered: {}".format(len(self._criteria_dict[k]["failed"]))
+        for k, v in self.colors.items():
+            failures = "Filtered: {}".format(len(self.failed[k]))
             failures = TextFace(failures, fgcolor=v)
             failures.margin_bottom = 5
-            tolerance = "Tolerance: {}".format(self._criteria_dict[k]["tolerance"])
+            tolerance = "Tolerance: {}".format(self.tolerance[k])
             tolerance = TextFace(tolerance, fgcolor=v)
             tolerance.margin_bottom = 5
             f = TextFace(k, fgcolor=v)
@@ -240,27 +240,29 @@ def generate_stats(species_dir, dmx):
     return stats
 
 
-def _filter_all(FilteredSpecies):
+def filter_all(FilteredSpecies):
     """
     This function strings together all of the steps
     involved in filtering your genomes.
     """
-    # FilteredSpecies.base_node_style()
+    # Change color_clade so that the method calls need not occur in
+    # these if statements
+    FilteredSpecies.base_node_style()
     FilteredSpecies.filter_unknown_bases()
-    # FilteredSpecies.color_clade("N_Count")
+    FilteredSpecies.color_clade("unknowns")
     if check_df_len(FilteredSpecies.passed, "N_Count"):
         FilteredSpecies.filter_contigs()
-        # FilteredSpecies.color_clade("Contigs")
+        FilteredSpecies.color_clade("contigs")
     if check_df_len(FilteredSpecies.passed, "Assembly_Size"):
         FilteredSpecies.filter_med_abs_dev("Assembly_Size")
-        # FilteredSpecies.color_clade("Assembly_Size")
+        FilteredSpecies.color_clade("Assembly_Size")
     if check_df_len(FilteredSpecies.passed, "MASH"):
         FilteredSpecies.filter_med_abs_dev("MASH")
-        # FilteredSpecies.color_clade("MASH")
-    # FilteredSpecies.style_and_render_tree()
+        FilteredSpecies.color_clade("MASH")
+    FilteredSpecies.style_and_render_tree()
 
 
-def filter_all(species_dir, stats, tree, filter_ranges):
+def _filter_all(species_dir, stats, tree, filter_ranges):
     """
     This function strings together all of the steps
     involved in filtering your genomes.
