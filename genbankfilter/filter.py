@@ -123,6 +123,14 @@ class FilteredSpecies(Species):
         # lower = self.passed[criteria].median() - dev_ref
         # upper = self.passed[criteria].median() + dev_ref
 
+    def summary(self):
+        summary = ["Failed",
+                   "Unknown Bases: {}".format(len(self.failed["unknowns"])),
+                   "Contigs: {}".format(len(self.failed["contigs"])),
+                   "Assembly Size: {}".format(
+                       len(self.failed["Assembly_Size"])),
+                   "MASH: {}".format(len(self.failed["MASH"]))]
+        return '\n'.join(summary)
 
     def base_node_style(self):
         from ete3 import NodeStyle, AttrFace
