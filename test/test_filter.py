@@ -158,6 +158,29 @@ class TestFilteredSpecies(unittest.TestCase):
         self.assertIsInstance(baumannii.failed["contigs"], gbf.pd.Index)
         self.assertIsInstance(baumannii.allowed["contigs"], float)
 
+    def test_filter_mash(self):
+        baumannii = gbf.FilteredSpecies(
+            "test/resources/Acinetobacter_baumannii")
+        baumannii.passed = baumannii.stats
+        baumannii.filter_med_abs_dev("MASH")
+        self.assertEqual(len(baumannii.passed) +
+                         len(baumannii.failed["MASH"]),
+                         len(baumannii.stats))
+        self.assertIsInstance(baumannii.passed, gbf.pd.DataFrame)
+        self.assertIsInstance(baumannii.failed["MASH"],
+                              gbf.pd.Index)
+
+    def test_filter_assembly_size(self):
+        baumannii = gbf.FilteredSpecies(
+            "test/resources/Acinetobacter_baumannii")
+        baumannii.passed = baumannii.stats
+        baumannii.filter_med_abs_dev("Assembly_Size")
+        self.assertEqual(len(baumannii.passed) +
+                         len(baumannii.failed["Assembly_Size"]),
+                         len(baumannii.stats))
+        self.assertIsInstance(baumannii.passed, gbf.pd.DataFrame)
+        self.assertIsInstance(baumannii.failed["Assembly_Size"],
+                              gbf.pd.Index)
 
     def test_filter_med_abs_dev(self):
         self.B_aphidicola.passed = self.B_aphidicola.stats
