@@ -65,22 +65,25 @@ class FilteredSpecies(Species):
         # for all genomes
         # Define separate function for this
         med_abs_dev = abs(eligible_contigs - eligible_contigs.median()).mean()
+        self.med_abs_devs["contigs"] = med_abs_dev
         # Define separate function for this
         # The "deviation reference"
         # Multiply
-        dev_ref = med_abs_dev * self.contigs["tolerance"]
-        self.contigs["passed"] = eligible_contigs[
-            abs(eligible_contigs - eligible_contigs.median()) <= dev_ref]
-        self.contigs["passed"] = pd.concat([self.contigs["passed"],
-                                            not_enough_contigs])
-        self.contigs["passed"] = self.contigs["passed"].index
-        self.contigs["failed"] = eligible_contigs[
+        dev_ref = med_abs_dev * self.contigs
+        self.dev_refs["contigs"] = dev_ref
+        self.allowed["contigs"] = eligible_contigs.median() + dev_ref
+        # self.passed["contigs"] = eligible_contigs[
+        #     abs(eligible_contigs - eligible_contigs.median()) <= dev_ref]
+        self.failed["contigs"] = eligible_contigs[
             abs(eligible_contigs - eligible_contigs.median()) > dev_ref].index
-        # self.passed.drop(self.contigs["failed"], inplace=True)
-        self.passed = self.passed.loc[self.contigs["passed"]]
-        self.failed["contigs"] = self.contigs["failed"]
+        eligible_contigs = eligible_contigs[
+            abs(eligible_contigs - eligible_contigs.median()) <= dev_ref]
         # Add genomes with < 10 contigs back in
-        self.contigs["allowed"] = eligible_contigs.median() + dev_ref
+        eligible_contigs = pd.concat([eligible_contigs, not_enough_contigs])
+        # We only need the index of passed genomes at this point
+        eligible_contigs = eligible_contigs.index
+        self.passed = self.passed.loc[eligible_contigs]
+        # self.passed.drop(self.failed["contigs"], inplace=True)
 
     def filter_med_abs_dev(self, criteria):
         """Filter based on median absolute deviation."""
