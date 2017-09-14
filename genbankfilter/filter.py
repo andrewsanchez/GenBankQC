@@ -101,7 +101,7 @@ class FilteredSpecies(Species):
         # upper = self.passed[criteria].median() + dev_ref
 
     def summary(self):
-        summary = ["Failed",
+        summary = ["Filtered genomes",
                    "Unknown Bases: {}".format(len(self.failed["unknowns"])),
                    "Contigs: {}".format(len(self.failed["contigs"])),
                    "Assembly Size: {}".format(
