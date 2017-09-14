@@ -24,26 +24,41 @@ class FilteredSpecies(Species):
         "Assembly_Size": "purple"
     }
 
-    def __init__(self, species_dir, max_n_count=1000, c_range=4.0, s_range=3.0,
-                 m_range=1.0):
+    def __init__(self, species_dir, max_unknowns=200, contigs=3.0,
+                 assembly_size=3.0, mash=3.0):
         Species.__init__(self, species_dir)
-        self.max_n_count = max_n_count
-        self.c_range = c_range
-        self.s_range = s_range
-        self.m_range = m_range
-        self.tolerance_label = '{}-{}-{}-{}'.format(
-            max_n_count, c_range, s_range, m_range)
-        self.passed = pd.DataFrame(columns=self.stats.columns)
-        self.filter_ranges = [max_n_count, c_range, s_range, m_range]
-        self._criteria_dict = collections.defaultdict(dict)
-        self._criteria_dict["N_Count"]["tolerance"] = self.max_n_count
-        self._criteria_dict["Contigs"]["tolerance"] = self.c_range
-        self._criteria_dict["MASH"]["tolerance"] = self.m_range
-        self._criteria_dict["Assembly_Size"]["tolerance"] = self.s_range
-        self._criteria_dict["N_Count"]["color"] = "red"
-        self._criteria_dict["Contigs"]["color"] = "green"
-        self._criteria_dict["MASH"]["color"] = "orange"
-        self._criteria_dict["Assembly_Size"]["color"] = "purple"
+        self.tolerance = {
+            "MASH": mash,
+            "Assembly_Size": assembly_size}
+        self.max_unknowns = {
+            "tolerance": max_unknowns,
+            "allowed": max_unknowns,
+            "color": "red",
+            "passed": [],
+            "failed": []}
+        self.contigs = {
+            "tolerance": contigs,
+            "color": "green",
+            "passed": [],
+            "failed": []}
+        self.assembly_size = {
+            "tolerance": assembly_size,
+            "color": "purple",
+            "passed": [],
+            "failed": []}
+        self.mash = {
+            "tolerance": mash,
+            "color": "pink",
+            "passed": [],
+            "failed": []}
+        self.label = '{}-{}-{}-{}'.format(
+            self.max_unknowns["tolerance"],
+            self.contigs["tolerance"],
+            self.assembly_size["tolerance"],
+            self.mash["tolerance"])
+        self.failed = {}
+        self.passed = pd.DataFrame(index=self.stats.index,
+                                   columns=self.stats.columns)
 
     def __str__(self):
         return self.species + '\n' + str(dict(self._criteria_dict))
