@@ -108,25 +108,21 @@ class FilteredSpecies(Species):
         # Add genomes with < 10 contigs back in
         self.contigs["allowed"] = eligible_contigs.median() + dev_ref
 
-    def filter_med_ad(self, criteria):
-        """ Filter based on median absolute deviation."""
-        f_range = self._criteria_dict[criteria]["tolerance"]
+    def filter_med_abs_dev(self, criteria):
+        """Filter based on median absolute deviation."""
         # Get the median absolute deviation
-        med_ad = abs(self.passed[criteria] -
-                     self.passed[criteria].median()).mean()
-        dev_ref = med_ad * f_range
-        # self._criteria_dict[criteria]["passed"] = 
-        self.passed = self.passed[abs(
-            self.passed[criteria] -
-            self.passed[criteria].median()) <= dev_ref]
-        self._criteria_dict[criteria]["failed"] = self.passed.index[abs(
-            self.passed[criteria] -
-            self.passed[criteria].median()) >= dev_ref].tolist()
-        self.failed = self.passed.index[abs(
-            self.passed[criteria] -
-            self.passed[criteria].median()) >= dev_ref].tolist()
-        lower = self.passed[criteria].median() - dev_ref
-        upper = self.passed[criteria].median() + dev_ref
+        med_abs_dev = abs(self.passed[criteria] -
+                          self.passed[criteria].median()).mean()
+        dev_ref = med_abs_dev * self.tolerance[criteria]
+        self.passed = self.passed[
+            abs(self.passed[criteria] -
+                self.passed[criteria].median()) <= dev_ref]
+        self.failed[criteria] = self.passed[
+            abs(self.passed[criteria] -
+                self.passed[criteria].median()) > dev_ref].index
+        # lower = self.passed[criteria].median() - dev_ref
+        # upper = self.passed[criteria].median() + dev_ref
+
 
     def base_node_style(self):
         from ete3 import NodeStyle, AttrFace
