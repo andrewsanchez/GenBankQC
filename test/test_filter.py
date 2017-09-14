@@ -133,10 +133,15 @@ class TestFilteredSpecies(unittest.TestCase):
         self.B_aphidicola.stats.iloc[:10, 0] = 300
         expected_failures = self.B_aphidicola.stats.iloc[:10, 0].index.tolist()
         self.B_aphidicola.filter_unknown_bases()
-        self.assertEqual(self.B_aphidicola.max_unknowns["passed"].tolist(),
-                         self.B_aphidicola.passed.index.tolist())
+        self.assertNotEqual(id(self.B_aphidicola.stats),
+                            id(self.B_aphidicola.passed))
+        self.assertIsInstance(self.B_aphidicola.failed["unknowns"],
+                              gbf.pd.Index)
+        self.assertEqual(len(self.B_aphidicola.stats),
+                         len(self.B_aphidicola.passed) +
+                         len(self.B_aphidicola.failed["unknowns"]))
         self.assertEqual(expected_failures,
-                         self.B_aphidicola.max_unknowns["failed"].tolist())
+                         self.B_aphidicola.failed["unknowns"].tolist())
 
     def test_filter_contigs(self):
         baumanii = gbf.FilteredSpecies("test/resources/Acinetobacter_baumanii")
