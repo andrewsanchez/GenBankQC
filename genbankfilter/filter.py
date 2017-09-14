@@ -31,7 +31,7 @@ class FilteredSpecies(Species):
         self.dev_refs = {}
         self.allowed = {"unknowns": max_unknowns}
         self.colors = {"unknowns": "red", "contigs": "green",
-                       "mash": "purple", "size": "pink"}
+                       "MASH": "purple", "Assembly_Size": "orange"}
         self.label = '{}-{}-{}-{}'.format(max_unknowns, contigs,
                                           assembly_size, mash)
         self.passed = pd.DataFrame(index=self.stats.index,
