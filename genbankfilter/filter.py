@@ -81,30 +81,31 @@ class FilteredSpecies(Species):
         # Test for expected failures here.
 
     def filter_contigs(self):
-        contigs = self.passed["Contigs"]
         # Only look at genomes with > 10 contigs to avoid throwing off the
-        # Median AD Save genomes with < 10 contigs to add them back in later.
-        not_enough_contigs = contigs[contigs <= 10]
-        contigs = contigs[contigs > 10]
-        # Median absolute deviation
-        contigs_med_ad = abs(contigs - contigs.median()).mean()
-        contigs_dev_ref = contigs_med_ad * self.c_range
-        contigs = contigs[abs(contigs - contigs.median()) <= contigs_dev_ref]
+        # median absolute deviation
+        # Extract genomes with < 10 contigs to add them back in later.
+        eligible_contigs = self.passed.Contigs[self.passed.Contigs > 10]
+        not_enough_contigs = self.passed.Contigs[self.passed.Contigs <= 10]
+        # Median absolute deviation -
+        # Average absolute difference between number of contigs and the median
+        # for all genomes
+        # Define separate function for this
+        med_abs_dev = abs(eligible_contigs - eligible_contigs.median()).mean()
+        # Define separate function for this
+        # The "deviation reference"
+        # Multiply
+        dev_ref = med_abs_dev * self.contigs["tolerance"]
+        self.contigs["passed"] = eligible_contigs[
+            abs(eligible_contigs - eligible_contigs.median()) <= dev_ref]
+        self.contigs["passed"] = pd.concat([self.contigs["passed"],
+                                            not_enough_contigs])
+        self.contigs["passed"] = self.contigs["passed"].index
+        self.contigs["failed"] = eligible_contigs[
+            abs(eligible_contigs - eligible_contigs.median()) > dev_ref].index
+        # self.passed.drop(self.contigs["failed"], inplace=True)
+        self.passed = self.passed.loc[self.contigs["passed"]]
+        self.failed["contigs"] = self.contigs["failed"]
         # Add genomes with < 10 contigs back in
-        contigs = pd.concat([contigs, not_enough_contigs])
-        self.max_contigs = contigs.median() + contigs_dev_ref
-        # Avoid returning empty DataFrame when no genomes are removed above
-        if len(contigs) == len(self.passed):
-            self.passed = self.passed
-            self.failed = []
-            self._criteria_dict["Contigs"]["failed"] = []
-        else:
-            self.failed = [i for i in self.passed.index
-                           if i not in contigs.index]
-            self._criteria_dict["Contigs"]["failed"] = [
-                i for i in self.passed.index
-                if i not in contigs.index]
-            self.passed = self.passed.drop(self.failed)
 
     def filter_med_ad(self, criteria):
         """ Filter based on median absolute deviation."""
