@@ -2,7 +2,6 @@ import os
 import shutil
 import unittest
 import tempfile
-import subprocess
 import genbankfilter.filter as gbf
 
 
