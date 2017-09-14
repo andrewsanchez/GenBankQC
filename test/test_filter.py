@@ -197,12 +197,11 @@ class TestFilteredSpecies(unittest.TestCase):
                              genomes_before_filtering)
 
     def test_filter_all(self):
-        baumanii = gbf.FilteredSpecies("test/resources/Acinetobacter_baumanii")
-        print(len(baumanii.stats))
-        baumanii.passed = baumanii.stats
-        gbf._filter_all(baumanii)
-        print(baumanii)
-        print(baumanii.summary())
+        baumannii = gbf.FilteredSpecies(
+            "test/resources/Acinetobacter_baumannii")
+        gbf._filter_all(baumannii)
+        print(baumannii)
+        print(baumannii.summary())
 
         # tree_svg = os.path.join(self.species_dir, "tree_200-3.0-3.0-3.0.svg")
         # shutil.move(tree_svg, "/Users/andrew/scratch/test_tree.svg")
