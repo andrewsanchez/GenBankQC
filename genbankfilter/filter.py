@@ -106,6 +106,7 @@ class FilteredSpecies(Species):
         self.passed = self.passed.loc[self.contigs["passed"]]
         self.failed["contigs"] = self.contigs["failed"]
         # Add genomes with < 10 contigs back in
+        self.contigs["allowed"] = eligible_contigs.median() + dev_ref
 
     def filter_med_ad(self, criteria):
         """ Filter based on median absolute deviation."""
