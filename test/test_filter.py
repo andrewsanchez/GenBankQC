@@ -118,6 +118,9 @@ class TestFilteredSpecies(unittest.TestCase):
     def test_str(self):
         print(self.B_aphidicola)
 
+    def test_summary(self):
+        pass
+
     def test_filter_unknown_bases(self):
         self.B_aphidicola.filter_unknown_bases()
         self.assertEqual(self.B_aphidicola.max_unknowns["passed"].tolist(),
