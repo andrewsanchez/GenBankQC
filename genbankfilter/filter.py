@@ -38,14 +38,13 @@ class FilteredSpecies(Species):
                                    columns=self.stats.columns)
 
     def __str__(self):
-        message = ["Species: {}".format(self.species),
-                   "Tolerance Levels:",
-                   "Unknown bases:  {}".format(self.max_unknowns["tolerance"]),
-                   "Contigs: {}".format(self.contigs["tolerance"]),
-                   "Assembly Size: {}".format(self.assembly_size["tolerance"]),
-                   "MASH: {}".format(self.mash["tolerance"])]
-        message = '\n'.join(message)
-        return message
+        self.message = ["Species: {}".format(self.species),
+                        "Tolerance Levels:",
+                        "Unknown bases:  {}".format(self.max_unknowns),
+                        "Contigs: {}".format(self.contigs),
+                        "Assembly Size: {}".format(self.assembly_size),
+                        "MASH: {}".format(self.mash)]
+        return '\n'.join(self.message)
 
     def filter_unknown_bases(self):
         """Filter out genomes with too many unknown bases."""
