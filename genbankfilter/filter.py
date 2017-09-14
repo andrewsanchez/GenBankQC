@@ -268,19 +268,19 @@ def _filter_all(FilteredSpecies):
     This function strings together all of the steps
     involved in filtering your genomes.
     """
-    FilteredSpecies.base_node_style()
+    # FilteredSpecies.base_node_style()
     FilteredSpecies.filter_unknown_bases()
-    FilteredSpecies.color_clade("N_Count")
+    # FilteredSpecies.color_clade("N_Count")
     if check_df_len(FilteredSpecies.passed, "N_Count"):
         FilteredSpecies.filter_contigs()
-        FilteredSpecies.color_clade("Contigs")
+        # FilteredSpecies.color_clade("Contigs")
     if check_df_len(FilteredSpecies.passed, "Assembly_Size"):
-        FilteredSpecies.filter_med_ad("Assembly_Size")
-        FilteredSpecies.color_clade("Assembly_Size")
+        FilteredSpecies.filter_med_abs_dev("Assembly_Size")
+        # FilteredSpecies.color_clade("Assembly_Size")
     if check_df_len(FilteredSpecies.passed, "MASH"):
-        FilteredSpecies.filter_med_ad("MASH")
-        FilteredSpecies.color_clade("MASH")
-    FilteredSpecies.style_and_render_tree()
+        FilteredSpecies.filter_med_abs_dev("MASH")
+        # FilteredSpecies.color_clade("MASH")
+    # FilteredSpecies.style_and_render_tree()
 
 
 def filter_all(species_dir, stats, tree, filter_ranges):
