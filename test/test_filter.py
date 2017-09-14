@@ -123,10 +123,8 @@ class TestFilteredSpecies(unittest.TestCase):
 
     def test_filter_unknown_bases(self):
         self.B_aphidicola.filter_unknown_bases()
-        self.assertEqual(self.B_aphidicola.max_unknowns["passed"].tolist(),
-                         self.B_aphidicola.passed.index.tolist())
         self.assertIsInstance(self.B_aphidicola.passed, gbf.pd.DataFrame)
-        self.assertIsInstance(self.B_aphidicola.max_unknowns["failed"],
+        self.assertIsInstance(self.B_aphidicola.failed["unknowns"],
                               gbf.pd.Index)
         # Set all rows in column N_Count to 0
         self.B_aphidicola.stats.iloc[:, 0] = 0
