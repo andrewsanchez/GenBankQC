@@ -138,9 +138,17 @@ class TestFilteredSpecies(unittest.TestCase):
                          self.B_aphidicola.max_unknowns["failed"].tolist())
 
     def test_filter_contigs(self):
-        self.B_aphidicola.filter_contigs()
-        self.assertIsInstance(self.B_aphidicola.passed, gbf.pd.DataFrame)
-        self.assertIsInstance(self.B_aphidicola.failed, list)
+        baumanii = gbf.FilteredSpecies("test/resources/Acinetobacter_baumanii")
+        baumanii.passed = baumanii.stats
+        baumanii.filter_contigs()
+        self.assertEqual(len(baumanii.contigs["passed"]) +
+                         len(baumanii.contigs["failed"]), len(baumanii.stats))
+        self.assertIsInstance(baumanii.passed, gbf.pd.DataFrame)
+        self.assertIsInstance(baumanii.contigs["passed"], gbf.pd.Index)
+        self.assertIsInstance(baumanii.contigs["failed"], gbf.pd.Index)
+        self.assertEqual(baumanii.contigs["passed"].tolist(),
+                         baumanii.passed.index.tolist())
+        self.assertIsInstance(baumanii.contigs["allowed"], float)
 
     def test_filter_med_ad(self):
         for criteria in ["MASH", "Assembly_Size"]:
