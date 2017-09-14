@@ -191,7 +191,7 @@ class FilteredSpecies(Species):
             ts.legend.add_face(TextFace(""), 2)
         for f in file_types:
             out_tree = os.path.join(self.species_dir,
-                                    'tree_{}.{}'.format(self.tolerance_label,
+                                    'tree_{}.{}'.format(self.label,
                                                         f))
             self.tree.render(out_tree, tree_style=ts)
 
