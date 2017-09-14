@@ -1,7 +1,6 @@
 import os
 import re
 import shutil
-import collections
 import pandas as pd
 import numpy as np
 from collections import namedtuple
@@ -15,104 +14,100 @@ from Bio.Phylo.TreeConstruction import DistanceTreeConstructor
 from genbankfilter.Species import Species
 
 
-color_map = {
-    "N_Count": "red",
-    "Contigs": "green",
-    "MASH": "orange",
-    "Assembly_Size": "purple"
-}
-
-filter_criteria = ["Contigs", "Assembly_Size", "MASH", "N_Count"]
-
-
 class FilteredSpecies(Species):
 
-    color_map = {
-        "N_Count": "red",
-        "Contigs": "green",
-        "MASH": "orange",
-        "Assembly_Size": "purple"
-    }
-
-    def __init__(self, species_dir, max_n_count=1000, c_range=4.0, s_range=3.0,
-                 m_range=1.0):
+    def __init__(self, species_dir, max_unknowns=200, contigs=3.0,
+                 assembly_size=3.0, mash=3.0):
         Species.__init__(self, species_dir)
-        self.max_n_count = max_n_count
-        self.c_range = c_range
-        self.s_range = s_range
-        self.m_range = m_range
-        self.tolerance_label = '{}-{}-{}-{}'.format(
-            max_n_count, c_range, s_range, m_range)
-        self.passed = pd.DataFrame(columns=self.stats.columns)
-        self.filter_ranges = [max_n_count, c_range, s_range, m_range]
-        self._criteria_dict = collections.defaultdict(dict)
-        self._criteria_dict["N_Count"]["tolerance"] = self.max_n_count
-        self._criteria_dict["Contigs"]["tolerance"] = self.c_range
-        self._criteria_dict["MASH"]["tolerance"] = self.m_range
-        self._criteria_dict["Assembly_Size"]["tolerance"] = self.s_range
-        self._criteria_dict["N_Count"]["color"] = "red"
-        self._criteria_dict["Contigs"]["color"] = "green"
-        self._criteria_dict["MASH"]["color"] = "orange"
-        self._criteria_dict["Assembly_Size"]["color"] = "purple"
+        self.max_unknowns = max_unknowns
+        self.contigs = contigs
+        self.assembly_size = assembly_size
+        self.mash = mash
+        # Tolerance values need to be accessible by the string of their name
+        self.tolerance = {"unknowns": max_unknowns, "contigs": contigs,
+                          "Assembly_Size": assembly_size, "MASH": mash}
+        self.failed = {}
+        self.med_abs_devs = {}
+        self.dev_refs = {}
+        self.allowed = {"unknowns": max_unknowns}
+        self.colors = {"unknowns": "red", "contigs": "green",
+                       "mash": "purple", "size": "pink"}
+        self.label = '{}-{}-{}-{}'.format(max_unknowns, contigs,
+                                          assembly_size, mash)
+        self.passed = pd.DataFrame(index=self.stats.index,
+                                   columns=self.stats.columns)
 
     def __str__(self):
-        return self.species + '\n' + str(dict(self._criteria_dict))
+        self.message = ["Species: {}".format(self.species),
+                        "Tolerance Levels:",
+                        "Unknown bases:  {}".format(self.max_unknowns),
+                        "Contigs: {}".format(self.contigs),
+                        "Assembly Size: {}".format(self.assembly_size),
+                        "MASH: {}".format(self.mash)]
+        return '\n'.join(self.message)
 
     def filter_unknown_bases(self):
-        """
-        Filter out genomes with too many unknown bases.
-        """
-        self.passed = self.stats[self.stats["N_Count"] <= self.max_n_count]
-        self._criteria_dict["N_Count"]["failed"] = self.stats.index[
-            self.stats["N_Count"] > self.max_n_count]
-        # self.failed_N_Count = self.stats.index[self.stats["N_Count"] >=
-        #                                        self.max_n_count]
+        """Filter out genomes with too many unknown bases."""
+        # self.passed = self.stats[
+        #     self.stats["N_Count"] <= self.max_unknowns]
+        self.failed["unknowns"] = self.stats.index[
+            self.stats["N_Count"] > self.tolerance["unknowns"]]
+        self.passed = self.stats.drop(self.failed["unknowns"])
 
     def filter_contigs(self):
-        contigs = self.passed["Contigs"]
         # Only look at genomes with > 10 contigs to avoid throwing off the
-        # Median AD Save genomes with < 10 contigs to add them back in later.
-        not_enough_contigs = contigs[contigs <= 10]
-        contigs = contigs[contigs > 10]
-        # Median absolute deviation
-        contigs_med_ad = abs(contigs - contigs.median()).mean()
-        contigs_dev_ref = contigs_med_ad * self.c_range
-        contigs = contigs[abs(contigs - contigs.median()) <= contigs_dev_ref]
+        # median absolute deviation
+        # Extract genomes with < 10 contigs to add them back in later.
+        eligible_contigs = self.passed.Contigs[self.passed.Contigs > 10]
+        not_enough_contigs = self.passed.Contigs[self.passed.Contigs <= 10]
+        # Median absolute deviation -
+        # Average absolute difference between number of contigs and the median
+        # for all genomes
+        # Define separate function for this
+        med_abs_dev = abs(eligible_contigs - eligible_contigs.median()).mean()
+        self.med_abs_devs["contigs"] = med_abs_dev
+        # Define separate function for this
+        # The "deviation reference"
+        # Multiply
+        dev_ref = med_abs_dev * self.contigs
+        self.dev_refs["contigs"] = dev_ref
+        self.allowed["contigs"] = eligible_contigs.median() + dev_ref
+        # self.passed["contigs"] = eligible_contigs[
+        #     abs(eligible_contigs - eligible_contigs.median()) <= dev_ref]
+        self.failed["contigs"] = eligible_contigs[
+            abs(eligible_contigs - eligible_contigs.median()) > dev_ref].index
+        eligible_contigs = eligible_contigs[
+            abs(eligible_contigs - eligible_contigs.median()) <= dev_ref]
         # Add genomes with < 10 contigs back in
-        contigs = pd.concat([contigs, not_enough_contigs])
-        self.max_contigs = contigs.median() + contigs_dev_ref
-        # Avoid returning empty DataFrame when no genomes are removed above
-        if len(contigs) == len(self.passed):
-            self.passed = self.passed
-            self.failed = []
-            self._criteria_dict["Contigs"]["failed"] = []
-        else:
-            self.failed = [i for i in self.passed.index
-                           if i not in contigs.index]
-            self._criteria_dict["Contigs"]["failed"] = [
-                i for i in self.passed.index
-                if i not in contigs.index]
-            self.passed = self.passed.drop(self.failed)
+        eligible_contigs = pd.concat([eligible_contigs, not_enough_contigs])
+        # We only need the index of passed genomes at this point
+        eligible_contigs = eligible_contigs.index
+        self.passed = self.passed.loc[eligible_contigs]
+        # self.passed.drop(self.failed["contigs"], inplace=True)
 
-    def filter_med_ad(self, criteria):
-        """ Filter based on median absolute deviation."""
-        f_range = self._criteria_dict[criteria]["tolerance"]
+    def filter_med_abs_dev(self, criteria):
+        """Filter based on median absolute deviation."""
         # Get the median absolute deviation
-        med_ad = abs(self.passed[criteria] -
-                     self.passed[criteria].median()).mean()
-        dev_ref = med_ad * f_range
-        # self._criteria_dict[criteria]["passed"] = 
-        self.passed = self.passed[abs(
-            self.passed[criteria] -
-            self.passed[criteria].median()) <= dev_ref]
-        self._criteria_dict[criteria]["failed"] = self.passed.index[abs(
-            self.passed[criteria] -
-            self.passed[criteria].median()) >= dev_ref].tolist()
-        self.failed = self.passed.index[abs(
-            self.passed[criteria] -
-            self.passed[criteria].median()) >= dev_ref].tolist()
-        lower = self.passed[criteria].median() - dev_ref
-        upper = self.passed[criteria].median() + dev_ref
+        med_abs_dev = abs(self.passed[criteria] -
+                          self.passed[criteria].median()).mean()
+        dev_ref = med_abs_dev * self.tolerance[criteria]
+        self.failed[criteria] = self.passed[
+            abs(self.passed[criteria] -
+                self.passed[criteria].median()) > dev_ref].index
+        self.passed = self.passed[
+            abs(self.passed[criteria] -
+                self.passed[criteria].median()) <= dev_ref]
+        # lower = self.passed[criteria].median() - dev_ref
+        # upper = self.passed[criteria].median() + dev_ref
+
+    def summary(self):
+        summary = ["Filtered genomes",
+                   "Unknown Bases: {}".format(len(self.failed["unknowns"])),
+                   "Contigs: {}".format(len(self.failed["contigs"])),
+                   "Assembly Size: {}".format(
+                       len(self.failed["Assembly_Size"])),
+                   "MASH: {}".format(len(self.failed["MASH"]))]
+        return '\n'.join(summary)
 
     def base_node_style(self):
         from ete3 import NodeStyle, AttrFace
@@ -173,7 +168,7 @@ class FilteredSpecies(Species):
             ts.legend.add_face(TextFace(""), 2)
         for f in file_types:
             out_tree = os.path.join(self.species_dir,
-                                    'tree_{}.{}'.format(self.tolerance_label,
+                                    'tree_{}.{}'.format(self.label,
                                                         f))
             self.tree.render(out_tree, tree_style=ts)
 
@@ -250,19 +245,19 @@ def _filter_all(FilteredSpecies):
     This function strings together all of the steps
     involved in filtering your genomes.
     """
-    FilteredSpecies.base_node_style()
+    # FilteredSpecies.base_node_style()
     FilteredSpecies.filter_unknown_bases()
-    FilteredSpecies.color_clade("N_Count")
+    # FilteredSpecies.color_clade("N_Count")
     if check_df_len(FilteredSpecies.passed, "N_Count"):
         FilteredSpecies.filter_contigs()
-        FilteredSpecies.color_clade("Contigs")
+        # FilteredSpecies.color_clade("Contigs")
     if check_df_len(FilteredSpecies.passed, "Assembly_Size"):
-        FilteredSpecies.filter_med_ad("Assembly_Size")
-        FilteredSpecies.color_clade("Assembly_Size")
+        FilteredSpecies.filter_med_abs_dev("Assembly_Size")
+        # FilteredSpecies.color_clade("Assembly_Size")
     if check_df_len(FilteredSpecies.passed, "MASH"):
-        FilteredSpecies.filter_med_ad("MASH")
-        FilteredSpecies.color_clade("MASH")
-    FilteredSpecies.style_and_render_tree()
+        FilteredSpecies.filter_med_abs_dev("MASH")
+        # FilteredSpecies.color_clade("MASH")
+    # FilteredSpecies.style_and_render_tree()
 
 
 def filter_all(species_dir, stats, tree, filter_ranges):
@@ -270,26 +265,26 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     This function strings together all of the steps
     involved in filtering your genomes.
     """
-    max_n_count, c_range, s_range, m_range = filter_ranges
+    max_unknowns, c_range, s_range, m_range = filter_ranges
     criteria_dict = criteria_dict(filter_ranges)
     summary = {}
     criteria = "N_Count"
-    passed, failed_N_Count = filter_Ns(stats, max_n_count)
+    passed, failed_N_Count = filter_Ns(stats, max_unknowns)
     color_clade(tree, criteria, failed_N_Count.index)
-    summary[criteria] = (max_n_count, len(failed_N_Count))
+    summary[criteria] = (max_unknowns, len(failed_N_Count))
     if check_df_len(passed, criteria):
         filter_results = filter_contigs(stats, passed, c_range, summary)
         color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
     criteria = "Assembly_Size"
     if check_df_len(passed, criteria):
-        filter_results = filter_med_ad(passed, summary, criteria,
+        filter_results = filter_med_abs_dev(passed, summary, criteria,
                                        criteria_dict)
         color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
     criteria = "MASH"
     if check_df_len(passed, criteria):
-        filter_results = filter_med_ad(passed, summary, criteria,
+        filter_results = filter_med_abs_dev(passed, summary, criteria,
                                        criteria_dict)
         color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
@@ -298,12 +293,12 @@ def filter_all(species_dir, stats, tree, filter_ranges):
     return passed
 
 
-def filter_Ns(stats, max_n_count):
+def filter_Ns(stats, max_unknowns):
     """
     Filter out genomes with too many unknown bases.
     """
-    passed = stats[stats["N_Count"] <= max_n_count]
-    failed_N_Count = stats[stats["N_Count"] >= max_n_count]
+    passed = stats[stats["N_Count"] <= max_unknowns]
+    failed_N_Count = stats[stats["N_Count"] >= max_unknowns]
     return passed, failed_N_Count
 
 
@@ -315,8 +310,8 @@ def filter_contigs(stats, passed, c_range, summary):
     not_enough_contigs = contigs[contigs <= 10]
     contigs = contigs[contigs > 10]
     # Median absolute deviation
-    contigs_med_ad = abs(contigs - contigs.median()).mean()
-    contigs_dev_ref = contigs_med_ad * c_range
+    contigs_med_abs_dev = abs(contigs - contigs.median()).mean()
+    contigs_dev_ref = contigs_med_abs_dev * c_range
     contigs = contigs[abs(contigs - contigs.median()) <= contigs_dev_ref]
     # Add genomes with < 10 contigs back in
     contigs = pd.concat([contigs, not_enough_contigs])
@@ -338,14 +333,14 @@ def filter_contigs(stats, passed, c_range, summary):
     return filter_contigs_results
 
 
-def filter_med_ad(passed, summary, criteria, criteria_dict):
+def filter_med_abs_dev(passed, summary, criteria, criteria_dict):
     """
     Filter based on median absolute deviation
     """
     f_range = criteria_dict[criteria]
     # Get the median absolute deviation
-    med_ad = abs(passed[criteria] - passed[criteria].median()).mean()
-    dev_ref = med_ad * f_range
+    med_abs_dev = abs(passed[criteria] - passed[criteria].median()).mean()
+    dev_ref = med_abs_dev * f_range
     passed = passed[abs(passed[criteria] - passed[criteria].median()) <=
                     dev_ref]
     failed = passed.index[abs(passed[criteria] - passed[criteria].median()) >=
@@ -360,9 +355,9 @@ def filter_med_ad(passed, summary, criteria, criteria_dict):
 
 
 def criteria_dict(filter_ranges):
-    max_n_count, c_range, s_range, m_range = filter_ranges
+    max_unknowns, c_range, s_range, m_range = filter_ranges
     criteria = {}
-    criteria["N_Count"] = max_n_count
+    criteria["N_Count"] = max_unknowns
     criteria["Contigs"] = c_range
     criteria["Assembly_Size"] = s_range
     criteria["MASH"] = m_range
@@ -386,8 +381,8 @@ def write_summary(species_dir, summary, filter_ranges):
     """
     Write a summary of the filtering results.
     """
-    max_n_count, c_range, s_range, m_range = filter_ranges
-    out = 'summary_{}-{}-{}-{}.txt'.format(max_n_count, c_range, s_range,
+    max_unknowns, c_range, s_range, m_range = filter_ranges
+    out = 'summary_{}-{}-{}-{}.txt'.format(max_unknowns, c_range, s_range,
                                            m_range)
     out = os.path.join(species_dir, out)
     if os.path.isfile(out):
