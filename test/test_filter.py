@@ -212,16 +212,17 @@ class TestFilteredSpecies(unittest.TestCase):
                              genomes_before_filtering)
 
     def test_filter_all(self):
+        import subprocess
         baumannii = gbf.FilteredSpecies(
             "test/resources/Acinetobacter_baumannii")
-        gbf._filter_all(baumannii)
+        gbf.filter_all(baumannii)
         print(baumannii)
         print(baumannii.summary())
-
-        # tree_svg = os.path.join(self.species_dir, "tree_200-3.0-3.0-3.0.svg")
-        # shutil.move(tree_svg, "/Users/andrew/scratch/test_tree.svg")
-        # tree_svg = "/Users/andrew/scratch/test_tree.svg"
-        # subprocess.Popen("open {}".format(tree_svg), shell=True)
+        print(os.listdir(baumannii.species_dir))
+        tree_svg = os.path.join(baumannii.species_dir, "tree_200-3.0-3.0-3.0.svg")
+        shutil.move(tree_svg, "/Users/andrew/scratch/test_tree.svg")
+        tree_svg = "/Users/andrew/scratch/test_tree.svg"
+        subprocess.Popen("open {}".format(tree_svg), shell=True)
 
     def tearDown(self):
         shutil.rmtree(self.genbank)
