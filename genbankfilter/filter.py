@@ -1,7 +1,6 @@
 import os
 import re
 import shutil
-import collections
 import pandas as pd
 import numpy as np
 from collections import namedtuple
@@ -16,13 +15,6 @@ from genbankfilter.Species import Species
 
 
 class FilteredSpecies(Species):
-
-    color_map = {
-        "N_Count": "red",
-        "Contigs": "green",
-        "MASH": "orange",
-        "Assembly_Size": "purple"
-    }
 
     def __init__(self, species_dir, max_unknowns=200, contigs=3.0,
                  assembly_size=3.0, mash=3.0):
