@@ -74,11 +74,9 @@ class TestFilter(unittest.TestCase):
         file_types = ["*png", "*svg"]
         tree = gbf.read_nw_tree(self.nw_file)
         gbf.style_and_render_tree(self.species_dir, tree, self.filter_ranges)
-        print(os.listdir(self.species_dir))
         for f in file_types:
             img = os.path.join(self.species_dir, f)
             p = glob(img)
-            print(p)
             self.assertTrue(os.path.isfile(p[0]))
             self.assertTrue(len(p) == 1)
 
@@ -216,9 +214,6 @@ class TestFilteredSpecies(unittest.TestCase):
         baumannii = gbf.FilteredSpecies(
             "test/resources/Acinetobacter_baumannii")
         gbf.filter_all(baumannii)
-        print(baumannii)
-        print(baumannii.summary())
-        print(os.listdir(baumannii.species_dir))
         tree_svg = os.path.join(baumannii.species_dir, "tree_200-3.0-3.0-3.0.svg")
         shutil.move(tree_svg, "/Users/andrew/scratch/test_tree.svg")
         tree_svg = "/Users/andrew/scratch/test_tree.svg"
