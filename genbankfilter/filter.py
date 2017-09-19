@@ -167,9 +167,8 @@ class FilteredSpecies(Species):
             ts.legend.add_face(tolerance, 1)
             ts.legend.add_face(TextFace(""), 2)
         for f in file_types:
-            out_tree = os.path.join(self.species_dir,
-                                    'tree_{}.{}'.format(self.label,
-                                                        f))
+            out_tree = os.path.join(
+                self.species_dir, 'tree_{}.{}'.format(self.label, f))
             self.tree.render(out_tree, tree_style=ts)
 
 
@@ -281,13 +280,13 @@ def _filter_all(species_dir, stats, tree, filter_ranges):
     criteria = "Assembly_Size"
     if check_df_len(passed, criteria):
         filter_results = filter_med_abs_dev(passed, summary, criteria,
-                                       criteria_dict)
+                                            criteria_dict)
         color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
     criteria = "MASH"
     if check_df_len(passed, criteria):
         filter_results = filter_med_abs_dev(passed, summary, criteria,
-                                       criteria_dict)
+                                            criteria_dict)
         color_clade(tree, criteria, filter_results.failed)
         passed = filter_results.passed
     write_summary(species_dir, summary, filter_ranges)
@@ -472,7 +471,8 @@ def base_node_style(tree):
             nf.margin_right = 100
             nf.margin_left = 3
             n.add_face(nf, column=0)
-        else:  n.name = ' '
+        else:
+            n.name = ' '
 
 
 def color_clade(tree, criteria, to_color):
