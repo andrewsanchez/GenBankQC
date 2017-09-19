@@ -1,8 +1,10 @@
-import tempfile
-import unittest
 import os
 import shutil
+import tempfile
+import unittest
+
 import pandas as pd
+
 import genbankfilter.mash as mash
 
 
@@ -10,7 +12,7 @@ class TestMash(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
         self.genbank = os.path.join(self.tmp, 'genbank')
-        shutil.copytree('genbankfilter/test/resources/', self.genbank)
+        shutil.copytree('test/resources/', self.genbank)
         # self.assembly_summary = pd.read_csv(
         #     'genbankfilter/test/resources/updated_assembly_summary.txt',
         #     sep="\t",
