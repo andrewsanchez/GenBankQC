@@ -25,13 +25,13 @@ class TestFilter(unittest.TestCase):
         from Bio.Seq import Seq
         fasta = next(self.fastas)
         contigs, contig_count = gbf.get_contigs(fasta, [])
-        self.assertTrue(type(contigs[0]) == Seq)
-        self.assertTrue(type(contig_count) == int)
+        self.assertEqual(type(contigs[0]), Seq)
+        self.assertEqual(type(contig_count), int)
         assembly_size = gbf.get_assembly_size(contigs, [])
-        self.assertTrue(type(assembly_size) == int)
-        self.assertTrue(type(assembly_size) != 0)
-        N_count = gbf.get_N_count(contigs, [])
-        self.assertTrue(type(N_count == int))
+        self.assertEqual(type(assembly_size), int)
+        self.assertNotEqual(type(assembly_size), 0)
+        N_count = gbf.get_N_Count(contigs, [])
+        self.assertEqual(type(N_count), int)
 
     def test_generate_stats(self):
         dmx = gbf.read_dmx(self.species_dir)
