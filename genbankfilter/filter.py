@@ -1,57 +1,67 @@
 import os
 import re
 import shutil
-import pandas as pd
-import numpy as np
 from collections import namedtuple
+
+import numpy as np
+import pandas as pd
+from Bio import Phylo, SeqIO
+from Bio.Phylo.TreeConstruction import DistanceTreeConstructor, _DistanceMatrix
+
 from ete3 import Tree
-from Bio import SeqIO
-from Bio import Phylo
-from Bio.Phylo.TreeConstruction import _DistanceMatrix
-from Bio.Phylo.TreeConstruction import DistanceTreeConstructor
-
-
 from genbankfilter.Species import Species
 
 
 class FilteredSpecies(Species):
-
-    def __init__(self, species_dir, max_unknowns=200, contigs=3.0,
-                 assembly_size=3.0, mash=3.0):
+    def __init__(self,
+                 species_dir,
+                 max_unknowns=200,
+                 contigs=3.0,
+                 assembly_size=3.0,
+                 mash=3.0):
         Species.__init__(self, species_dir)
         self.max_unknowns = max_unknowns
         self.contigs = contigs
         self.assembly_size = assembly_size
         self.mash = mash
         # Tolerance values need to be accessible by the string of their name
-        self.tolerance = {"unknowns": max_unknowns, "contigs": contigs,
-                          "Assembly_Size": assembly_size, "MASH": mash}
+        self.tolerance = {
+            "unknowns": max_unknowns,
+            "contigs": contigs,
+            "Assembly_Size": assembly_size,
+            "MASH": mash
+        }
         self.failed = {}
         self.med_abs_devs = {}
         self.dev_refs = {}
         self.allowed = {"unknowns": max_unknowns}
-        self.colors = {"unknowns": "red", "contigs": "green",
-                       "MASH": "purple", "Assembly_Size": "orange"}
-        self.label = '{}-{}-{}-{}'.format(max_unknowns, contigs,
-                                          assembly_size, mash)
-        self.passed = pd.DataFrame(index=self.stats.index,
-                                   columns=self.stats.columns)
+        self.colors = {
+            "unknowns": "red",
+            "contigs": "green",
+            "MASH": "purple",
+            "Assembly_Size": "orange"
+        }
+        self.label = '{}-{}-{}-{}'.format(max_unknowns, contigs, assembly_size,
+                                          mash)
+        self.passed = pd.DataFrame(
+            index=self.stats.index, columns=self.stats.columns)
 
     def __str__(self):
-        self.message = ["Species: {}".format(self.species),
-                        "Tolerance Levels:",
-                        "Unknown bases:  {}".format(self.max_unknowns),
-                        "Contigs: {}".format(self.contigs),
-                        "Assembly Size: {}".format(self.assembly_size),
-                        "MASH: {}".format(self.mash)]
+        self.message = [
+            "Species: {}".format(self.species), "Tolerance Levels:",
+            "Unknown bases:  {}".format(self.max_unknowns),
+            "Contigs: {}".format(self.contigs),
+            "Assembly Size: {}".format(self.assembly_size),
+            "MASH: {}".format(self.mash)
+        ]
         return '\n'.join(self.message)
 
     def filter_unknown_bases(self):
         """Filter out genomes with too many unknown bases."""
         # self.passed = self.stats[
         #     self.stats["N_Count"] <= self.max_unknowns]
-        self.failed["unknowns"] = self.stats.index[
-            self.stats["N_Count"] > self.tolerance["unknowns"]]
+        self.failed["unknowns"] = self.stats.index[self.stats["N_Count"] >
+                                                   self.tolerance["unknowns"]]
         self.passed = self.stats.drop(self.failed["unknowns"])
 
     def filter_contigs(self):
