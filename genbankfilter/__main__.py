@@ -1,10 +1,9 @@
 import click
+
 import genbankfilter.filter as gbf
 
 
 @click.command()
-@click.option('--mash-exe', default='~/usr/bin/mash',
-              help='Path to MASH executable if not in your PATH')
 @click.option('-l', '--filter-level', type=float,
               help='Value to be used for all filters')
 @click.option('-n', '--max_unknowns', type=int, default=200,
@@ -21,7 +20,7 @@ import genbankfilter.filter as gbf
               default=False, is_flag=True)
 @click.option('-d', '--dry-run', is_flag=True)
 @click.argument('species-dir', type=click.Path(exists=True, file_okay=False))
-def cli(mash_exe, filter_level, max_unknowns, c_range, s_range, m_range,
+def cli(filter_level, max_unknowns, c_range, s_range, m_range,
         species_dir, dry_run, filter_only):
     """ Assess the integrity of your FASTA collection."""
     species = gbf.FilteredSpecies(species_dir, max_unknowns=max_unknowns,
@@ -33,7 +32,7 @@ def cli(mash_exe, filter_level, max_unknowns, c_range, s_range, m_range,
         click.echo("{} contains less than 5 genomes.".format(species_dir))
         pass
     elif filter_only:
-        gbf._filter_all(species)
+        gbf.filter_all(species)
     # else:
     #     dmx = mash.mash(species_dir)
     #     gbf.stats_and_filter(species_dir, dmx, filter_ranges)
