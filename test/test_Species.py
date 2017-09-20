@@ -1,7 +1,8 @@
-import unittest
-import shutil
 import os
+import shutil
 import tempfile
+import unittest
+
 from genbankfilter.Species import Species
 
 
@@ -9,7 +10,7 @@ class TestSpecies(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
         self.genbank = os.path.join(self.tmp, 'genbank')
-        shutil.copytree('genbankfilter/test/resources/', self.genbank)
+        shutil.copytree('test/resources/', self.genbank)
         self.species = 'Buchnera_aphidicola'
         self.species_dir = os.path.join(self.genbank, self.species)
         self.B_aphidicola = Species(self.species_dir)
