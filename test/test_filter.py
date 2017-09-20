@@ -206,11 +206,11 @@ class TestFilteredSpecies(unittest.TestCase):
         baumannii = gbf.FilteredSpecies(species_dir)
         gbf.filter_all(baumannii)
         tree_svg = os.path.join(baumannii.species_dir, "tree_200-3.0-3.0-3.0.svg")
-        user = subprocess.Popen(
-            "echo $USER",
+        home = subprocess.Popen(
+            "echo $HOME",
             shell=True,
             stdout=subprocess.PIPE).communicate()[0].decode().strip()
-        shutil.move(tree_svg, "/scratch/{}/test_tree.svg".format(user))
+        shutil.move(tree_svg, "{}/scratch/test_tree.svg".format(home))
         # tree_svg = "/Users/andrew/scratch/test_tree.svg"
         # subprocess.Popen("open {}".format(tree_svg), shell=True)
 
