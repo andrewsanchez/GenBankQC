@@ -71,17 +71,6 @@ class TestFilter(unittest.TestCase):
         self.assertTrue((type(nested_mx) == list))
         self.assertTrue(len(nested_mx) != 0)
 
-    def test_style_and_render_tree(self):
-        from glob import glob
-        file_types = ["*png", "*svg"]
-        tree = gbf.read_nw_tree(self.nw_file)
-        gbf.style_and_render_tree(self.species_dir, tree, self.filter_ranges)
-        for f in file_types:
-            img = os.path.join(self.species_dir, f)
-            p = glob(img)
-            self.assertTrue(os.path.isfile(p[0]))
-            self.assertTrue(len(p) == 1)
-
     def tearDown(self):
         shutil.rmtree(self.genbank)
 
