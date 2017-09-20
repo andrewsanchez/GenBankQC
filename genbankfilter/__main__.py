@@ -23,14 +23,13 @@ import genbankfilter.filter as gbf
 def cli(filter_level, max_unknowns, c_range, s_range, m_range,
         species_dir, dry_run, filter_only):
     """ Assess the integrity of your FASTA collection."""
-    species = gbf.FilteredSpecies(species_dir, max_unknowns=max_unknowns,
-                                  c_range=c_range, s_range=s_range,
-                                  m_range=m_range)
+    species = gbf.FilteredSpecies(species_dir, max_unknowns,
+                                  c_range, s_range, m_range)
     if dry_run:
         click.echo(print(species))
-    elif not gbf.min_fastas_check(species_dir):
-        click.echo("{} contains less than 5 genomes.".format(species_dir))
-        pass
+    # elif not gbf.min_fastas_check(species_dir):
+    #     click.echo("{} contains less than 5 genomes.".format(species_dir))
+    #     pass
     elif filter_only:
         gbf.filter_all(species)
     # else:
