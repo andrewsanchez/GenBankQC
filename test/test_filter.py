@@ -215,6 +215,16 @@ def test_Genome_init(provide_aphidicola):
         "Schizaphis_graminum_Complete_Genome"
 
 
+def test_Genome_get_contigs(provide_aphidicola):
+    from Bio.Seq import Seq
+    aphidicola = provide_aphidicola
+    genomes = aphidicola.genomes()
+    genome = Genome(next(genomes))
+    genome.get_contigs()
+    assert type(genome.contigs) == list
+    assert type(genome.contigs[0]) == Seq
+
+
 def test_FilteredSpecies_init(provide_aphidicola_multi):
     params, aphidicola = provide_aphidicola_multi
     a, b, c, d = params
