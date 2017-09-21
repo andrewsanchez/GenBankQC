@@ -199,6 +199,13 @@ def test_Species_init(provide_Species):
     assert species.dmx.mean().index.tolist() == species.stats.index.tolist()
 
 
+def test_Species_genomes(provide_aphidicola):
+    from types import GeneratorType
+    aphidicola = provide_aphidicola
+    genomes = aphidicola.genomes()
+    assert type(genomes) == GeneratorType
+
+
 def test_FilteredSpecies_init(provide_aphidicola_multi):
     params, aphidicola = provide_aphidicola_multi
     a, b, c, d = params
