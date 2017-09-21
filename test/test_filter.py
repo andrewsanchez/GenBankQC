@@ -87,41 +87,6 @@ class TestFilteredSpecies(unittest.TestCase):
         self.species_dir = os.path.join(self.genbank, self.species)
         self.B_aphidicola = gbf.FilteredSpecies(self.species_dir)
 
-    def test_init(self):
-        self.assertEqual(type(self.B_aphidicola.stats), gbf.pd.DataFrame)
-        self.assertEqual(type(self.B_aphidicola.tree), gbf.Tree)
-        # Check default values
-        self.assertEqual(self.B_aphidicola.max_unknowns, 200)
-        self.assertEqual(self.B_aphidicola.contigs, 3.0)
-        self.assertEqual(self.B_aphidicola.assembly_size, 3.0)
-        self.assertEqual(self.B_aphidicola.mash, 3.0)
-        self.assertEqual(self.B_aphidicola.tolerance["unknowns"],
-                         self.B_aphidicola.max_unknowns)
-        self.assertEqual(self.B_aphidicola.tolerance["contigs"],
-                         self.B_aphidicola.contigs)
-        self.assertEqual(self.B_aphidicola.tolerance["Assembly_Size"],
-                         self.B_aphidicola.assembly_size)
-        self.assertEqual(self.B_aphidicola.tolerance["MASH"],
-                         self.B_aphidicola.mash)
-        self.assertEqual(self.B_aphidicola.label, "200-3.0-3.0-3.0")
-        # Check different values are set properly
-        self.B_aphidicola = gbf.FilteredSpecies(self.species_dir, 300,
-                                                2.0, 2.0, 2.0)
-        self.assertEqual(self.B_aphidicola.max_unknowns, 300)
-        self.assertEqual(self.B_aphidicola.contigs, 2.0)
-        self.assertEqual(self.B_aphidicola.assembly_size, 2.0)
-
-        self.assertEqual(self.B_aphidicola.mash, 2.0)
-        self.assertEqual(self.B_aphidicola.tolerance["unknowns"],
-                         self.B_aphidicola.max_unknowns)
-        self.assertEqual(self.B_aphidicola.tolerance["contigs"],
-                         self.B_aphidicola.contigs)
-        self.assertEqual(self.B_aphidicola.tolerance["Assembly_Size"],
-                         self.B_aphidicola.assembly_size)
-        self.assertEqual(self.B_aphidicola.tolerance["MASH"],
-                         self.B_aphidicola.mash)
-        self.assertEqual(self.B_aphidicola.label, "300-2.0-2.0-2.0")
-
     def test_str(self):
         print(self.B_aphidicola)
 
