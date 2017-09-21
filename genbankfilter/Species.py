@@ -24,3 +24,15 @@ class Species:
         dmx = os.path.join(species_dir, 'dmx.txt')
         if os.path.isfile(dmx):
             self.dmx = pd.read_csv(dmx, index_col=0, sep="\t")
+
+    def genomes(self, ext="fasta"):
+        # TODO: Maybe this should return a tuple (genome-path, genome-id)
+        """Returns a generator for every file ending with `ext`
+
+        :param ext: File extension of genomes in species directory
+        :returns: Path for all genomes in species directory
+        :rtype: generator
+        """
+        for f in os.listdir(self.species_dir):
+            if f.endswith(ext):
+                yield os.path.join(self.species_dir, f)

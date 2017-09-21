@@ -215,15 +215,6 @@ def get_N_Count(contigs, n_counts):
     return N_Count
 
 
-def get_all_fastas(species_dir, ext="fasta"):
-    """
-    Returns a generator for every file ending with ext
-    """
-    fastas = (os.path.join(species_dir, f) for f in os.listdir(species_dir)
-              if f.endswith('fasta'))
-    return fastas
-
-
 def generate_stats(species_dir, dmx):
     """
     Generate a pandas DataFrame containing all of the stats for genomes
