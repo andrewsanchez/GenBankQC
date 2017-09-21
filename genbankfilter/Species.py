@@ -14,14 +14,17 @@ class Species:
 
     def __init__(self, species_dir):
         self.species_dir = species_dir
-        self.species = species_dir.strip('/').split('/')[-1]
+        self.species = species_dir
+        if '/' in self.species:
+            self.species = species_dir.strip('/').split('/')[-1]
         stats = os.path.join(self.species_dir, 'stats.csv')
+        nw_file = os.path.join(species_dir, 'tree.nw')
+        dmx = os.path.join(species_dir, 'dmx.txt')
+        # TODO: What to do when these files don't exist?
         if os.path.isfile(stats):
             self.stats = pd.read_csv(stats, index_col=0)
-        nw_file = os.path.join(species_dir, 'tree.nw')
         if os.path.isfile(nw_file):
             self.tree = Tree(nw_file, 1)
-        dmx = os.path.join(species_dir, 'dmx.txt')
         if os.path.isfile(dmx):
             self.dmx = pd.read_csv(dmx, index_col=0, sep="\t")
 
