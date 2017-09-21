@@ -139,20 +139,6 @@ class TestFilteredSpecies(unittest.TestCase):
         self.assertIsInstance(baumannii.failed["Assembly_Size"],
                               gbf.pd.Index)
 
-    def test_filter_med_abs_dev(self):
-        baumannii = gbf.FilteredSpecies(
-            "test/resources/Acinetobacter_baumannii")
-        baumannii.passed = baumannii.stats
-        for criteria in ["MASH", "Assembly_Size"]:
-            genomes_before_filtering = len(baumannii.passed)
-            baumannii.filter_med_abs_dev(criteria)
-            self.assertIsInstance(baumannii.passed, gbf.pd.DataFrame)
-            self.assertIsInstance(baumannii.failed[criteria],
-                                  gbf.pd.Index)
-            self.assertEqual(len(baumannii.passed) +
-                             len(baumannii.failed[criteria]),
-                             genomes_before_filtering)
-
     def test_filter_all(self):
         import subprocess
         species_dir = os.path.join(self.genbank, "Acinetobacter_baumannii")
@@ -241,6 +227,18 @@ def test_filter_contigs(provide_baumannii):
     assert type(baumannii.passed) == gbf.pd.DataFrame
     assert type(baumannii.failed["contigs"]) == gbf.pd.Index
     assert type(baumannii.allowed["contigs"]) == gbf.np.float64
+
+
+def test_filter_med_abs_dev(provide_baumannii):
+    baumannii = provide_baumannii
+    for criteria in ["MASH", "Assembly_Size"]:
+        genomes_before_filtering = len(baumannii.passed)
+        baumannii.filter_med_abs_dev(criteria)
+        assert type(baumannii.passed) == gbf.pd.DataFrame
+        assert type(baumannii.failed[criteria]) == gbf.pd.Index
+        total_genomes = len(baumannii.passed) + len(baumannii.failed[criteria])
+        assert (total_genomes == genomes_before_filtering)
+
 
 
 if __name__ == '__main__':
