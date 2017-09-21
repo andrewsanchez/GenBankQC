@@ -25,6 +25,7 @@ class FilteredSpecies(Species):
         self.assembly_size = assembly_size
         self.mash = mash
         # Tolerance values need to be accessible by the string of their name
+        # Not sure if this is an optimal solution...
         self.tolerance = {
             "unknowns": max_unknowns,
             "contigs": contigs,
@@ -41,8 +42,8 @@ class FilteredSpecies(Species):
             "MASH": "purple",
             "Assembly_Size": "orange"
         }
-        self.label = '{}-{}-{}-{}'.format(max_unknowns, contigs, assembly_size,
-                                          mash)
+        self.label = '{}-{}-{}-{}'.format(
+            max_unknowns, contigs, assembly_size, mash)
         self.passed = pd.DataFrame(
             index=self.stats.index, columns=self.stats.columns)
 
@@ -70,10 +71,9 @@ class FilteredSpecies(Species):
         # Extract genomes with < 10 contigs to add them back in later.
         eligible_contigs = self.passed.Contigs[self.passed.Contigs > 10]
         not_enough_contigs = self.passed.Contigs[self.passed.Contigs <= 10]
-        # Median absolute deviation -
-        # Average absolute difference between number of contigs and the median
-        # for all genomes
-        # Define separate function for this
+        # Median absolute deviation - Average absolute difference between
+        # number of contigs and the median for all genomes
+        # TODO Define separate function for this
         med_abs_dev = abs(eligible_contigs - eligible_contigs.median()).mean()
         self.med_abs_devs["contigs"] = med_abs_dev
         # Define separate function for this
@@ -93,7 +93,6 @@ class FilteredSpecies(Species):
         # We only need the index of passed genomes at this point
         eligible_contigs = eligible_contigs.index
         self.passed = self.passed.loc[eligible_contigs]
-        # self.passed.drop(self.failed["contigs"], inplace=True)
 
     def filter_med_abs_dev(self, criteria):
         """Filter based on median absolute deviation."""
@@ -214,15 +213,6 @@ def get_N_Count(contigs, n_counts):
     N_Count = sum([len(re.findall("[^ATCG]", str(seq))) for seq in contigs])
     n_counts.append(N_Count)
     return N_Count
-
-
-def get_all_fastas(species_dir, ext="fasta"):
-    """
-    Returns a generator for every file ending with ext
-    """
-    fastas = (os.path.join(species_dir, f) for f in os.listdir(species_dir)
-              if f.endswith('fasta'))
-    return fastas
 
 
 def generate_stats(species_dir, dmx):

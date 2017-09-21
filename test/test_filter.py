@@ -3,6 +3,8 @@ import shutil
 import tempfile
 import unittest
 
+import pytest
+
 import genbankfilter.filter as gbf
 
 
@@ -85,40 +87,6 @@ class TestFilteredSpecies(unittest.TestCase):
         self.species_dir = os.path.join(self.genbank, self.species)
         self.B_aphidicola = gbf.FilteredSpecies(self.species_dir)
 
-    def test_init(self):
-        self.assertEqual(type(self.B_aphidicola.stats), gbf.pd.DataFrame)
-        self.assertEqual(type(self.B_aphidicola.tree), gbf.Tree)
-        # Check default values
-        self.assertEqual(self.B_aphidicola.max_unknowns, 200)
-        self.assertEqual(self.B_aphidicola.contigs, 3.0)
-        self.assertEqual(self.B_aphidicola.assembly_size, 3.0)
-        self.assertEqual(self.B_aphidicola.mash, 3.0)
-        self.assertEqual(self.B_aphidicola.tolerance["unknowns"],
-                         self.B_aphidicola.max_unknowns)
-        self.assertEqual(self.B_aphidicola.tolerance["contigs"],
-                         self.B_aphidicola.contigs)
-        self.assertEqual(self.B_aphidicola.tolerance["Assembly_Size"],
-                         self.B_aphidicola.assembly_size)
-        self.assertEqual(self.B_aphidicola.tolerance["MASH"],
-                         self.B_aphidicola.mash)
-        self.assertEqual(self.B_aphidicola.label, "200-3.0-3.0-3.0")
-        # Check different values are set properly
-        self.B_aphidicola = gbf.FilteredSpecies(self.species_dir, 300,
-                                                2.0, 2.0, 2.0)
-        self.assertEqual(self.B_aphidicola.max_unknowns, 300)
-        self.assertEqual(self.B_aphidicola.contigs, 2.0)
-        self.assertEqual(self.B_aphidicola.assembly_size, 2.0)
-        self.assertEqual(self.B_aphidicola.mash, 2.0)
-        self.assertEqual(self.B_aphidicola.tolerance["unknowns"],
-                         self.B_aphidicola.max_unknowns)
-        self.assertEqual(self.B_aphidicola.tolerance["contigs"],
-                         self.B_aphidicola.contigs)
-        self.assertEqual(self.B_aphidicola.tolerance["Assembly_Size"],
-                         self.B_aphidicola.assembly_size)
-        self.assertEqual(self.B_aphidicola.tolerance["MASH"],
-                         self.B_aphidicola.mash)
-        self.assertEqual(self.B_aphidicola.label, "300-2.0-2.0-2.0")
-
     def test_str(self):
         print(self.B_aphidicola)
 
@@ -147,21 +115,6 @@ class TestFilteredSpecies(unittest.TestCase):
         self.assertEqual(expected_failures,
                          self.B_aphidicola.failed["unknowns"].tolist())
 
-    def test_filter_contigs(self):
-        baumannii = gbf.FilteredSpecies(
-            "test/resources/Acinetobacter_baumannii")
-        baumannii.passed = baumannii.stats
-        baumannii.filter_contigs()
-        self.assertEqual(len(baumannii.passed) +
-                         len(baumannii.failed["contigs"]),
-                         len(baumannii.stats))
-        self.assertIsInstance(baumannii.med_abs_devs["contigs"], float)
-        self.assertIsInstance(baumannii.dev_refs["contigs"], float)
-        self.assertIsInstance(baumannii.allowed["contigs"], float)
-        self.assertIsInstance(baumannii.passed, gbf.pd.DataFrame)
-        self.assertIsInstance(baumannii.failed["contigs"], gbf.pd.Index)
-        self.assertIsInstance(baumannii.allowed["contigs"], float)
-
     def test_filter_mash(self):
         baumannii = gbf.FilteredSpecies(
             "test/resources/Acinetobacter_baumannii")
@@ -186,20 +139,6 @@ class TestFilteredSpecies(unittest.TestCase):
         self.assertIsInstance(baumannii.failed["Assembly_Size"],
                               gbf.pd.Index)
 
-    def test_filter_med_abs_dev(self):
-        baumannii = gbf.FilteredSpecies(
-            "test/resources/Acinetobacter_baumannii")
-        baumannii.passed = baumannii.stats
-        for criteria in ["MASH", "Assembly_Size"]:
-            genomes_before_filtering = len(baumannii.passed)
-            baumannii.filter_med_abs_dev(criteria)
-            self.assertIsInstance(baumannii.passed, gbf.pd.DataFrame)
-            self.assertIsInstance(baumannii.failed[criteria],
-                                  gbf.pd.Index)
-            self.assertEqual(len(baumannii.passed) +
-                             len(baumannii.failed[criteria]),
-                             genomes_before_filtering)
-
     def test_filter_all(self):
         import subprocess
         species_dir = os.path.join(self.genbank, "Acinetobacter_baumannii")
@@ -216,6 +155,97 @@ class TestFilteredSpecies(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.genbank)
+
+
+@pytest.fixture(params=["Buchnera_aphidicola", "Acinetobacter_baumannii"])
+def provide_Species(request):
+    species = "test/resources/" + request.param
+    species = gbf.Species(species)
+    yield species
+
+
+@pytest.fixture()
+def provide_baumannii(request):
+    baumannii = "test/resources/Acinetobacter_baumannii"
+    baumannii = gbf.FilteredSpecies(baumannii)
+    # Initialize the otherwise empty `passed` DataFrame
+    baumannii.passed = baumannii.stats
+    yield baumannii
+
+
+@pytest.fixture()
+def provide_aphidicola(request):
+    aphidicola = "test/resources/Buchnera_aphidicola"
+    aphidicola = gbf.Species(aphidicola)
+    yield aphidicola
+
+
+@pytest.fixture(params=[[200, 3.0, 3.0, 3.0], [300, 2.0, 2.0, 2.0]])
+def provide_aphidicola_multi(request):
+    a, b, c, d = request.param
+    aphidicola = "test/resources/Buchnera_aphidicola"
+    aphidicola = gbf.FilteredSpecies(aphidicola, a, b, c, d)
+    yield request.param, aphidicola
+
+
+def test_Species_init(provide_Species):
+    from ete3 import Tree
+    species = provide_Species
+    assert type(species) == gbf.Species
+    assert type(species.stats) == gbf.pd.DataFrame
+    assert type(species.tree) == Tree
+    assert type(species.dmx) == gbf.pd.DataFrame
+    assert species.dmx.index.tolist() == species.stats.index.tolist()
+    assert species.dmx.mean().index.tolist() == species.stats.index.tolist()
+
+
+def test_Species_genomes(provide_aphidicola):
+    from types import GeneratorType
+    aphidicola = provide_aphidicola
+    genomes = aphidicola.genomes()
+    assert type(genomes) == GeneratorType
+
+
+def test_FilteredSpecies_init(provide_aphidicola_multi):
+    params, aphidicola = provide_aphidicola_multi
+    a, b, c, d = params
+    assert type(aphidicola.stats) == gbf.pd.DataFrame
+    assert type(aphidicola.tree) == gbf.Tree
+    # Check default values
+    assert aphidicola.max_unknowns == a
+    assert aphidicola.contigs == b
+    assert aphidicola.assembly_size == c
+    assert aphidicola.mash == d
+    assert aphidicola.tolerance["unknowns"] == aphidicola.max_unknowns
+    assert aphidicola.tolerance["contigs"] == aphidicola.contigs
+    assert aphidicola.tolerance["Assembly_Size"] == aphidicola.assembly_size
+    assert aphidicola.tolerance["MASH"] == aphidicola.mash
+    assert aphidicola.label == "-".join(map(str, params))
+
+
+def test_filter_contigs(provide_baumannii):
+    baumannii = provide_baumannii
+    baumannii.filter_contigs()
+    total_genomes = len(baumannii.passed) + len(baumannii.failed["contigs"])
+    assert total_genomes == len(baumannii.stats)
+    assert type(baumannii.med_abs_devs["contigs"]) == gbf.np.float64
+    assert type(baumannii.dev_refs["contigs"]) == gbf.np.float64
+    assert type(baumannii.allowed["contigs"]) == gbf.np.float64
+    assert type(baumannii.passed) == gbf.pd.DataFrame
+    assert type(baumannii.failed["contigs"]) == gbf.pd.Index
+    assert type(baumannii.allowed["contigs"]) == gbf.np.float64
+
+
+def test_filter_med_abs_dev(provide_baumannii):
+    baumannii = provide_baumannii
+    for criteria in ["MASH", "Assembly_Size"]:
+        genomes_before_filtering = len(baumannii.passed)
+        baumannii.filter_med_abs_dev(criteria)
+        assert type(baumannii.passed) == gbf.pd.DataFrame
+        assert type(baumannii.failed[criteria]) == gbf.pd.Index
+        total_genomes = len(baumannii.passed) + len(baumannii.failed[criteria])
+        assert (total_genomes == genomes_before_filtering)
+
 
 
 if __name__ == '__main__':
