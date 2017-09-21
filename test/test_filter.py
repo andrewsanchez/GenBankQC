@@ -222,8 +222,15 @@ def provide_baumannii(request):
     yield baumannii
 
 
-@pytest.fixture(params=[[200, 3.0, 3.0, 3.0], [300, 2.0, 2.0, 2.0]])
+@pytest.fixture()
 def provide_aphidicola(request):
+    aphidicola = "test/resources/Buchnera_aphidicola"
+    aphidicola = gbf.Species(aphidicola)
+    yield aphidicola
+
+
+@pytest.fixture(params=[[200, 3.0, 3.0, 3.0], [300, 2.0, 2.0, 2.0]])
+def provide_aphidicola_multi(request):
     a, b, c, d = request.param
     aphidicola = "test/resources/Buchnera_aphidicola"
     aphidicola = gbf.FilteredSpecies(aphidicola, a, b, c, d)
@@ -241,6 +248,8 @@ def test_Species_init(provide_Species):
     assert species.dmx.mean().index.tolist() == species.stats.index.tolist()
 
 
+def test_FilteredSpecies_init(provide_aphidicola_multi):
+    params, aphidicola = provide_aphidicola_multi
     a, b, c, d = params
     assert type(aphidicola.stats) == gbf.pd.DataFrame
     assert type(aphidicola.tree) == gbf.Tree
