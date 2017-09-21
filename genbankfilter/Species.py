@@ -56,3 +56,14 @@ class Genome:
         p = re.compile('.*(GCA_\d+\.\d.*)(.fasta)')
         self.name = re.match(p, genome).group(1)
 
+    def get_contigs(self):
+        """
+        Return a list of of Bio.Seq.Seq objects for fasta and calculate
+        the total the number of contigs.
+        """
+        try:
+            self.contigs = [seq.seq for seq in SeqIO.parse(self.path, "fasta")]
+        except UnicodeDecodeError:
+            self.contigs = UnicodeDecodeError
+
+
