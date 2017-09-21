@@ -6,6 +6,7 @@ import unittest
 import pytest
 
 import genbankfilter.filter as gbf
+from genbankfilter.Species import Genome
 
 
 class TestFilter(unittest.TestCase):
@@ -204,6 +205,14 @@ def test_Species_genomes(provide_aphidicola):
     aphidicola = provide_aphidicola
     genomes = aphidicola.genomes()
     assert type(genomes) == GeneratorType
+
+
+def test_Genome_init(provide_aphidicola):
+    aphidicola = provide_aphidicola
+    genomes = aphidicola.genomes()
+    genome = Genome(next(genomes))
+    assert genome.name == "GCA_000007365.1_Buchnera_aphidicola_Sg_" + \
+        "Schizaphis_graminum_Complete_Genome"
 
 
 def test_FilteredSpecies_init(provide_aphidicola_multi):
