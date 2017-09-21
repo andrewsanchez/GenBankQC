@@ -206,9 +206,15 @@ class TestFilteredSpecies(unittest.TestCase):
         shutil.rmtree(self.genbank)
 
 
-@pytest.fixture(params=[[200, 3.0, 3.0, 3.0]])
+@pytest.fixture(params=["Buchnera_aphidicola", "Acinetobacter_baumannii"])
+def provide_Species(request):
+    species = "test/resources/" + request.param
+    species = gbf.Species(species)
+    yield species
+
+
+@pytest.fixture()
 def provide_baumannii(request):
-    a, b, c, d = request.param
     baumannii = "test/resources/Acinetobacter_baumannii"
     baumannii = gbf.FilteredSpecies(baumannii)
     # Initialize the otherwise empty `passed` DataFrame
@@ -224,8 +230,17 @@ def provide_aphidicola(request):
     yield request.param, aphidicola
 
 
-def test_init(provide_aphidicola):
-    params, aphidicola = provide_aphidicola
+def test_Species_init(provide_Species):
+    from ete3 import Tree
+    species = provide_Species
+    assert type(species) == gbf.Species
+    assert type(species.stats) == gbf.pd.DataFrame
+    assert type(species.tree) == Tree
+    assert type(species.dmx) == gbf.pd.DataFrame
+    assert species.dmx.index.tolist() == species.stats.index.tolist()
+    assert species.dmx.mean().index.tolist() == species.stats.index.tolist()
+
+
     a, b, c, d = params
     assert type(aphidicola.stats) == gbf.pd.DataFrame
     assert type(aphidicola.tree) == gbf.Tree
