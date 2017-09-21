@@ -1,6 +1,8 @@
 import os
+import re
 
 import pandas as pd
+from Bio import Phylo, SeqIO
 
 from ete3 import Tree
 
@@ -39,3 +41,18 @@ class Species:
         for f in os.listdir(self.species_dir):
             if f.endswith(ext):
                 yield os.path.join(self.species_dir, f)
+
+
+class Genome:
+    def __init__(self, genome):
+        """
+        :param genome: Path to genome
+        :returns: Path to genome and name of the genome
+        :rtype:
+
+        """
+        # TODO: Check if it has MASH file
+        self.path = genome
+        p = re.compile('.*(GCA_\d+\.\d.*)(.fasta)')
+        self.name = re.match(p, genome).group(1)
+
