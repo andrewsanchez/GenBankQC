@@ -544,10 +544,17 @@ def check_passed_dir(species_dir):
     return passed_dir
 
 
+def get_all_fastas(species_dir, ext="fasta"):
+    """
+    Returns a generator for every file ending with ext
+    """
+    fastas = (os.path.join(species_dir, f) for f in os.listdir(species_dir)
+              if f.endswith('fasta'))
+    return fastas
+
+
 def min_fastas_check(species_dir):
-    """
-    Check if speices_dir contains at least 5 FASTAs
-    """
+    """Check if speices_dir contains at least 5 FASTAs"""
     if len(os.listdir(species_dir)) <= 5:
         return False
     return True
