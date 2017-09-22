@@ -1,19 +1,16 @@
-from genbankfilter.Genome import Genome
+def test_init(genome):
+    from genbankfilter.Genome import Genome
+    expected_name = ("GCA_000007365.1_Buchnera_aphidicola_Sg_"
+                     "Schizaphis_graminum_Complete_Genome")
+    assert isinstance(genome, Genome)
+    assert genome.name == expected_name
 
 
-def test_Genome_init(provide_aphidicola):
-    aphidicola = provide_aphidicola
-    genomes = aphidicola.genomes()
-    genome = Genome(next(genomes))
-    assert genome.name == "GCA_000007365.1_Buchnera_aphidicola_Sg_" + \
-        "Schizaphis_graminum_Complete_Genome"
-
-
-def test_Genome_get_contigs(provide_aphidicola):
+def test_get_contigs(genome):
     from Bio.Seq import Seq
-    aphidicola = provide_aphidicola
-    genomes = aphidicola.genomes()
-    genome = Genome(next(genomes))
-    genome.get_contigs()
-    assert type(genome.contigs) == list
-    assert type(genome.contigs[0]) == Seq
+    assert type(genome.contigs) is list
+    assert type(genome.contigs[0]) is Seq
+
+
+def test_assembly_size(genome):
+    assert type(genome.assembly_size) is int

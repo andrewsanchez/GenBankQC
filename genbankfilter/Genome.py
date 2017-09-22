@@ -25,7 +25,7 @@ class Genome:
         except UnicodeDecodeError:
             self.contigs = UnicodeDecodeError
 
-    def assembly_size(self):
+    def get_assembly_size(self):
         """Calculate the sum of all contig lengths"""
         # TODO: map or reduce might be more elegant here
         self.assembly_size = sum((len(str(seq)) for seq in self.contigs))
