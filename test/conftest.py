@@ -38,4 +38,7 @@ def provide_aphidicola_multi(request):
 @pytest.fixture()
 def genome(request, provide_aphidicola):
     aphidicola = provide_aphidicola
-    yield Genome(next(aphidicola.genomes()))
+    genome = Genome(next(aphidicola.genomes()))
+    genome.get_contigs()
+    genome.get_assembly_size()
+    yield genome
