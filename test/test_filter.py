@@ -6,7 +6,6 @@ import unittest
 import pytest
 
 import genbankfilter.filter as gbf
-from genbankfilter.Species import Genome
 
 
 class TestFilter(unittest.TestCase):
@@ -57,7 +56,7 @@ class TestFilter(unittest.TestCase):
 
     def test_filter_med_abs_dev(self):
         results = gbf.filter_med_abs_dev(self.stats, {}, "MASH",
-                                    self.criteria_and_franges)
+                                         self.criteria_and_franges)
         self.assertTrue(type(results.passed) == gbf.pd.DataFrame)
 
     def test_read_tree(self):
@@ -158,73 +157,6 @@ class TestFilteredSpecies(unittest.TestCase):
         shutil.rmtree(self.genbank)
 
 
-@pytest.fixture(params=["Buchnera_aphidicola", "Acinetobacter_baumannii"])
-def provide_Species(request):
-    species = "test/resources/" + request.param
-    species = gbf.Species(species)
-    yield species
-
-
-@pytest.fixture()
-def provide_baumannii(request):
-    baumannii = "test/resources/Acinetobacter_baumannii"
-    baumannii = gbf.FilteredSpecies(baumannii)
-    # Initialize the otherwise empty `passed` DataFrame
-    baumannii.passed = baumannii.stats
-    yield baumannii
-
-
-@pytest.fixture()
-def provide_aphidicola(request):
-    aphidicola = "test/resources/Buchnera_aphidicola"
-    aphidicola = gbf.Species(aphidicola)
-    yield aphidicola
-
-
-@pytest.fixture(params=[[200, 3.0, 3.0, 3.0], [300, 2.0, 2.0, 2.0]])
-def provide_aphidicola_multi(request):
-    a, b, c, d = request.param
-    aphidicola = "test/resources/Buchnera_aphidicola"
-    aphidicola = gbf.FilteredSpecies(aphidicola, a, b, c, d)
-    yield request.param, aphidicola
-
-
-def test_Species_init(provide_Species):
-    from ete3 import Tree
-    species = provide_Species
-    assert type(species) == gbf.Species
-    assert type(species.stats) == gbf.pd.DataFrame
-    assert type(species.tree) == Tree
-    assert type(species.dmx) == gbf.pd.DataFrame
-    assert species.dmx.index.tolist() == species.stats.index.tolist()
-    assert species.dmx.mean().index.tolist() == species.stats.index.tolist()
-
-
-def test_Species_genomes(provide_aphidicola):
-    from types import GeneratorType
-    aphidicola = provide_aphidicola
-    genomes = aphidicola.genomes()
-    assert type(genomes) == GeneratorType
-
-
-def test_Genome_init(provide_aphidicola):
-    aphidicola = provide_aphidicola
-    genomes = aphidicola.genomes()
-    genome = Genome(next(genomes))
-    assert genome.name == "GCA_000007365.1_Buchnera_aphidicola_Sg_" + \
-        "Schizaphis_graminum_Complete_Genome"
-
-
-def test_Genome_get_contigs(provide_aphidicola):
-    from Bio.Seq import Seq
-    aphidicola = provide_aphidicola
-    genomes = aphidicola.genomes()
-    genome = Genome(next(genomes))
-    genome.get_contigs()
-    assert type(genome.contigs) == list
-    assert type(genome.contigs[0]) == Seq
-
-
 def test_FilteredSpecies_init(provide_aphidicola_multi):
     params, aphidicola = provide_aphidicola_multi
     a, b, c, d = params
@@ -264,7 +196,6 @@ def test_filter_med_abs_dev(provide_baumannii):
         assert type(baumannii.failed[criteria]) == gbf.pd.Index
         total_genomes = len(baumannii.passed) + len(baumannii.failed[criteria])
         assert (total_genomes == genomes_before_filtering)
-
 
 
 if __name__ == '__main__':

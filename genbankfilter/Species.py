@@ -1,8 +1,6 @@
 import os
-import re
 
 import pandas as pd
-from Bio import Phylo, SeqIO
 
 from ete3 import Tree
 
@@ -27,6 +25,7 @@ class Species:
             self.stats = pd.read_csv(stats, index_col=0)
         if os.path.isfile(nw_file):
             self.tree = Tree(nw_file, 1)
+        # TODO: Throw error here if dmx.index and stats.index
         if os.path.isfile(dmx):
             self.dmx = pd.read_csv(dmx, index_col=0, sep="\t")
 
@@ -41,29 +40,3 @@ class Species:
         for f in os.listdir(self.species_dir):
             if f.endswith(ext):
                 yield os.path.join(self.species_dir, f)
-
-
-class Genome:
-    def __init__(self, genome):
-        """
-        :param genome: Path to genome
-        :returns: Path to genome and name of the genome
-        :rtype:
-
-        """
-        # TODO: Check if it has MASH file
-        self.path = genome
-        p = re.compile('.*(GCA_\d+\.\d.*)(.fasta)')
-        self.name = re.match(p, genome).group(1)
-
-    def get_contigs(self):
-        """
-        Return a list of of Bio.Seq.Seq objects for fasta and calculate
-        the total the number of contigs.
-        """
-        try:
-            self.contigs = [seq.seq for seq in SeqIO.parse(self.path, "fasta")]
-        except UnicodeDecodeError:
-            self.contigs = UnicodeDecodeError
-
-
