@@ -1,6 +1,7 @@
 import pytest
 
 import genbankfilter.filter as gbf
+from genbankfilter.Genome import Genome
 
 
 @pytest.fixture(params=["Buchnera_aphidicola", "Acinetobacter_baumannii"])
@@ -32,3 +33,9 @@ def provide_aphidicola_multi(request):
     aphidicola = "test/resources/Buchnera_aphidicola"
     aphidicola = gbf.FilteredSpecies(aphidicola, a, b, c, d)
     yield request.param, aphidicola
+
+
+@pytest.fixture()
+def genome(request, provide_aphidicola):
+    aphidicola = provide_aphidicola
+    yield Genome(next(aphidicola.genomes()))
