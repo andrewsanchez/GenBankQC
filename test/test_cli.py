@@ -1,7 +1,8 @@
-import unittest
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
+import unittest
+
 from click.testing import CliRunner
 
 from genbankfilter.__main__ import cli
@@ -27,6 +28,11 @@ class TestCli(unittest.TestCase):
         self.assertIn(str(3.0), result.output)
         self.assertIn(str(1.0), result.output)
         self.assertIn(str(2.0), result.output)
+
+    def test_stats_and_filter(self):
+        result = self.runner.invoke(cli, [self.species_dir])
+        print(os.listdir(self.species_dir))
+        self.assertEqual(result.exit_code, 0)
 
     def tearDown(self):
         shutil.rmtree(self.tmp)

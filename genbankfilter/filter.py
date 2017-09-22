@@ -11,6 +11,13 @@ from Bio.Phylo.TreeConstruction import DistanceTreeConstructor, _DistanceMatrix
 from ete3 import Tree
 from genbankfilter.Species import Species
 
+color_map = {
+    "N_Count": "red",
+    "Contigs": "green",
+    "MASH": "blue",
+    "Assembly_Size": "purple"
+}
+
 
 class FilteredSpecies(Species):
     def __init__(self,
@@ -225,6 +232,15 @@ def get_all_fastas(species_dir, ext="fasta"):
     return fastas
 
 
+def stats_and_filter(species_dir, dmx, filter_ranges):
+    stats = generate_stats(species_dir, dmx)
+    stats.to_csv(os.path.join(species_dir, 'stats.csv'))
+    tree = dmx_to_tree(dmx, species_dir)
+    results = _filter_all(species_dir, stats, tree, filter_ranges)
+    passed_final = results
+    passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
+
+
 def generate_stats(species_dir, dmx):
     """
     Generate a pandas DataFrame containing all of the stats for genomes
@@ -271,13 +287,81 @@ def filter_all(FilteredSpecies):
     FilteredSpecies.style_and_render_tree()
 
 
+def generate_criteria_dict(filter_ranges):
+    max_unknowns, c_range, s_range, m_range = filter_ranges
+    criteria = {}
+    criteria["N_Count"] = max_unknowns
+    criteria["Contigs"] = c_range
+    criteria["Assembly_Size"] = s_range
+    criteria["MASH"] = m_range
+    return criteria
+
+
+def style_and_render_tree(species_dir, tree, filter_ranges,
+                          file_types=["png", "svg"]):
+    from ete3 import TreeStyle, TextFace, CircleFace
+    # not be a reliable way to get species name
+    species = species_dir.split('/')[-1]
+    max_n_count, c_range, s_range, m_range = filter_ranges
+    ts = TreeStyle()
+    ts.title.add_face(TextFace(species, fsize=20), column=0)
+    # midpoint root tree
+    tree.set_outgroup(tree.get_midpoint_outgroup())
+    ts.branch_vertical_margin = 10
+    ts.show_leaf_name = False
+    # Legend
+    for k, v in color_map.items():
+        f = TextFace(k, fgcolor=v)
+        f.margin_bottom = 5
+        f.margin_right = 30
+        cf = CircleFace(3, v, style="sphere")
+        cf.margin_bottom = 5
+        cf.margin_right = 5
+        ts.legend.add_face(f, column=1)
+        ts.legend.add_face(cf, column=2)
+    for f in file_types:
+        out = 'tree_{}-{}-{}-{}'.format(max_n_count, c_range, s_range, m_range)
+        out = os.path.join(species_dir, '{}.{}'.format(out, f))
+        tree.render(out, tree_style=ts)
+
+
+def base_node_style(tree):
+    from ete3 import NodeStyle, AttrFace, TextFace
+    nstyle = NodeStyle()
+    nstyle["shape"] = "sphere"
+    nstyle["size"] = 2
+    nstyle["fgcolor"] = "black"
+    for n in tree.traverse():
+        if not n.name.startswith('Inner'):
+            n.set_style(nstyle)
+            nf = AttrFace('name', fsize=8)
+            nf.margin_right = 100
+            nf.margin_left = 3
+            n.add_face(nf, column=0)
+        else:  n.name = ' '
+    return tree
+
+
+def color_clade(tree, criteria, to_color):
+    """Color nodes using ete3
+    """
+    from ete3 import NodeStyle
+
+    for genome in to_color:
+        n = tree.get_leaves_by_name(genome).pop()
+        nstyle = NodeStyle()
+        nstyle["fgcolor"] = color_map[criteria]
+        nstyle["size"] = 6
+        n.set_style(nstyle)
+
+
 def _filter_all(species_dir, stats, tree, filter_ranges):
     """
     This function strings together all of the steps
     involved in filtering your genomes.
     """
     max_unknowns, c_range, s_range, m_range = filter_ranges
-    criteria_dict = criteria_dict(filter_ranges)
+    criteria_dict = generate_criteria_dict(filter_ranges)
     summary = {}
     criteria = "N_Count"
     passed, failed_N_Count = filter_Ns(stats, max_unknowns)
@@ -365,16 +449,6 @@ def filter_med_abs_dev(passed, summary, criteria, criteria_dict):
     return filter_results
 
 
-def criteria_dict(filter_ranges):
-    max_unknowns, c_range, s_range, m_range = filter_ranges
-    criteria = {}
-    criteria["N_Count"] = max_unknowns
-    criteria["Contigs"] = c_range
-    criteria["Assembly_Size"] = s_range
-    criteria["MASH"] = m_range
-    return criteria
-
-
 def check_df_len(df, criteria, num=5):
     """
     Verify that df has > than num genomes
@@ -432,6 +506,8 @@ def dmx_to_tree(dmx, species_dir):
     # ssould not have to reconstruct tree everytime filtering is run
     tree = read_nw_tree(nw_file)
     tree = base_node_style(tree)
+    print(tree)
+    print(type(tree))
     return tree
 
 
@@ -483,6 +559,7 @@ def base_node_style(tree):
             n.add_face(nf, column=0)
         else:
             n.name = ' '
+    return tree
 
 
 def color_clade(tree, criteria, to_color):
@@ -496,15 +573,6 @@ def color_clade(tree, criteria, to_color):
         nstyle["fgcolor"] = color_map[criteria]
         nstyle["size"] = 6
         n.set_style(nstyle)
-
-
-def stats_and_filter(species_dir, dmx, filter_ranges):
-    stats = generate_stats(species_dir, dmx)
-    stats.to_csv(os.path.join(species_dir, 'stats.csv'))
-    tree = dmx_to_tree(dmx, species_dir)
-    results = filter_all(species_dir, stats, tree, filter_ranges)
-    passed_final = results
-    passed_final.to_csv(os.path.join(species_dir, 'passed.csv'))
 
 
 def read_dmx(species_dir):
