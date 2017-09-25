@@ -1,4 +1,6 @@
+import os.path
 import re
+import subprocess
 
 from Bio import SeqIO
 
@@ -15,6 +17,11 @@ class Genome:
         self.path = genome
         p = re.compile('.*(GCA_\d+\.\d.*)(.fasta)')
         self.name = re.match(p, genome).group(1)
+        self.basename = os.path.splitext(self.path)[0]
+        if os.path.isfile(self.basename + ".msh"):
+            self.msh = self.basename + ".msh"
+        else:
+            self.msh = None
 
     def get_contigs(self):
         """Return a list of of Bio.Seq.Seq objects for fasta and calculate
@@ -36,3 +43,9 @@ class Genome:
         p = re.compile("[^ATCG]")
         self.unknowns = sum((len(re.findall(p, str(seq)))
                              for seq in self.contigs))
+
+    def sketch(self):
+        cmd = "mash sketch '{}' -o '{}.msh'".format(self.path, self.basename)
+        subprocess.Popen(cmd, shell="True", stdout=subprocess.DEVNULL).wait()
+        if os.path.isfile(self.basename + ".msh"):
+            self.msh = self.basename + ".msh"
