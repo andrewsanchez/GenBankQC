@@ -8,7 +8,8 @@ import genbankfilter.filter as gbf
 from genbankfilter.Genome import Genome
 
 
-@pytest.fixture(params=["Buchnera_aphidicola", "Acinetobacter_baumannii"])
+@pytest.fixture(scope="module",
+                params=["Buchnera_aphidicola", "Acinetobacter_baumannii"])
 def provide_Species(request):
     species = "test/resources/" + request.param
     species = gbf.Species(species)
