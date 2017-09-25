@@ -1,3 +1,7 @@
+import os.path
+import shutil
+import tempfile
+
 import pytest
 
 import genbankfilter.filter as gbf
@@ -20,11 +24,14 @@ def provide_baumannii(request):
     yield baumannii
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def provide_aphidicola(request):
-    aphidicola = "test/resources/Buchnera_aphidicola"
+    tmp = tempfile.mkdtemp()
+    aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
+    shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
     aphidicola = gbf.Species(aphidicola)
     yield aphidicola
+    shutil.rmtree(aphidicola.species_dir)
 
 
 @pytest.fixture(params=[[200, 3.0, 3.0, 3.0], [300, 2.0, 2.0, 2.0]])
@@ -35,7 +42,7 @@ def provide_aphidicola_multi(request):
     yield request.param, aphidicola
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def genome(request, provide_aphidicola):
     aphidicola = provide_aphidicola
     genome = Genome(next(aphidicola.genomes()))
