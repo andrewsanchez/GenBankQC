@@ -1,4 +1,5 @@
 import genbankfilter.filter as gbf
+from genbankfilter.Genome import Genome
 
 
 def test_init(provide_Species):
@@ -13,7 +14,6 @@ def test_init(provide_Species):
 
 
 def test_genomes(provide_aphidicola):
-    from types import GeneratorType
     aphidicola = provide_aphidicola
-    genomes = aphidicola.genomes()
-    assert type(genomes) == GeneratorType
+    assert len(list(aphidicola.genomes())) == 10
+    assert isinstance(next(aphidicola.genomes()), Genome)
