@@ -3,6 +3,7 @@ import os
 import pandas as pd
 
 from ete3 import Tree
+from genbankfilter.Genome import Genome
 
 
 class Species:
@@ -45,6 +46,13 @@ class Species:
         :returns: Path for all genomes in species directory
         :rtype: generator
         """
-        for f in os.listdir(self.species_dir):
-            if f.endswith(ext):
-                yield os.path.join(self.species_dir, f)
+        # for f in os.listdir(self.species_dir):
+        #     if f.endswith(ext):
+        #         yield Genome(os.path.join(self.species_dir, f))
+
+        genomes = (Genome(os.path.join(self.species_dir, f)) for
+                   f in os.listdir(self.species_dir) if f.endswith(ext))
+        return genomes
+
+    def get_stats(self):
+        pass
