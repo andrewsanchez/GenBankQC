@@ -23,11 +23,15 @@ class Species:
         # TODO: What to do when these files don't exist?
         if os.path.isfile(stats):
             self.stats = pd.read_csv(stats, index_col=0)
+        else:
+            self.stats = None
         if os.path.isfile(nw_file):
             self.tree = Tree(nw_file, 1)
+        self.tree = None
         # TODO: Throw error here if dmx.index and stats.index
         if os.path.isfile(dmx):
             self.dmx = pd.read_csv(dmx, index_col=0, sep="\t")
+        self.tree = None
 
     def genomes(self, ext="fasta"):
         # TODO: Maybe this should return a tuple (genome-path, genome-id)
