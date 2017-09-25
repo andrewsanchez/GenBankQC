@@ -27,11 +27,15 @@ class Species:
             self.stats = None
         if os.path.isfile(nw_file):
             self.tree = Tree(nw_file, 1)
-        self.tree = None
+        else:
+            self.tree = None
         # TODO: Throw error here if dmx.index and stats.index
         if os.path.isfile(dmx):
             self.dmx = pd.read_csv(dmx, index_col=0, sep="\t")
-        self.tree = None
+        else:
+            self.tree = None
+        # self.genomes = (Genome(os.path.join(self.species_dir, f)) for
+        #         f in os.listdir(self.species_dir) if f.endswith('fasta'))
 
     def genomes(self, ext="fasta"):
         # TODO: Maybe this should return a tuple (genome-path, genome-id)
