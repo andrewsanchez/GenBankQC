@@ -41,4 +41,5 @@ def genome(request, provide_aphidicola):
     genome = Genome(next(aphidicola.genomes()))
     genome.get_contigs()
     genome.get_assembly_size()
+    genome.get_unknowns()
     yield genome

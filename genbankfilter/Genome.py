@@ -17,7 +17,7 @@ class Genome:
         self.name = re.match(p, genome).group(1)
 
     def get_contigs(self):
-        """ Return a list of of Bio.Seq.Seq objects for fasta and calculate
+        """Return a list of of Bio.Seq.Seq objects for fasta and calculate
         the total the number of contigs.
         """
         try:
@@ -30,11 +30,9 @@ class Genome:
         # TODO: map or reduce might be more elegant here
         self.assembly_size = sum((len(str(seq)) for seq in self.contigs))
 
-
-    # def get_N_Count(contigs, n_counts):
-    #     """
-    #     Count the number of unknown bases, i.e. all bases that are not in [ATCG]
-    #     """
-    #     N_Count = sum([len(re.findall("[^ATCG]", str(seq))) for seq in contigs])
-    #     n_counts.append(N_Count)
-    #     return N_Count
+    def get_unknowns(self):
+        """Count the number of unknown bases, i.e. not [ATCG]"""
+        # TODO: Would it be useful to allow the user to define p?
+        p = re.compile("[^ATCG]")
+        self.unknowns = sum((len(re.findall(p, str(seq)))
+                             for seq in self.contigs))

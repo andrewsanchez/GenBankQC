@@ -14,3 +14,7 @@ def test_get_contigs(genome):
 
 def test_assembly_size(genome):
     assert type(genome.assembly_size) is int
+
+
+def test_unknowns(genome):
+    assert type(genome.unknowns) is int
