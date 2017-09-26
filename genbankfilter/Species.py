@@ -65,3 +65,45 @@ class Species:
             if genome.msh is None:
                 genome.sketch()
 
+    def mash_paste(self):
+        self.paste_file = os.path.join(self.qc_dir, 'all.msh')
+        sketches = os.path.join(self.qc_dir, "GCA*msh")
+        cmd = "mash paste {} {}".format(self.paste_file, sketches)
+        Popen(cmd, shell="True", stdout=DEVNULL).wait()
+        if not os.path.isfile(self.paste_file):
+            self.paste_file = None
+
+    def mash_dist(self):
+        import re
+        dst = os.path.join(self.qc_dir, 'dmx.csv')
+        cmd = "mash dist -t '{}' '{}' > '{}'".format(
+            self.paste_file, self.paste_file, dst)
+        Popen(cmd, shell="True", stdout=DEVNULL).wait()
+        self.dmx = pd.read_csv(dst, index_col=0, sep="\t")
+        # Make distance matrix more readable
+        p = re.compile('.*(GCA_\d+\.\d.*)(.fasta)')
+        names = [re.match(p, i).group(1) for i in self.dmx.index]
+        self.dmx.index = names
+        self.dmx.columns = names
+        self.dmx.to_csv(dst, sep="\t")
+
+    def get_stats(self):
+        from pandas import DataFrame
+        dmx_mean = self.dmx.mean()
+        stats = []
+        for i in self.genomes():
+            i.get_contigs()
+            i.get_assembly_size()
+            i.get_unknowns()
+            i.get_distance(dmx_mean)
+            data = {"contigs": i.count_contigs,
+                    "assembly_size": i.assembly_size,
+                    "unknowns": i.unknowns,
+                    "distance": i.distance}
+            i.stats = DataFrame(data, index=[i.name])
+            dst = os.path.join(i.qc_dir, i.name+'.csv')
+            stats.append(i.stats)
+            i.stats.to_csv(dst)
+        self.stats = pd.concat(stats)
+        self.stats.to_csv(os.path.join(self.qc_dir, 'stats.csv'))
+
