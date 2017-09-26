@@ -27,6 +27,11 @@ def test_unknowns(genome):
     assert type(genome.unknowns) is int
 
 
+def test_get_distance(provide_aphidicola, genome):
+    genome.get_distance(provide_aphidicola.dmx.mean())
+    assert isinstance(genome.distance, float)
+
+
 def test_sketch(genome):
     genome.sketch()
     assert os.path.isfile(genome.msh)

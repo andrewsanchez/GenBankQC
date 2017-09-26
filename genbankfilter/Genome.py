@@ -49,6 +49,9 @@ class Genome:
         self.unknowns = sum((len(re.findall(p, str(seq)))
                              for seq in self.contigs))
 
+    def get_distance(self, dmx_mean):
+        self.distance = dmx_mean.loc[self.name]
+
     def sketch(self):
         cmd = "mash sketch '{}' -o '{}.msh'".format(self.path, self.basename)
         subprocess.Popen(cmd, shell="True", stdout=subprocess.DEVNULL).wait()
