@@ -22,6 +22,9 @@ class Species:
         nw_file = os.path.join(species_dir, 'tree.nw')
         dmx = os.path.join(species_dir, 'dmx.txt')
         # TODO: What to do when these files don't exist?
+        self.qc_dir = os.path.join(self.species_dir, "qc")
+        if not os.path.isdir(self.qc_dir):
+            os.mkdir(self.qc_dir)
         if os.path.isfile(stats):
             self.stats = pd.read_csv(stats, index_col=0)
         else:
