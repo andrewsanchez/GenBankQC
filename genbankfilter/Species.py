@@ -51,9 +51,18 @@ class Species:
                    f in os.listdir(self.species_dir) if f.endswith(ext))
         return genomes
 
+    def sketches(self):
+        return (i.msh for i in self.genomes())
+
     def genome_ids(self):
         ids = [i.name for i in self.genomes()]
         return pd.Index(ids)
 
     def get_stats(self):
         pass
+
+    def sketch(self):
+        for genome in self.genomes():
+            if genome.msh is None:
+                genome.sketch()
+

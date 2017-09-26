@@ -26,3 +26,21 @@ def test_genome_ids(provide_aphidicola):
     aphidicola = provide_aphidicola
     genome_ids = aphidicola.genome_ids()
     assert genome_ids.tolist() == aphidicola.stats.index.tolist()
+
+
+def test_sketches(provide_aphidicola):
+    aphidicola = provide_aphidicola
+    aphidicola_sketches = aphidicola.sketches()
+    for i in aphidicola_sketches:
+        assert i is None or "GCA_000007365.1" in i
+
+
+def test_sketch(provide_aphidicola):
+    aphidicola = provide_aphidicola
+    aphidicola.sketch()
+    aphidicola_sketches = aphidicola.sketches()
+    print(os.listdir(aphidicola.species_dir))
+    for i in aphidicola_sketches:
+        assert i is not None
+
+
