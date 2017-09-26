@@ -29,6 +29,7 @@ class Genome:
         """
         try:
             self.contigs = [seq.seq for seq in SeqIO.parse(self.path, "fasta")]
+            self.count_contigs = len(self.contigs)
         except UnicodeDecodeError:
             self.contigs = UnicodeDecodeError
 

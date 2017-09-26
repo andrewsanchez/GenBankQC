@@ -14,6 +14,7 @@ def test_get_contigs(genome):
     from Bio.Seq import Seq
     assert type(genome.contigs) is list
     assert type(genome.contigs[0]) is Seq
+    assert isinstance(genome.count_contigs, int)
 
 
 def test_assembly_size(genome):
