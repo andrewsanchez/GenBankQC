@@ -7,7 +7,9 @@ def test_init(genome):
                      "Schizaphis_graminum_Complete_Genome")
     assert isinstance(genome, Genome)
     assert genome.name == expected_name
-    assert not genome.msh
+    assert genome.name in genome.msh
+    assert genome.species_dir and 'qc' in genome.qc_dir
+    assert os.path.isdir(genome.qc_dir)
 
 
 def test_get_contigs(genome):

@@ -11,16 +11,20 @@ class Genome:
         :param genome: Path to genome
         :returns: Path to genome and name of the genome
         :rtype:
-
         """
-        # TODO: Check if it has MASH file
         self.path = genome
         p = re.compile('.*(GCA_\d+\.\d.*)(.fasta)')
         self.name = re.match(p, genome).group(1)
         self.basename = os.path.splitext(self.path)[0]
-        if os.path.isfile(self.basename + ".msh"):
-            self.msh = self.basename + ".msh"
+        if '/' not in self.path:
+            self.species_dir = self.path
         else:
+            self.species_dir = '/'.join(self.path.split('/')[:-1])
+        self.qc_dir = os.path.join(self.species_dir, "qc")
+        if not os.path.isdir(self.qc_dir):
+            os.mkdir(self.qc_dir)
+        self.msh = os.path.join(self.qc_dir, self.name + ".msh")
+        if not os.path.isfile(self.msh):
             self.msh = None
 
     def get_contigs(self):
