@@ -1,16 +1,19 @@
+import os.path
+
 import genbankfilter.filter as gbf
 from genbankfilter.Genome import Genome
 
 
-def test_init(provide_Species):
+def test_init(provide_aphidicola):
     from ete3 import Tree
-    species = provide_Species
+    species = provide_aphidicola
     assert type(species) == gbf.Species
     assert type(species.stats) == gbf.pd.DataFrame
     assert type(species.tree) == Tree
     assert type(species.dmx) == gbf.pd.DataFrame
     assert species.dmx.index.tolist() == species.stats.index.tolist()
     assert species.dmx.mean().index.tolist() == species.stats.index.tolist()
+    assert os.path.isdir(species.qc_dir)
 
 
 def test_genomes(provide_aphidicola):
