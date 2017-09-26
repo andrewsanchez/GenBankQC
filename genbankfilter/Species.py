@@ -43,7 +43,7 @@ class Species:
         """Returns a generator for every file ending with `ext`
 
         :param ext: File extension of genomes in species directory
-        :returns: Path for all genomes in species directory
+        :returns: Generator of Genome objects for all genomes in species dir
         :rtype: generator
         """
         # for f in os.listdir(self.species_dir):
@@ -53,6 +53,10 @@ class Species:
         genomes = (Genome(os.path.join(self.species_dir, f)) for
                    f in os.listdir(self.species_dir) if f.endswith(ext))
         return genomes
+
+    def genome_ids(self):
+        ids = [i.name for i in self.genomes()]
+        return pd.Index(ids)
 
     def get_stats(self):
         pass

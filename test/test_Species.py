@@ -17,3 +17,9 @@ def test_genomes(provide_aphidicola):
     aphidicola = provide_aphidicola
     assert len(list(aphidicola.genomes())) == 10
     assert isinstance(next(aphidicola.genomes()), Genome)
+
+
+def test_genome_ids(provide_aphidicola):
+    aphidicola = provide_aphidicola
+    genome_ids = aphidicola.genome_ids()
+    assert genome_ids.tolist() == aphidicola.stats.index.tolist()
