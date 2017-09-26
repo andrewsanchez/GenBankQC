@@ -1,4 +1,5 @@
 import os
+from subprocess import DEVNULL, Popen
 
 import pandas as pd
 
@@ -57,9 +58,6 @@ class Species:
         ids = [i.name for i in self.genomes()]
         return pd.Index(ids)
 
-    def get_stats(self):
-        pass
-
     def sketch(self):
         for genome in self.genomes():
             if genome.msh is None:
@@ -106,4 +104,3 @@ class Species:
             i.stats.to_csv(dst)
         self.stats = pd.concat(stats)
         self.stats.to_csv(os.path.join(self.qc_dir, 'stats.csv'))
-
