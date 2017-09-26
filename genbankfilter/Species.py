@@ -35,8 +35,6 @@ class Species:
             self.dmx = pd.read_csv(dmx, index_col=0, sep="\t")
         else:
             self.tree = None
-        # self.genomes = (Genome(os.path.join(self.species_dir, f)) for
-        #         f in os.listdir(self.species_dir) if f.endswith('fasta'))
 
     def genomes(self, ext="fasta"):
         # TODO: Maybe this should return a tuple (genome-path, genome-id)
@@ -46,10 +44,6 @@ class Species:
         :returns: Generator of Genome objects for all genomes in species dir
         :rtype: generator
         """
-        # for f in os.listdir(self.species_dir):
-        #     if f.endswith(ext):
-        #         yield Genome(os.path.join(self.species_dir, f))
-
         genomes = (Genome(os.path.join(self.species_dir, f)) for
                    f in os.listdir(self.species_dir) if f.endswith(ext))
         return genomes
