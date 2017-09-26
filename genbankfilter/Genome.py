@@ -53,10 +53,12 @@ class Genome:
         self.distance = dmx_mean.loc[self.name]
 
     def sketch(self):
-        cmd = "mash sketch '{}' -o '{}.msh'".format(self.path, self.basename)
+        dst = os.path.join(self.qc_dir, self.name + '.msh')
+        cmd = "mash sketch '{}' -o '{}'".format(self.path, dst)
         subprocess.Popen(cmd, shell="True", stdout=subprocess.DEVNULL).wait()
-        if os.path.isfile(self.basename + ".msh"):
-            self.msh = self.basename + ".msh"
+        self.msh = dst
+        if not os.path.isfile(dst):
+            self.msh = None
 
     def get_stats(self):
         from pandas import DataFrame
@@ -67,3 +69,5 @@ class Genome:
                 "assembly_size": self.assembly_size,
                 "unknowns": self.unknowns}
         self.stats = DataFrame(data, index=[self.name])
+        dst = os.path.join(self.qc_dir, self.name+'.csv')
+        self.stats.to_csv(dst, index=0)
