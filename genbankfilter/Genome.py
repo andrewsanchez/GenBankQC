@@ -50,3 +50,13 @@ class Genome:
         subprocess.Popen(cmd, shell="True", stdout=subprocess.DEVNULL).wait()
         if os.path.isfile(self.basename + ".msh"):
             self.msh = self.basename + ".msh"
+
+    def get_stats(self):
+        from pandas import DataFrame
+        self.get_contigs()
+        self.get_assembly_size()
+        self.get_unknowns()
+        data = {"contigs": self.count_contigs,
+                "assembly_size": self.assembly_size,
+                "unknowns": self.unknowns}
+        self.stats = DataFrame(data, index=[self.name])

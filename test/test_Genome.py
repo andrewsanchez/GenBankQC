@@ -28,3 +28,9 @@ def test_unknowns(genome):
 def test_sketch(genome):
     genome.sketch()
     assert os.path.isfile(genome.msh)
+
+
+def test_get_stats(genome):
+    from pandas import DataFrame
+    genome.get_stats()
+    assert isinstance(genome.stats, DataFrame)
