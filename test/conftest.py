@@ -45,6 +45,24 @@ def aphidicola_multi(request):
     yield request.param, aphidicola
 
 
+def altered_unknowns():
+    aphidicola = SpeciesQC("test/resources/Buchnera_aphidicola")
+    expected_failures = []
+    yield aphidicola, expected_failures
+    aphidicola = SpeciesQC("test/resources/Buchnera_aphidicola")
+    aphidicola.stats.iloc[:, 0] = 0
+    aphidicola.stats.iloc[:10, 0] = 300
+    expected_failures = aphidicola.stats.iloc[:10, 0].index.tolist()
+    yield aphidicola, expected_failures
+
+
+@pytest.fixture(scope="module",
+                params=altered_unknowns())
+def unknowns(request):
+    aphidicola, failures = request.param
+    yield aphidicola, failures
+
+
 @pytest.fixture(scope="module")
 def genome(request, aphidicola):
     genome = next(aphidicola.genomes())
