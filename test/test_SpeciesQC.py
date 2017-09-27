@@ -3,10 +3,12 @@ import shutil
 import tempfile
 import unittest
 
+from pandas import DataFrame, Index
+
 import genbankfilter.filter as gbf
 
 
-def test_SpeciesQC_init(aphidicola_multi):
+def test_init(aphidicola_multi):
     params, aphidicola = aphidicola_multi
     a, b, c, d = params
     assert aphidicola.max_unknowns == a
@@ -18,28 +20,43 @@ def test_SpeciesQC_init(aphidicola_multi):
     assert aphidicola.tolerance["Assembly_Size"] == c
     assert aphidicola.tolerance["MASH"] == d
     assert aphidicola.label == "-".join(map(str, params))
+    assert id(aphidicola.stats) == id(aphidicola.passed)
+
+
+def test_filter_unknowns(unknowns):
+    aphidicola, expected_failures = unknowns
+    aphidicola.filter_unknown_bases()
+    passed_and_failed = sum(map(len, [aphidicola.failed["unknowns"],
+                                      aphidicola.passed]))
+    assert len(aphidicola.stats) == passed_and_failed
+    assert isinstance(aphidicola.passed, DataFrame)
+    assert isinstance(aphidicola.failed["unknowns"], Index)
+    assert(id(aphidicola.stats) != id(aphidicola.passed))
+    assert expected_failures == aphidicola.failed["unknowns"].tolist()
 
 
 def test_filter_contigs(baumannii):
+    from numpy import float64
     baumannii.filter_contigs()
     total_genomes = len(baumannii.passed) + len(baumannii.failed["contigs"])
     assert total_genomes == len(baumannii.stats)
-    assert type(baumannii.med_abs_devs["contigs"]) == gbf.np.float64
-    assert type(baumannii.dev_refs["contigs"]) == gbf.np.float64
-    assert type(baumannii.allowed["contigs"]) == gbf.np.float64
-    assert type(baumannii.passed) == gbf.pd.DataFrame
-    assert type(baumannii.failed["contigs"]) == gbf.pd.Index
-    assert type(baumannii.allowed["contigs"]) == gbf.np.float64
+    assert type(baumannii.med_abs_devs["contigs"]) == float64
+    assert type(baumannii.dev_refs["contigs"]) == float64
+    assert type(baumannii.allowed["contigs"]) == float64
+    assert type(baumannii.passed) == DataFrame
+    assert type(baumannii.failed["contigs"]) == Index
+    assert type(baumannii.allowed["contigs"]) == float64
 
 
-def test_filter_med_abs_dev(baumannii):
+def test_filter_med_abs_dev(species):
     for criteria in ["MASH", "Assembly_Size"]:
-        genomes_before_filtering = len(baumannii.passed)
-        baumannii.filter_med_abs_dev(criteria)
-        assert type(baumannii.passed) == gbf.pd.DataFrame
-        assert type(baumannii.failed[criteria]) == gbf.pd.Index
-        total_genomes = len(baumannii.passed) + len(baumannii.failed[criteria])
-        assert (total_genomes == genomes_before_filtering)
+        genomes_before_filtering = len(species.passed)
+        species.filter_med_abs_dev(criteria)
+        assert type(species.passed) == DataFrame
+        assert type(species.failed[criteria]) == Index
+        passed_and_failed = sum(map(len, [species.failed[criteria],
+                                          species.passed]))
+        assert passed_and_failed == genomes_before_filtering
 
 
 class TestFilteredSpecies(unittest.TestCase):
@@ -57,52 +74,6 @@ class TestFilteredSpecies(unittest.TestCase):
 
     def test_summary(self):
         pass
-
-    def test_filter_unknown_bases(self):
-        self.B_aphidicola.filter_unknown_bases()
-        self.assertIsInstance(self.B_aphidicola.passed, gbf.pd.DataFrame)
-        self.assertIsInstance(self.B_aphidicola.failed["unknowns"],
-                              gbf.pd.Index)
-        # Set all rows in column N_Count to 0
-        self.B_aphidicola.stats.iloc[:, 0] = 0
-        # Make sure the 0th column is in fact N_Count
-        self.assertEqual(self.B_aphidicola.stats.iloc[:, 0].name, "N_Count")
-        self.B_aphidicola.stats.iloc[:10, 0] = 300
-        expected_failures = self.B_aphidicola.stats.iloc[:10, 0].index.tolist()
-        self.B_aphidicola.filter_unknown_bases()
-        self.assertNotEqual(id(self.B_aphidicola.stats),
-                            id(self.B_aphidicola.passed))
-        self.assertIsInstance(self.B_aphidicola.failed["unknowns"],
-                              gbf.pd.Index)
-        self.assertEqual(len(self.B_aphidicola.stats),
-                         len(self.B_aphidicola.passed) +
-                         len(self.B_aphidicola.failed["unknowns"]))
-        self.assertEqual(expected_failures,
-                         self.B_aphidicola.failed["unknowns"].tolist())
-
-    def test_filter_mash(self):
-        baumannii = gbf.FilteredSpecies(
-            "test/resources/Acinetobacter_baumannii")
-        baumannii.passed = baumannii.stats
-        baumannii.filter_med_abs_dev("MASH")
-        self.assertEqual(len(baumannii.passed) +
-                         len(baumannii.failed["MASH"]),
-                         len(baumannii.stats))
-        self.assertIsInstance(baumannii.passed, gbf.pd.DataFrame)
-        self.assertIsInstance(baumannii.failed["MASH"],
-                              gbf.pd.Index)
-
-    def test_filter_assembly_size(self):
-        baumannii = gbf.FilteredSpecies(
-            "test/resources/Acinetobacter_baumannii")
-        baumannii.passed = baumannii.stats
-        baumannii.filter_med_abs_dev("Assembly_Size")
-        self.assertEqual(len(baumannii.passed) +
-                         len(baumannii.failed["Assembly_Size"]),
-                         len(baumannii.stats))
-        self.assertIsInstance(baumannii.passed, gbf.pd.DataFrame)
-        self.assertIsInstance(baumannii.failed["Assembly_Size"],
-                              gbf.pd.Index)
 
     def test_filter_all(self):
         import subprocess
