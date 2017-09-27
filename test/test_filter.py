@@ -157,8 +157,8 @@ class TestFilteredSpecies(unittest.TestCase):
         shutil.rmtree(self.genbank)
 
 
-def test_FilteredSpecies_init(provide_aphidicola_multi):
-    params, aphidicola = provide_aphidicola_multi
+def test_FilteredSpecies_init(aphidicola_multi):
+    params, aphidicola = aphidicola_multi
     a, b, c, d = params
     assert type(aphidicola.stats) == gbf.pd.DataFrame
     assert type(aphidicola.tree) == gbf.Tree
