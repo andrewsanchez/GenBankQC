@@ -45,7 +45,6 @@ def test_mash_paste(aphidicola):
     assert os.path.isfile(aphidicola.paste_file)
 
 
-# TODO: Update conftest.py to provide this fixture scenario
 def test_mash_dist(aphidicola_bare):
     aphidicola = aphidicola_bare
     aphidicola.mash_dist()
