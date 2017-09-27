@@ -17,6 +17,7 @@ class SpeciesQC(Species):
         self.contigs = contigs
         self.assembly_size = assembly_size
         self.mash = mash
+        self.criteria = ["unknowns", "contigs", "Assembly_Size", "MASH"]
         # Tolerance values need to be accessible by the string of their name
         # Not sure if this is an optimal solution...
         self.tolerance = {
