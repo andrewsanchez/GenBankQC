@@ -45,14 +45,28 @@ def test_mash_paste(aphidicola):
 
 
 # TODO: Update conftest.py to provide this fixture scenario
-def test_mash_dist(aphidicola):
+def test_mash_dist(aphidicola_bare):
+    aphidicola = aphidicola_bare
     aphidicola.mash_dist()
-    assert os.path.isfile(os.path.join(aphidicola.qc_dir, 'dmx.csv'))
+    assert os.path.isfile(aphidicola.dmx_path)
     assert type(aphidicola.dmx) == gbf.pd.DataFrame
 
 
-def test_get_stats(aphidicola):
+def test_mash(aphidicola_bare):
+    aphidicola = aphidicola_bare
+    assert os.path.isfile(aphidicola.paste_file)
+    assert os.path.isfile(aphidicola.dmx_path)
+    assert type(aphidicola.dmx) == gbf.pd.DataFrame
+    aphidicola_sketches = aphidicola.sketches()
+    aphidicola_sketches = aphidicola.sketches()
+    aphidicola_sketches = aphidicola.sketches()
+    for i in aphidicola_sketches:
+        assert i is not None
+        assert os.path.isfile(i)
+
+
+def test_get_stats(aphidicola_bare):
+    aphidicola = aphidicola_bare
     aphidicola.get_stats()
-    assert os.path.isfile(os.path.join(aphidicola.qc_dir, 'stats.csv'))
+    assert os.path.isfile(aphidicola.stats_path)
     assert type(aphidicola.stats) == gbf.pd.DataFrame
-    print(aphidicola.stats)
