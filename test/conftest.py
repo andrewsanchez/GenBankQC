@@ -5,14 +5,16 @@ import tempfile
 import pytest
 
 import genbankfilter.filter as gbf
+from genbankfilter.Species import Species
+from genbankfilter.SpeciesQC import SpeciesQC
 
 
 @pytest.fixture(scope="module",
                 params=["Buchnera_aphidicola", "Acinetobacter_baumannii"])
 @pytest.fixture()
-def provide_baumannii(request):
+def baumannii(request):
     baumannii = "test/resources/Acinetobacter_baumannii"
-    baumannii = gbf.FilteredSpecies(baumannii)
+    baumannii = SpeciesQC(baumannii)
     # Initialize the otherwise empty `passed` DataFrame
     baumannii.passed = baumannii.stats
     yield baumannii
@@ -43,7 +45,7 @@ def aphidicola_bare(request, aphidicola):
 def aphidicola_multi(request):
     a, b, c, d = request.param
     aphidicola = "test/resources/Buchnera_aphidicola"
-    aphidicola = gbf.FilteredSpecies(aphidicola, a, b, c, d)
+    aphidicola = SpeciesQC(aphidicola, a, b, c, d)
     yield request.param, aphidicola
 
 
