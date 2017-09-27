@@ -35,6 +35,17 @@ def provide_aphidicola(request):
     shutil.rmtree(aphidicola.species_dir)
 
 
+@pytest.fixture(scope="module")
+def aphidicola_bare(request, aphidicola):
+    os.remove(os.path.join(aphidicola.qc_dir, 'stats.csv'))
+    os.remove(os.path.join(aphidicola.qc_dir, 'dmx.csv'))
+    os.remove(os.path.join(aphidicola.qc_dir, 'tree.nw'))
+    del aphidicola.dmx
+    del aphidicola.tree
+    del aphidicola.stats
+    yield aphidicola
+
+
 @pytest.fixture(params=[[200, 3.0, 3.0, 3.0], [300, 2.0, 2.0, 2.0]])
 def provide_aphidicola_multi(request):
     a, b, c, d = request.param
