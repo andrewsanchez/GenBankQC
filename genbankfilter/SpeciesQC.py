@@ -54,10 +54,8 @@ class SpeciesQC(Species):
 
     def filter_unknown_bases(self):
         """Filter out genomes with too many unknown bases."""
-        # self.passed = self.stats[
-        #     self.stats["N_Count"] <= self.max_unknowns]
-        self.failed["unknowns"] = self.stats.index[self.stats["N_Count"] >
-                                                   self.tolerance["unknowns"]]
+        self.failed["unknowns"] = self.stats.index[
+            self.stats["N_Count"] > self.tolerance["unknowns"]]
         self.passed = self.stats.drop(self.failed["unknowns"])
 
     def filter_contigs(self):
