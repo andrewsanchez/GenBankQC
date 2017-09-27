@@ -64,6 +64,15 @@ def unknowns(request):
 
 
 @pytest.fixture(scope="module")
+def aphidicolaQC(request):
+    tmp = tempfile.mkdtemp()
+    aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
+    shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
+    yield SpeciesQC(aphidicola)
+    shutil.rmtree(tmp)
+
+
+@pytest.fixture(scope="module")
 def genome(request, aphidicola):
     genome = next(aphidicola.genomes())
     genome.get_contigs()
