@@ -172,3 +172,20 @@ class SpeciesQC(Species):
             out_tree = os.path.join(
                 self.path, 'tree_{}.{}'.format(self.label, f))
             self.tree.render(out_tree, tree_style=ts)
+
+    def color_tree(self):
+        self.base_node_style()
+        for i in self.criteria:
+            self.color_clade(i)
+        self.style_and_render_tree()
+
+    def filter(self):
+        self.filter_unknown_bases()
+        if check_df_len(self.passed, "N_Count"):
+            self.filter_contigs()
+        if check_df_len(self.passed, "Assembly_Size"):
+            self.filter_med_abs_dev("Assembly_Size")
+        if check_df_len(self.passed, "MASH"):
+            self.filter_med_abs_dev("MASH")
+
+
