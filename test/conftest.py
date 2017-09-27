@@ -5,17 +5,10 @@ import tempfile
 import pytest
 
 import genbankfilter.filter as gbf
-from genbankfilter.Genome import Genome
 
 
 @pytest.fixture(scope="module",
                 params=["Buchnera_aphidicola", "Acinetobacter_baumannii"])
-def provide_Species(request):
-    species = "test/resources/" + request.param
-    species = gbf.Species(species)
-    yield species
-
-
 @pytest.fixture()
 def provide_baumannii(request):
     baumannii = "test/resources/Acinetobacter_baumannii"
@@ -26,7 +19,7 @@ def provide_baumannii(request):
 
 
 @pytest.fixture(scope="module")
-def provide_aphidicola(request):
+def aphidicola(request):
     tmp = tempfile.mkdtemp()
     aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
     shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
@@ -47,7 +40,7 @@ def aphidicola_bare(request, aphidicola):
 
 
 @pytest.fixture(params=[[200, 3.0, 3.0, 3.0], [300, 2.0, 2.0, 2.0]])
-def provide_aphidicola_multi(request):
+def aphidicola_multi(request):
     a, b, c, d = request.param
     aphidicola = "test/resources/Buchnera_aphidicola"
     aphidicola = gbf.FilteredSpecies(aphidicola, a, b, c, d)
@@ -55,8 +48,8 @@ def provide_aphidicola_multi(request):
 
 
 @pytest.fixture(scope="module")
-def genome(request, provide_aphidicola):
-    aphidicola = provide_aphidicola
+def genome(request, aphidicola):
+    aphidicola = aphidicola
     genome = next(aphidicola.genomes())
     genome.get_contigs()
     genome.get_assembly_size()
