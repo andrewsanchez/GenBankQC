@@ -14,15 +14,15 @@ class TestFilter(unittest.TestCase):
         self.genbank = os.path.join(self.tmp, 'genbank')
         shutil.copytree('test/resources/', self.genbank)
         self.species = 'Buchnera_aphidicola'
-        self.species_dir = os.path.join(self.genbank, self.species)
+        self.path = os.path.join(self.genbank, self.species)
         self.baumannii = os.path.join(self.genbank, "Acinetobacter_baumannii")
-        self.B_aphidicola = gbf.FilteredSpecies(self.species_dir)
-        self.fastas = gbf.get_all_fastas(self.species_dir)
+        self.B_aphidicola = gbf.FilteredSpecies(self.path)
+        self.fastas = gbf.get_all_fastas(self.path)
         self.stats = gbf.pd.read_csv(
-            os.path.join(self.species_dir, 'stats.csv'), index_col=0)
+            os.path.join(self.path, 'stats.csv'), index_col=0)
         self.filter_ranges = [200, 3, 3, 3]
         self.criteria_and_franges = gbf.criteria_dict(self.filter_ranges)
-        self.nw_file = os.path.join(self.species_dir, 'tree.nw')
+        self.nw_file = os.path.join(self.path, 'tree.nw')
 
     def test_stats_functions(self):
         from Bio.Seq import Seq
@@ -37,8 +37,8 @@ class TestFilter(unittest.TestCase):
         self.assertEqual(type(N_count), int)
 
     def test_generate_stats(self):
-        dmx = gbf.read_dmx(self.species_dir)
-        stats = gbf.generate_stats(self.species_dir, dmx)
+        dmx = gbf.read_dmx(self.path)
+        stats = gbf.generate_stats(self.path, dmx)
         self.assertTrue(type(stats) == gbf.pd.DataFrame)
 
     def test_filter_Ns(self):
@@ -64,11 +64,11 @@ class TestFilter(unittest.TestCase):
         self.assertTrue(type(tree) == gbf.Tree)
 
     def test_read_dmx(self):
-        dmx = gbf.read_dmx(self.species_dir)
+        dmx = gbf.read_dmx(self.path)
         self.assertTrue(type(dmx) == gbf.pd.DataFrame)
 
     def test_nested_dmx(self):
-        dmx = gbf.read_dmx(self.species_dir)
+        dmx = gbf.read_dmx(self.path)
         nested_mx = gbf.nested_matrix(dmx)
         self.assertTrue((type(nested_mx) == list))
         self.assertTrue(len(nested_mx) != 0)
@@ -84,8 +84,8 @@ class TestFilteredSpecies(unittest.TestCase):
         self.genbank = os.path.join(self.tmp, 'genbank')
         shutil.copytree('test/resources/', self.genbank)
         self.species = 'Buchnera_aphidicola'
-        self.species_dir = os.path.join(self.genbank, self.species)
-        self.B_aphidicola = gbf.FilteredSpecies(self.species_dir)
+        self.path = os.path.join(self.genbank, self.species)
+        self.B_aphidicola = gbf.FilteredSpecies(self.path)
 
     def test_str(self):
         print(self.B_aphidicola)

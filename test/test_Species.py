@@ -37,6 +37,7 @@ def test_sketch(aphidicola):
     aphidicola_sketches = aphidicola.sketches()
     for i in aphidicola_sketches:
         assert i is not None
+        assert os.path.isfile(i)
 
 
 def test_mash_paste(aphidicola):

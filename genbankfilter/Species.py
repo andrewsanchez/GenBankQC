@@ -8,34 +8,34 @@ from genbankfilter.Genome import Genome
 
 
 class Species:
-    """Represents a collection of genomes in `species_dir`
+    """Represents a collection of genomes in `path`
     :Parameters:
-        species_dir : str
+        path : str
             The path to the directory of related genomes you wish to analyze.
     """
 
-    def __init__(self, species_dir):
-        self.species_dir = species_dir
-        self.species = species_dir
+    def __init__(self, path):
+        self.path = path
+        self.species = path
         if '/' in self.species:
-            self.species = species_dir.strip('/').split('/')[-1]
-        self.qc_dir = os.path.join(self.species_dir, "qc")
+            self.species = path.strip('/').split('/')[-1]
+        self.qc_dir = os.path.join(self.path, "qc")
         if not os.path.isdir(self.qc_dir):
             os.mkdir(self.qc_dir)
-        self.stats = os.path.join(self.qc_dir, 'stats.csv')
-        self.nw_file = os.path.join(self.qc_dir, 'tree.nw')
-        self.dmx = os.path.join(self.qc_dir, 'dmx.csv')
-        if os.path.isfile(self.stats):
-            self.stats = pd.read_csv(self.stats, index_col=0)
+        self.stats_path = os.path.join(self.qc_dir, 'stats.csv')
+        self.nw_path = os.path.join(self.qc_dir, 'tree.nw')
+        self.dmx_path = os.path.join(self.qc_dir, 'dmx.csv')
+        if os.path.isfile(self.stats_path):
+            self.stats = pd.read_csv(self.stats_path, index_col=0)
         else:
             self.stats = None
-        if os.path.isfile(self.nw_file):
-            self.tree = Tree(self.nw_file, 1)
+        if os.path.isfile(self.nw_path):
+            self.tree = Tree(self.nw_path, 1)
         else:
             self.tree = None
         # TODO: Throw error here if dmx.index and stats.index
-        if os.path.isfile(self.dmx):
-            self.dmx = pd.read_csv(self.dmx, index_col=0, sep="\t")
+        if os.path.isfile(self.dmx_path):
+            self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
         else:
             self.dmx = None
 
@@ -47,8 +47,8 @@ class Species:
         :returns: Generator of Genome objects for all genomes in species dir
         :rtype: generator
         """
-        genomes = (Genome(os.path.join(self.species_dir, f)) for
-                   f in os.listdir(self.species_dir) if f.endswith(ext))
+        genomes = (Genome(os.path.join(self.path, f)) for
+                   f in os.listdir(self.path) if f.endswith(ext))
         return genomes
 
     def sketches(self):
@@ -85,8 +85,17 @@ class Species:
         self.dmx.columns = names
         self.dmx.to_csv(dst, sep="\t")
 
+    def mash(self):
+        """Run all mash related functions."""
+        self.sketch()
+        self.mash_paste()
+        self.mash_dist()
+
     def get_stats(self):
-        from pandas import DataFrame
+        """
+        Get stats for all genomes.  Write the results for each individual
+        genome in the qc directory and concat the results into a DataFrame
+        """
         dmx_mean = self.dmx.mean()
         stats = []
         for i in self.genomes():
@@ -98,7 +107,7 @@ class Species:
                     "assembly_size": i.assembly_size,
                     "unknowns": i.unknowns,
                     "distance": i.distance}
-            i.stats = DataFrame(data, index=[i.name])
+            i.stats = pd.DataFrame(data, index=[i.name])
             dst = os.path.join(i.qc_dir, i.name+'.csv')
             stats.append(i.stats)
             i.stats.to_csv(dst)

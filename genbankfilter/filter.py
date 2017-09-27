@@ -14,12 +14,12 @@ from genbankfilter.Species import Species
 
 class FilteredSpecies(Species):
     def __init__(self,
-                 species_dir,
+                 path,
                  max_unknowns=200,
                  contigs=3.0,
                  assembly_size=3.0,
                  mash=3.0):
-        Species.__init__(self, species_dir)
+        Species.__init__(self, path)
         self.max_unknowns = max_unknowns
         self.contigs = contigs
         self.assembly_size = assembly_size
@@ -177,7 +177,7 @@ class FilteredSpecies(Species):
             ts.legend.add_face(TextFace(""), 2)
         for f in file_types:
             out_tree = os.path.join(
-                self.species_dir, 'tree_{}.{}'.format(self.label, f))
+                self.path, 'tree_{}.{}'.format(self.label, f))
             self.tree.render(out_tree, tree_style=ts)
 
 

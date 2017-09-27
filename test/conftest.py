@@ -25,14 +25,14 @@ def aphidicola(request):
     shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
     aphidicola = gbf.Species(aphidicola)
     yield aphidicola
-    shutil.rmtree(aphidicola.species_dir)
+    shutil.rmtree(tmp)
 
 
 @pytest.fixture(scope="module")
 def aphidicola_bare(request, aphidicola):
-    os.remove(os.path.join(aphidicola.qc_dir, 'stats.csv'))
-    os.remove(os.path.join(aphidicola.qc_dir, 'dmx.csv'))
-    os.remove(os.path.join(aphidicola.qc_dir, 'tree.nw'))
+    os.remove(aphidicola.stats_path)
+    os.remove(aphidicola.dmx_path)
+    os.remove(aphidicola.nw_path)
     del aphidicola.dmx
     del aphidicola.tree
     del aphidicola.stats
@@ -49,7 +49,6 @@ def aphidicola_multi(request):
 
 @pytest.fixture(scope="module")
 def genome(request, aphidicola):
-    aphidicola = aphidicola
     genome = next(aphidicola.genomes())
     genome.get_contigs()
     genome.get_assembly_size()

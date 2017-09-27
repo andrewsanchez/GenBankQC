@@ -5,10 +5,12 @@ def test_init(genome):
     from genbankfilter.Genome import Genome
     expected_name = ("GCA_000007365.1_Buchnera_aphidicola_Sg_"
                      "Schizaphis_graminum_Complete_Genome")
+    expected_path = os.path.join(genome.species_dir, expected_name+'.fasta')
+    assert genome.path == expected_path
     assert isinstance(genome, Genome)
     assert genome.name == expected_name
     assert genome.name in genome.msh
-    assert genome.species_dir and 'qc' in genome.qc_dir
+    assert genome.path and 'qc' in genome.qc_dir
     assert os.path.isdir(genome.qc_dir)
 
 

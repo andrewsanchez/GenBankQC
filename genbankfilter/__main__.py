@@ -21,17 +21,17 @@ import genbankfilter.filter as gbf
 @click.option('-d', '--dry-run', is_flag=True)
 @click.argument('species-dir', type=click.Path(exists=True, file_okay=False))
 def cli(filter_level, max_unknowns, c_range, s_range, m_range,
-        species_dir, dry_run, filter_only):
+        path, dry_run, filter_only):
     """ Assess the integrity of your FASTA collection."""
-    species = gbf.FilteredSpecies(species_dir, max_unknowns,
+    species = gbf.FilteredSpecies(path, max_unknowns,
                                   c_range, s_range, m_range)
     if dry_run:
         click.echo(print(species))
-    # elif not gbf.min_fastas_check(species_dir):
-    #     click.echo("{} contains less than 5 genomes.".format(species_dir))
+    # elif not gbf.min_fastas_check(path):
+    #     click.echo("{} contains less than 5 genomes.".format(path))
     #     pass
     elif filter_only:
         gbf.filter_all(species)
     # else:
-    #     dmx = mash.mash(species_dir)
-    #     gbf.stats_and_filter(species_dir, dmx, filter_ranges)
+    #     dmx = mash.mash(path)
+    #     gbf.stats_and_filter(path, dmx, filter_ranges)
