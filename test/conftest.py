@@ -4,7 +4,6 @@ import tempfile
 
 import pytest
 
-import genbankfilter.filter as gbf
 from genbankfilter.Species import Species
 from genbankfilter.SpeciesQC import SpeciesQC
 
@@ -23,8 +22,7 @@ def aphidicola(request):
     tmp = tempfile.mkdtemp()
     aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
     shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
-    aphidicola = gbf.Species(aphidicola)
-    yield aphidicola
+    yield Species(aphidicola)
     shutil.rmtree(tmp)
 
 
