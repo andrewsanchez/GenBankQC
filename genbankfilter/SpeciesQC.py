@@ -39,8 +39,7 @@ class SpeciesQC(Species):
         self.label = '{}-{}-{}-{}'.format(
             max_unknowns, contigs, assembly_size, mash)
         # Pretty sure that setting passed to stats will not create a copy
-        self.passed = pd.DataFrame(
-            index=self.stats.index, columns=self.stats.columns)
+        self.passed = self.stats
 
     def __str__(self):
         self.message = [
