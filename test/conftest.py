@@ -12,12 +12,10 @@ from genbankfilter.SpeciesQC import SpeciesQC
 @pytest.fixture(scope="module",
                 params=["Buchnera_aphidicola", "Acinetobacter_baumannii"])
 @pytest.fixture()
-def baumannii(request):
-    baumannii = "test/resources/Acinetobacter_baumannii"
-    baumannii = SpeciesQC(baumannii)
-    # Initialize the otherwise empty `passed` DataFrame
-    baumannii.passed = baumannii.stats
-    yield baumannii
+def species(request):
+    species = "test/resources/{}".format(request.param)
+    species = SpeciesQC(species)
+    yield species
 
 
 @pytest.fixture(scope="module")
