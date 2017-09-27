@@ -189,3 +189,14 @@ class SpeciesQC(Species):
             self.filter_med_abs_dev("MASH")
 
 
+def check_df_len(df, criteria, num=5):
+    """
+    Verify that df has > than num genomes
+    """
+    if len(df) > num:
+        return True
+    else:
+        # TODO: Just pass and return false here.
+        # info in this print statement will be apparent in summary
+        print("Filtering based on {} resulted in less than 5 genomes.")
+        return False
