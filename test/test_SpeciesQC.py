@@ -35,17 +35,15 @@ def test_filter_unknowns(unknowns):
     assert expected_failures == aphidicola.failed["unknowns"].tolist()
 
 
-def test_filter_contigs(baumannii):
-    from numpy import float64
-    baumannii.filter_contigs()
-    total_genomes = len(baumannii.passed) + len(baumannii.failed["contigs"])
-    assert total_genomes == len(baumannii.stats)
-    assert type(baumannii.med_abs_devs["contigs"]) == float64
-    assert type(baumannii.dev_refs["contigs"]) == float64
-    assert type(baumannii.allowed["contigs"]) == float64
-    assert type(baumannii.passed) == DataFrame
-    assert type(baumannii.failed["contigs"]) == Index
-    assert type(baumannii.allowed["contigs"]) == float64
+def test_filter_contigs(species):
+    species.filter_contigs()
+    total_genomes = len(species.passed) + len(species.failed["contigs"])
+    assert total_genomes == len(species.stats)
+    assert isinstance(species.med_abs_devs["contigs"], float)
+    assert isinstance(species.dev_refs["contigs"], float)
+    assert isinstance(species.failed["contigs"], Index)
+    assert isinstance(species.allowed["contigs"], float)
+    assert isinstance(species.passed, DataFrame)
 
 
 def test_filter_med_abs_dev(species):
