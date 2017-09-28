@@ -17,6 +17,9 @@ class SpeciesQC(Species):
         self.contigs = contigs
         self.assembly_size = assembly_size
         self.mash = mash
+        self.qc_dir = os.path.join(self.qc_dir, self.label)
+        self.label = '{}-{}-{}-{}'.format(
+            max_unknowns, contigs, assembly_size, mash)
         self.criteria = ["unknowns", "contigs", "Assembly_Size", "MASH"]
         # Tolerance values need to be accessible by the string of their name
         # Not sure if this is an optimal solution...
@@ -37,9 +40,6 @@ class SpeciesQC(Species):
             "MASH": "purple",
             "Assembly_Size": "orange"
         }
-        self.label = '{}-{}-{}-{}'.format(
-            max_unknowns, contigs, assembly_size, mash)
-        # Pretty sure that setting passed to stats will not create a copy
         self.passed = self.stats
 
     def __str__(self):
