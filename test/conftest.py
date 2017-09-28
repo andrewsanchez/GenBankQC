@@ -4,8 +4,8 @@ import tempfile
 
 import pytest
 
+from genbankfilter.QC import QC
 from genbankfilter.Species import Species
-from genbankfilter.SpeciesQC import SpeciesQC
 
 
 @pytest.fixture(scope="module",
@@ -13,7 +13,7 @@ from genbankfilter.SpeciesQC import SpeciesQC
 @pytest.fixture()
 def species(request):
     species = "test/resources/{}".format(request.param)
-    species = SpeciesQC(species)
+    species = QC(species)
     yield species
 
 
@@ -41,15 +41,15 @@ def aphidicola_bare(request, aphidicola):
 def aphidicola_multi(request):
     a, b, c, d = request.param
     aphidicola = "test/resources/Buchnera_aphidicola"
-    aphidicola = SpeciesQC(aphidicola, a, b, c, d)
+    aphidicola = QC(aphidicola, a, b, c, d)
     yield request.param, aphidicola
 
 
 def altered_unknowns():
-    aphidicola = SpeciesQC("test/resources/Buchnera_aphidicola")
+    aphidicola = QC("test/resources/Buchnera_aphidicola")
     expected_failures = []
     yield aphidicola, expected_failures
-    aphidicola = SpeciesQC("test/resources/Buchnera_aphidicola")
+    aphidicola = QC("test/resources/Buchnera_aphidicola")
     aphidicola.stats.iloc[:, 0] = 0
     aphidicola.stats.iloc[:10, 0] = 300
     expected_failures = aphidicola.stats.iloc[:10, 0].index.tolist()
@@ -68,7 +68,7 @@ def aphidicolaQC(request):
     tmp = tempfile.mkdtemp()
     aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
     shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
-    yield SpeciesQC(aphidicola)
+    yield QC(aphidicola)
     shutil.rmtree(tmp)
 
 

@@ -5,7 +5,7 @@ import pandas as pd
 from genbankfilter.Species import Species
 
 
-class SpeciesQC(Species):
+class QC(Species):
     def __init__(self,
                  path,
                  max_unknowns=200,
