@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 package = 'genbankfilter'
 version = '0.1'
@@ -11,11 +11,7 @@ setup(name=package,
       url='',
       install_requires=[
           'click',
-          'pandas',
           'biopython',
-          'matplotlib',
-          'scipy',
-          'ncbitk',
       ],
       entry_points='''
       [console_scripts]
