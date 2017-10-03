@@ -64,7 +64,7 @@ def generate_stats(species_dir, dmx):
     stats = pd.DataFrame(
         data=SeqDataSet,
         index=file_names,
-        columns=["N_Count", "Contigs", "Assembly_Size", "MASH"],
+        columns=["N_Count", "Contigs", "Assembly_Size", "mash"],
         dtype="float64")
 
     return stats
@@ -86,9 +86,9 @@ def filter_all(FilteredSpecies):
     if check_df_len(FilteredSpecies.passed, "Assembly_Size"):
         FilteredSpecies.filter_med_abs_dev("Assembly_Size")
         FilteredSpecies.color_clade("Assembly_Size")
-    if check_df_len(FilteredSpecies.passed, "MASH"):
-        FilteredSpecies.filter_med_abs_dev("MASH")
-        FilteredSpecies.color_clade("MASH")
+    if check_df_len(FilteredSpecies.passed, "mash"):
+        FilteredSpecies.filter_med_abs_dev("mash")
+        FilteredSpecies.color_clade("mash")
     FilteredSpecies.style_and_render_tree()
 
 
