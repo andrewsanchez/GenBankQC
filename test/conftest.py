@@ -73,6 +73,11 @@ def aphidicolaQC(request):
 
 
 @pytest.fixture(scope="module")
+def filtered(aphidicolaQC, request):
+    aphidicola = aphidicolaQC
+    aphidicola.filter()
+    print(aphidicola.path)
+    yield aphidicola
 
 
 @pytest.fixture(scope="module")
