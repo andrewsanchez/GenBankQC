@@ -67,8 +67,8 @@ class QC(Species):
         # Only look at genomes with > 10 contigs to avoid throwing off the
         # median absolute deviation
         # Extract genomes with < 10 contigs to add them back in later.
-        eligible_contigs = self.passed.Contigs[self.passed.Contigs > 10]
-        not_enough_contigs = self.passed.Contigs[self.passed.Contigs <= 10]
+        eligible_contigs = self.passed.contigs[self.passed.contigs > 10]
+        not_enough_contigs = self.passed.contigs[self.passed.contigs <= 10]
         # Median absolute deviation - Average absolute difference between
         # number of contigs and the median for all genomes
         # TODO Define separate function for this
