@@ -153,6 +153,9 @@ class QC(Species):
             tolerance = "Tolerance: {}".format(self.tolerance[k])
             tolerance = TextFace(tolerance, fgcolor=v)
             tolerance.margin_bottom = 5
+            allowed = "Allowed: {}".format(self.allowed[k])
+            allowed = TextFace(allowed, fgcolor=v)
+            allowed.margin_bottom = 5
             f = TextFace(k, fgcolor=v)
             f.margin_bottom = 5
             f.margin_right = 40
@@ -165,9 +168,10 @@ class QC(Species):
             ts.legend.add_face(TextFace(""), 2)
             ts.legend.add_face(tolerance, 1)
             ts.legend.add_face(TextFace(""), 2)
+            ts.legend.add_face(allowed, 1)
+            ts.legend.add_face(TextFace(""), 2)
         for f in file_types:
-            out_tree = os.path.join(
-                self.path, 'tree_{}.{}'.format(self.label, f))
+            out_tree = os.path.join(self.qc_results_dir, 'tree.{}'.format(f))
             self.tree.render(out_tree, tree_style=ts)
 
     def color_tree(self):
