@@ -98,6 +98,7 @@ class QC(Species):
         med_abs_dev = abs(self.passed[criteria] -
                           self.passed[criteria].median()).mean()
         dev_ref = med_abs_dev * self.tolerance[criteria]
+        self.allowed[criteria] = "{:.4f}".format(self.passed[criteria].median() + dev_ref)
         self.failed[criteria] = self.passed[
             abs(self.passed[criteria] -
                 self.passed[criteria].median()) > dev_ref].index
