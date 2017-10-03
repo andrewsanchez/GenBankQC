@@ -26,7 +26,7 @@ def aphidicola(request):
     shutil.rmtree(tmp)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def aphidicola_bare(request, aphidicola):
     os.remove(aphidicola.stats_path)
     os.remove(aphidicola.dmx_path)
@@ -70,6 +70,9 @@ def aphidicolaQC(request):
     shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
     yield QC(aphidicola)
     shutil.rmtree(tmp)
+
+
+@pytest.fixture(scope="module")
 
 
 @pytest.fixture(scope="module")
