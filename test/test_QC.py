@@ -67,3 +67,9 @@ def test_color_tree(filtered):
     assert os.path.isfile(filtered.tree_img)
 
 
+def test_summary(aphidicola):
+    pass
+
+
+def test_failed_report():
+    pass
