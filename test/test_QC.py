@@ -62,3 +62,8 @@ def test_filter(species):
     assert sum([total_failed, len(species.passed)]) == len(species.stats)
 
 
+def test_color_tree(filtered):
+    filtered.color_tree()
+    assert os.path.isfile(filtered.tree_img)
+
+
