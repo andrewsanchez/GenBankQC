@@ -184,6 +184,9 @@ class QC(Species):
             self.filter_med_abs_dev("assembly_size")
         if check_df_len(self.passed, "distance"):
             self.filter_med_abs_dev("distance")
+        self.summary()
+        self.failed_report()
+
     def summary(self):
         summary = [
             "Filtered genomes",
