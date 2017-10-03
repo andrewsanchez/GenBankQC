@@ -65,6 +65,8 @@ class Species:
 
     def mash_paste(self):
         self.paste_file = os.path.join(self.qc_dir, 'all.msh')
+        if os.path.isfile(self.paste_file):
+            os.remove(self.paste_file)
         sketches = os.path.join(self.qc_dir, "GCA*msh")
         cmd = "mash paste {} {}".format(self.paste_file, sketches)
         Popen(cmd, shell="True", stdout=DEVNULL).wait()
