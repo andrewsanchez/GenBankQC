@@ -108,15 +108,6 @@ class QC(Species):
         # lower = self.passed[criteria].median() - dev_ref
         # upper = self.passed[criteria].median() + dev_ref
 
-    def summary(self):
-        summary = ["Filtered genomes",
-                   "Unknown Bases: {}".format(len(self.failed["unknowns"])),
-                   "Contigs: {}".format(len(self.failed["contigs"])),
-                   "Assembly Size: {}".format(
-                       len(self.failed["Assembly_Size"])),
-                   "MASH: {}".format(len(self.failed["MASH"]))]
-        return '\n'.join(summary)
-
     def base_node_style(self):
         from ete3 import NodeStyle, AttrFace
         nstyle = NodeStyle()
@@ -193,6 +184,18 @@ class QC(Species):
             self.filter_med_abs_dev("assembly_size")
         if check_df_len(self.passed, "distance"):
             self.filter_med_abs_dev("distance")
+    def summary(self):
+        summary = [
+            "Filtered genomes",
+            "Unknown Bases: {}".format(len(self.failed["unknowns"])),
+            "Contigs: {}".format(len(self.failed["contigs"])),
+            "Assembly Size: {}".format(len(self.failed["assembly_size"])),
+            "MASH: {}".format(len(self.failed["distance"]))
+        ]
+        summary = '\n'.join(summary)
+        with open(os.path.join(self.summary_path), "w") as f:
+            f.write(summary)
+        return summary
 
 
 def check_df_len(df, criteria, num=5):
