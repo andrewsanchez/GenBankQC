@@ -54,11 +54,10 @@ def test_mash_dist(aphidicola_bare):
 
 def test_mash(aphidicola_bare):
     aphidicola = aphidicola_bare
+    aphidicola.run_mash()
     assert os.path.isfile(aphidicola.paste_file)
     assert os.path.isfile(aphidicola.dmx_path)
     assert type(aphidicola.dmx) == gbf.pd.DataFrame
-    aphidicola_sketches = aphidicola.sketches()
-    aphidicola_sketches = aphidicola.sketches()
     aphidicola_sketches = aphidicola.sketches()
     for i in aphidicola_sketches:
         assert i is not None
