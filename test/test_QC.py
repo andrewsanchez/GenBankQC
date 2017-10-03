@@ -17,8 +17,8 @@ def test_init(aphidicola_multi):
     assert aphidicola.mash == d
     assert aphidicola.tolerance["unknowns"] == a
     assert aphidicola.tolerance["contigs"] == b
-    assert aphidicola.tolerance["Assembly_Size"] == c
-    assert aphidicola.tolerance["MASH"] == d
+    assert aphidicola.tolerance["assembly_size"] == c
+    assert aphidicola.tolerance["distance"] == d
     assert aphidicola.label == "-".join(map(str, params))
     assert id(aphidicola.stats) == id(aphidicola.passed)
 
@@ -47,7 +47,7 @@ def test_filter_contigs(species):
 
 
 def test_filter_med_abs_dev(species):
-    for criteria in ["MASH", "Assembly_Size"]:
+    for criteria in ["distance", "assembly_size"]:
         genomes_before_filtering = len(species.passed)
         species.filter_med_abs_dev(criteria)
         assert type(species.passed) == DataFrame

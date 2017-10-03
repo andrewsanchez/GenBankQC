@@ -21,13 +21,14 @@ class QC(Species):
         self.label = '{}-{}-{}-{}'.format(
             max_unknowns, contigs, assembly_size, mash)
         self.criteria = ["unknowns", "contigs", "Assembly_Size", "MASH"]
+        self.criteria = ["unknowns", "contigs", "assembly_size", "distance"]
         # Tolerance values need to be accessible by the string of their name
         # Not sure if this is an optimal solution...
         self.tolerance = {
             "unknowns": max_unknowns,
             "contigs": contigs,
-            "Assembly_Size": assembly_size,
-            "MASH": mash
+            "assembly_size": assembly_size,
+            "distance": mash
         }
         self.failed = {}
         self.med_abs_devs = {}
@@ -37,8 +38,8 @@ class QC(Species):
         self.colors = {
             "unknowns": "red",
             "contigs": "green",
-            "MASH": "purple",
-            "Assembly_Size": "orange"
+            "distance": "purple",
+            "assembly_size": "orange"
         }
         self.passed = self.stats
 
@@ -55,7 +56,7 @@ class QC(Species):
     def filter_unknown_bases(self):
         """Filter out genomes with too many unknown bases."""
         self.failed["unknowns"] = self.stats.index[
-            self.stats["N_Count"] > self.tolerance["unknowns"]]
+            self.stats["unknowns"] > self.tolerance["unknowns"]]
         self.passed = self.stats.drop(self.failed["unknowns"])
 
     def filter_contigs(self):
@@ -181,12 +182,12 @@ class QC(Species):
 
     def filter(self):
         self.filter_unknown_bases()
-        if check_df_len(self.passed, "N_Count"):
+        if check_df_len(self.passed, "unknowns"):
             self.filter_contigs()
-        if check_df_len(self.passed, "Assembly_Size"):
-            self.filter_med_abs_dev("Assembly_Size")
-        if check_df_len(self.passed, "MASH"):
-            self.filter_med_abs_dev("MASH")
+        if check_df_len(self.passed, "assembly_size"):
+            self.filter_med_abs_dev("assembly_size")
+        if check_df_len(self.passed, "distance"):
+            self.filter_med_abs_dev("distance")
 
 
 def check_df_len(df, criteria, num=5):
