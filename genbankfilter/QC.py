@@ -17,10 +17,14 @@ class QC(Species):
         self.contigs = contigs
         self.assembly_size = assembly_size
         self.mash = mash
-        self.qc_dir = os.path.join(self.qc_dir, self.label)
         self.label = '{}-{}-{}-{}'.format(
             max_unknowns, contigs, assembly_size, mash)
-        self.criteria = ["unknowns", "contigs", "Assembly_Size", "MASH"]
+        self.qc_results_dir = os.path.join(self.qc_dir, self.label)
+        if not os.path.isdir(self.qc_results_dir):
+            os.mkdir(self.qc_results_dir)
+        self.failed_path = os.path.join(self.qc_results_dir, "failed.csv")
+        self.tree_img = os.path.join(self.qc_results_dir, "tree.svg")
+        self.summary_path = os.path.join(self.qc_results_dir, "summary.txt")
         self.criteria = ["unknowns", "contigs", "assembly_size", "distance"]
         # Tolerance values need to be accessible by the string of their name
         # Not sure if this is an optimal solution...
