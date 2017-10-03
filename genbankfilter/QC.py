@@ -187,6 +187,17 @@ class QC(Species):
         self.summary()
         self.failed_report()
 
+    def failed_report(self):
+        if os.path.isfile(self.failed_path):
+            os.remove(self.failed_path)
+        with open(self.failed_path, "a") as f:
+            for criteria in self.failed.keys():
+                ixs = self.failed[criteria]
+                for genome in ixs:
+                    value = str(self.stats.loc[genome, criteria])
+                    f.write('\t'.join([genome, criteria, value]))
+                    f.write('\n')
+
     def summary(self):
         summary = [
             "Filtered genomes",
