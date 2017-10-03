@@ -54,3 +54,11 @@ def test_filter_med_abs_dev(species):
         assert passed_and_failed == genomes_before_filtering
 
 
+def test_filter(species):
+    species.filter()
+    total_failed = sum(map(len, species.failed.values()))
+    assert os.path.isfile(species.summary_path)
+    assert os.path.isfile(species.failed_path)
+    assert sum([total_failed, len(species.passed)]) == len(species.stats)
+
+
