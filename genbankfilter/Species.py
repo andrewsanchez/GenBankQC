@@ -93,6 +93,17 @@ class Species:
         self.mash_paste()
         self.mash_dist()
 
+    def get_tree(self):
+        import numpy as np
+        from skbio.tree import TreeNode
+        from scipy.cluster.hierarchy import weighted
+        ids = self.dmx.index.tolist()
+        triu = np.triu(self.dmx.as_matrix())
+        hclust = weighted(triu)
+        t = TreeNode.from_linkage_matrix(hclust, ids)
+        t.write(self.nw_path)
+        self.tree = Tree(self.nw_path, 1)
+
     def get_stats(self):
         """
         Get stats for all genomes.  Write the results for each individual
