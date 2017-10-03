@@ -87,7 +87,7 @@ class Species:
         self.dmx.columns = names
         self.dmx.to_csv(dst, sep="\t")
 
-    def mash(self):
+    def run_mash(self):
         """Run all mash related functions."""
         self.sketch()
         self.mash_paste()
