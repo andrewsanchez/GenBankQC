@@ -2,8 +2,6 @@ import os
 
 from pandas import DataFrame, Index
 
-import genbankfilter.filter as gbf
-
 
 def test_init(aphidicola_multi):
     params, aphidicola = aphidicola_multi

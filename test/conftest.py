@@ -4,8 +4,7 @@ import tempfile
 
 import pytest
 
-from genbankfilter.QC import QC
-from genbankfilter.Species import Species
+from genbank_qc import QC, Species
 
 
 @pytest.fixture(scope="module",
@@ -26,7 +25,7 @@ def aphidicola(request):
     shutil.rmtree(tmp)
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def aphidicola_bare(request, aphidicola):
     os.remove(aphidicola.stats_path)
     os.remove(aphidicola.dmx_path)

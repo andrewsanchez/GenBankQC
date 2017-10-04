@@ -1,15 +1,16 @@
 import os.path
 
-import genbankfilter.filter as gbf
-from genbankfilter.Genome import Genome
+import pandas as pd
+
+from genbank_qc import Genome, Species
 
 
 def test_init(aphidicola):
     from ete3 import Tree
-    assert type(aphidicola) == gbf.Species
-    assert type(aphidicola.stats) == gbf.pd.DataFrame
+    assert type(aphidicola) == Species
+    assert type(aphidicola.stats) == pd.DataFrame
     assert type(aphidicola.tree) == Tree
-    assert type(aphidicola.dmx) == gbf.pd.DataFrame
+    assert type(aphidicola.dmx) == pd.DataFrame
     assert aphidicola.dmx.index.tolist() == aphidicola.stats.index.tolist()
     assert (aphidicola.dmx.mean().index.tolist() ==
             aphidicola.stats.index.tolist())
@@ -40,7 +41,8 @@ def test_sketch(aphidicola):
         assert os.path.isfile(i)
 
 
-def test_mash_paste(aphidicola):
+def test_mash_paste(aphidicola_bare):
+    aphidicola = aphidicola_bare
     aphidicola.mash_paste()
     assert os.path.isfile(aphidicola.paste_file)
 
@@ -49,7 +51,7 @@ def test_mash_dist(aphidicola_bare):
     aphidicola = aphidicola_bare
     aphidicola.mash_dist()
     assert os.path.isfile(aphidicola.dmx_path)
-    assert type(aphidicola.dmx) == gbf.pd.DataFrame
+    assert type(aphidicola.dmx) == pd.DataFrame
 
 
 def test_mash(aphidicola_bare):
@@ -57,7 +59,7 @@ def test_mash(aphidicola_bare):
     aphidicola.run_mash()
     assert os.path.isfile(aphidicola.paste_file)
     assert os.path.isfile(aphidicola.dmx_path)
-    assert type(aphidicola.dmx) == gbf.pd.DataFrame
+    assert type(aphidicola.dmx) == pd.DataFrame
     aphidicola_sketches = aphidicola.sketches()
     for i in aphidicola_sketches:
         assert i is not None
@@ -76,4 +78,4 @@ def test_get_stats(aphidicola_bare):
     aphidicola = aphidicola_bare
     aphidicola.get_stats()
     assert os.path.isfile(aphidicola.stats_path)
-    assert type(aphidicola.stats) == gbf.pd.DataFrame
+    assert type(aphidicola.stats) == pd.DataFrame

@@ -3,7 +3,7 @@ import shutil
 import tempfile
 import unittest
 
-import genbankfilter.filter as gbf
+import genbank_qc.filter as gbf
 
 
 class TestFilter(unittest.TestCase):

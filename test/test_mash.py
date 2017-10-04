@@ -5,7 +5,7 @@ import unittest
 
 import pandas as pd
 
-import genbankfilter.mash as mash
+import genbank_qc.mash as mash
 
 
 class TestMash(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestMash(unittest.TestCase):
         self.genbank = os.path.join(self.tmp, 'genbank')
         shutil.copytree('test/resources/', self.genbank)
         # self.assembly_summary = pd.read_csv(
-        #     'genbankfilter/test/resources/updated_assembly_summary.txt',
+        #     'genbank_qc/test/resources/updated_assembly_summary.txt',
         #     sep="\t",
         #     index_col=0)
         self.species = 'Buchnera_aphidicola'
