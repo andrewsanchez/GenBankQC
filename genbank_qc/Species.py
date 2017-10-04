@@ -4,7 +4,7 @@ from subprocess import DEVNULL, Popen
 import pandas as pd
 
 from ete3 import Tree
-from genbankfilter.Genome import Genome
+from genbank_qc import Genome
 
 
 class Species:
@@ -25,6 +25,7 @@ class Species:
         self.stats_path = os.path.join(self.qc_dir, 'stats.csv')
         self.nw_path = os.path.join(self.qc_dir, 'tree.nw')
         self.dmx_path = os.path.join(self.qc_dir, 'dmx.csv')
+        self.paste_file = os.path.join(self.qc_dir, 'all.msh')
         if os.path.isfile(self.stats_path):
             self.stats = pd.read_csv(self.stats_path, index_col=0)
         else:
@@ -64,7 +65,6 @@ class Species:
                 genome.sketch()
 
     def mash_paste(self):
-        self.paste_file = os.path.join(self.qc_dir, 'all.msh')
         if os.path.isfile(self.paste_file):
             os.remove(self.paste_file)
         sketches = os.path.join(self.qc_dir, "GCA*msh")
@@ -75,17 +75,16 @@ class Species:
 
     def mash_dist(self):
         import re
-        dst = os.path.join(self.qc_dir, 'dmx.csv')
         cmd = "mash dist -t '{}' '{}' > '{}'".format(
-            self.paste_file, self.paste_file, dst)
+            self.paste_file, self.paste_file, self.dmx_path)
         Popen(cmd, shell="True", stdout=DEVNULL).wait()
-        self.dmx = pd.read_csv(dst, index_col=0, sep="\t")
+        self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
         # Make distance matrix more readable
         p = re.compile('.*(GCA_\d+\.\d.*)(.fasta)')
         names = [re.match(p, i).group(1) for i in self.dmx.index]
         self.dmx.index = names
         self.dmx.columns = names
-        self.dmx.to_csv(dst, sep="\t")
+        self.dmx.to_csv(self.dmx_path, sep="\t")
 
     def run_mash(self):
         """Run all mash related functions."""

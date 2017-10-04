@@ -1,6 +1,6 @@
 import click
 
-import genbankfilter.filter as gbf
+from genbank_qc import QC
 
 
 @click.command()
@@ -19,19 +19,18 @@ import genbankfilter.filter as gbf
               "dmx.csv and stats.csv already exist.",
               default=False, is_flag=True)
 @click.option('-d', '--dry-run', is_flag=True)
-@click.argument('species-dir', type=click.Path(exists=True, file_okay=False))
+@click.argument('path', type=click.Path(exists=True, file_okay=False))
 def cli(filter_level, max_unknowns, c_range, s_range, m_range,
-        path, dry_run, filter_only):
+        dry_run, filter_only, path):
     """ Assess the integrity of your FASTA collection."""
-    species = gbf.FilteredSpecies(path, max_unknowns,
-                                  c_range, s_range, m_range)
+    species = QC(path, max_unknowns, c_range, s_range, m_range)
     if dry_run:
         click.echo(print(species))
-    # elif not gbf.min_fastas_check(path):
-    #     click.echo("{} contains less than 5 genomes.".format(path))
-    #     pass
     elif filter_only:
-        gbf.filter_all(species)
-    # else:
-    #     dmx = mash.mash(path)
-    #     gbf.stats_and_filter(path, dmx, filter_ranges)
+        species.filter()
+        species.color_tree()
+    else:
+        species.run_mash()
+        species.get_stats()
+        species.filter()
+        species.color_tree()

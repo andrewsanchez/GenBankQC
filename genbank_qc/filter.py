@@ -9,7 +9,7 @@ from Bio import Phylo, SeqIO
 from Bio.Phylo.TreeConstruction import DistanceTreeConstructor, _DistanceMatrix
 
 from ete3 import Tree
-from genbankfilter.Species import Species
+from genbank_qc.Species import Species
 
 
 def get_contigs(fasta, contig_totals):

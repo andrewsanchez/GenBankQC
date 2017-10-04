@@ -2,7 +2,7 @@ import os.path
 
 import pandas as pd
 
-from genbankfilter.Species import Species
+from .Species import Species
 
 
 class QC(Species):
@@ -127,7 +127,6 @@ class QC(Species):
     def color_clade(self, criteria):
         """Color nodes using ete3 """
         from ete3 import NodeStyle
-
         for genome in self.failed[criteria]:
             n = self.tree.get_leaves_by_name(genome).pop()
             nstyle = NodeStyle()
@@ -146,6 +145,7 @@ class QC(Species):
         ts.branch_vertical_margin = 10
         ts.show_leaf_name = False
         # Legend
+        # TODO: use ordered dictionary
         for k, v in self.colors.items():
             failures = "Filtered: {}".format(len(self.failed[k]))
             failures = TextFace(failures, fgcolor=v)
