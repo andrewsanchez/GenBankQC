@@ -1,10 +1,11 @@
-import unittest
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
+import unittest
+
 from click.testing import CliRunner
 
-from genbankfilter.__main__ import cli
+from genbank_qc.__main__ import cli
 
 
 class TestCli(unittest.TestCase):
