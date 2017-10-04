@@ -10,8 +10,11 @@ setup(name=package,
       include_package_date=True,
       url='',
       install_requires=[
+          'pip',
           'click',
-          'biopython',
+          'numpy',
+          'scikitbio',
+          'biopython'
       ],
       entry_points='''
       [console_scripts]
