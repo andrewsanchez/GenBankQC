@@ -31,6 +31,7 @@ def cli(filter_level, max_unknowns, c_range, s_range, m_range,
         species.color_tree()
     else:
         species.run_mash()
+        species.get_tree()
         species.get_stats()
         species.filter()
         species.color_tree()
