@@ -1,9 +1,12 @@
 import os.path
 
 import pandas as pd
-# from pandas.util.testing import assert_index_equal
 
 from genbank_qc import Genome, Species
+
+
+# from pandas.util.testing import assert_index_equal
+
 
 
 def test_init(aphidicola):
@@ -35,7 +38,8 @@ def test_sketches(aphidicola):
         assert i is None or "GCA_000007365.1" in i
 
 
-def test_sketch(aphidicola):
+def test_sketch(aphidicola_bare):
+    aphidicola = aphidicola_bare
     aphidicola.sketch()
     aphidicola_sketches = aphidicola.sketches()
     for i in aphidicola_sketches:
