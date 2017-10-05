@@ -116,13 +116,13 @@ class QC(Species):
         nstyle["fgcolor"] = "black"
         for n in self.tree.traverse():
             n.set_style(nstyle)
-            if not n.name.startswith('Inner'):
-                nf = AttrFace('name', fsize=8)
-                nf.margin_right = 100
-                nf.margin_left = 3
-                n.add_face(nf, column=0)
-            else:
-                n.name = ' '
+            # if not n.name.startswith('Inner'):
+            #     nf = AttrFace('name', fsize=8)
+            #     nf.margin_right = 100
+            #     nf.margin_left = 3
+            #     n.add_face(nf, column=0)
+            # else:
+            #     n.name = ' '
 
     def color_clade(self, criteria):
         """Color nodes using ete3 """
@@ -144,7 +144,7 @@ class QC(Species):
         title_face = TextFace(self.species, fsize=20)
         ts.title.add_face(title_face, column=0)
         ts.branch_vertical_margin = 10
-        ts.show_leaf_name = False
+        # ts.show_leaf_name = False
         # Legend
         # TODO: use ordered dictionary
         for k, v in self.colors.items():
@@ -179,6 +179,8 @@ class QC(Species):
         self.base_node_style()
         for i in self.criteria:
             self.color_clade(i)
+        # out_tree = os.path.join(self.qc_results_dir, 'tree.svg')
+        # self.tree.render(out_tree)
         self.style_and_render_tree()
 
     def filter(self):
