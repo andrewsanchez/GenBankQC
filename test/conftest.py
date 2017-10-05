@@ -25,17 +25,6 @@ def aphidicola(request):
     shutil.rmtree(tmp)
 
 
-@pytest.fixture(scope="module")
-def aphidicola_bare(request, aphidicola):
-    os.remove(aphidicola.stats_path)
-    os.remove(aphidicola.dmx_path)
-    os.remove(aphidicola.nw_path)
-    del aphidicola.dmx
-    del aphidicola.tree
-    del aphidicola.stats
-    yield aphidicola
-
-
 @pytest.fixture(params=[[200, 3.0, 3.0, 3.0], [300, 2.0, 2.0, 2.0]])
 def aphidicola_multi(request):
     a, b, c, d = request.param
@@ -63,7 +52,7 @@ def unknowns(request):
 
 
 @pytest.fixture(scope="module")
-def aphidicolaQC(request):
+def aphidicolaQC():
     tmp = tempfile.mkdtemp()
     aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
     shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
@@ -72,7 +61,17 @@ def aphidicolaQC(request):
 
 
 @pytest.fixture(scope="module")
-def filtered(aphidicolaQC, request):
+def aphidicola_bare(aphidicolaQC):
+    aphidicola = aphidicolaQC
+    shutil.rmtree(aphidicola.qc_dir)
+    aphidicola.dmx = None
+    aphidicola.tree = None
+    aphidicola.stats = None
+    yield aphidicola
+
+
+@pytest.fixture(scope="module")
+def filtered(aphidicolaQC):
     aphidicola = aphidicolaQC
     aphidicola.filter()
     print(aphidicola.path)
