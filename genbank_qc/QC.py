@@ -128,6 +128,7 @@ class QC(Species):
         """Color nodes using ete3 """
         from ete3 import NodeStyle
         for genome in self.failed[criteria]:
+            genome = "'{}'".format(genome)
             n = self.tree.get_leaves_by_name(genome).pop()
             nstyle = NodeStyle()
             nstyle["fgcolor"] = self.colors[criteria]
