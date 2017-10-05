@@ -86,3 +86,12 @@ def genome(request, aphidicola):
     genome.get_assembly_size()
     genome.get_unknowns()
     yield genome
+
+
+@pytest.fixture()
+def path():
+    tmp = tempfile.mkdtemp()
+    path = os.path.join(tmp, "Buchnera_aphidicola")
+    shutil.copytree('test/resources/Buchnera_aphidicola', path)
+    yield path
+    shutil.rmtree(tmp)
