@@ -61,6 +61,7 @@ def test_filter(species):
 
 
 def test_color_tree(filtered):
+    filtered.get_tree()
     filtered.color_tree()
     assert os.path.isfile(filtered.tree_img)
 
