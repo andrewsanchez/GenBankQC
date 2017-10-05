@@ -10,10 +10,10 @@ setup(name=package,
       include_package_date=True,
       url='',
       install_requires=[
-          'pip',
           'click',
           'numpy',
-          'scikitbio',
+          'pandas',
+          'scikit-bio',
           'biopython'
       ],
       entry_points='''
