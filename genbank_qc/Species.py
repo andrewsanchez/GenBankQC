@@ -100,6 +100,7 @@ class Species:
         triu = np.triu(self.dmx.as_matrix())
         hclust = weighted(triu)
         t = TreeNode.from_linkage_matrix(hclust, ids)
+        # t = t.root_at_midpoint()
         t.write(self.nw_path)
         self.tree = Tree(self.nw_path, 1)
 
