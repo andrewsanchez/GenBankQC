@@ -1,6 +1,7 @@
 import os.path
 
 import pandas as pd
+# from pandas.util.testing import assert_index_equal
 
 from genbank_qc import Genome, Species
 
@@ -24,7 +25,8 @@ def test_genomes(aphidicola):
 
 def test_genome_ids(aphidicola):
     genome_ids = aphidicola.genome_ids()
-    assert genome_ids.tolist() == aphidicola.stats.index.tolist()
+    assert sorted(genome_ids.tolist()) == sorted(aphidicola.stats.index.tolist())
+    # assert assert_index_equal(genome_ids, aphidicola.stats.index)
 
 
 def test_sketches(aphidicola):
