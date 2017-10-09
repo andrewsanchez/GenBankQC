@@ -61,8 +61,7 @@ class Species:
 
     def sketch(self):
         for genome in self.genomes():
-            if genome.msh is None:
-                genome.sketch()
+            genome.sketch()
 
     def mash_paste(self):
         if os.path.isfile(self.paste_file):
