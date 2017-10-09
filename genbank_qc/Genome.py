@@ -17,9 +17,9 @@ class Genome:
         self.name = re.match(p, genome).group(1)
         self.basename = os.path.splitext(self.path)[0]
         if '/' not in self.path:
-            self.species_dir = self.path
+            self.species_dir = '.'
         else:
-            self.species_dir = '/'.join(self.path.split('/')[:-1])
+            self.species_dir = os.path.split(self.path)[0]
         self.qc_dir = os.path.join(self.species_dir, "qc")
         if not os.path.isdir(self.qc_dir):
             os.mkdir(self.qc_dir)
