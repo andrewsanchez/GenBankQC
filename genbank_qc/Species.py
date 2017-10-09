@@ -104,24 +104,11 @@ class Species:
         self.tree = Tree(self.nw_path, 1)
 
     def get_stats(self):
-        """
-        Get stats for all genomes.  Write the results for each individual
-        genome in the qc directory and concat the results into a DataFrame
+        """Get stats for all genomes. Concat the results into a DataFrame
         """
         dmx_mean = self.dmx.mean()
-        stats = []
-        for i in self.genomes():
-            i.get_contigs()
-            i.get_assembly_size()
-            i.get_unknowns()
-            i.get_distance(dmx_mean)
-            data = {"contigs": i.count_contigs,
-                    "assembly_size": i.assembly_size,
-                    "unknowns": i.unknowns,
-                    "distance": i.distance}
-            i.stats = pd.DataFrame(data, index=[i.name])
-            dst = os.path.join(i.qc_dir, i.name+'.csv')
-            stats.append(i.stats)
-            i.stats.to_csv(dst)
-        self.stats = pd.concat(stats)
-        self.stats.to_csv(os.path.join(self.qc_dir, 'stats.csv'))
+        for genome in self.genomes():
+            genome.get_stats(dmx_mean)
+        species_stats = [genome.stats_df for genome in self.genomes()]
+        self.stats = pd.concat(species_stats)
+        self.stats.to_csv(self.stats_path)
