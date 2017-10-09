@@ -33,9 +33,12 @@ def test_genome_ids(aphidicola):
 
 
 def test_sketches(aphidicola):
+    from re import match
+    from os.path import basename
     aphidicola_sketches = aphidicola.sketches()
     for i in aphidicola_sketches:
-        assert i is None or "GCA_000007365.1" in i
+        assert isinstance(i, str)
+        assert match('GCA.*msh', basename(i))
 
 
 def test_sketch(aphidicola_bare):
