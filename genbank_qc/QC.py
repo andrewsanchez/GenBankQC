@@ -136,7 +136,7 @@ class QC(Species):
             n.set_style(nstyle)
 
     # Might be better in a layout function
-    def style_and_render_tree(self, file_types=["svg"]):
+    def style_and_render_tree(self, file_types=["svg", "pdf"]):
         from ete3 import TreeStyle, TextFace, CircleFace
         # midpoint root tree
         self.tree.set_outgroup(self.tree.get_midpoint_outgroup())
