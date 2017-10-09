@@ -1,4 +1,4 @@
-,N_Count,Contigs,Assembly_Size,MASH
+,unknowns,contigs,assembly_size,distance
 GCA_000015425.1_Acinetobacter_baumannii_ATCC_17978_Complete_Genome,1.0,3.0,4001457.0,0.022097901398473927
 GCA_000018445.1_Acinetobacter_baumannii_ACICU_Complete_Genome,71.0,3.0,3996761.0,0.011812345104281476
 GCA_000021145.1_Acinetobacter_baumannii_AB307_0294_Complete_Genome,0.0,1.0,3760981.0,0.01999258610428124

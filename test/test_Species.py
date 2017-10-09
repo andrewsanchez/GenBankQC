@@ -1,30 +1,90 @@
-import os
-import shutil
-import tempfile
-import unittest
+import os.path
 
-from genbankfilter.Species import Species
+import pandas as pd
 
-
-class TestSpecies(unittest.TestCase):
-    def setUp(self):
-        self.tmp = tempfile.mkdtemp()
-        self.genbank = os.path.join(self.tmp, 'genbank')
-        shutil.copytree('test/resources/', self.genbank)
-        self.species = 'Buchnera_aphidicola'
-        self.species_dir = os.path.join(self.genbank, self.species)
-        self.B_aphidicola = Species(self.species_dir)
-        self.assertEqual(type(self.B_aphidicola), Species)
-
-    def test_species_init(self):
-        from pandas import DataFrame
-        from ete3 import Tree
-        self.assertEqual(type(self.B_aphidicola.stats), DataFrame)
-        self.assertEqual(type(self.B_aphidicola.tree), Tree)
-
-    def tearDown(self):
-        shutil.rmtree(self.genbank)
+from genbank_qc import Genome, Species
 
 
-if __name__ == '__main__':
-    unittest.main()
+# from pandas.util.testing import assert_index_equal
+
+
+
+def test_init(aphidicola):
+    from ete3 import Tree
+    assert type(aphidicola) == Species
+    assert type(aphidicola.stats) == pd.DataFrame
+    assert type(aphidicola.tree) == Tree
+    assert type(aphidicola.dmx) == pd.DataFrame
+    assert aphidicola.dmx.index.tolist() == aphidicola.stats.index.tolist()
+    assert (aphidicola.dmx.mean().index.tolist() ==
+            aphidicola.stats.index.tolist())
+    assert os.path.isdir(aphidicola.qc_dir)
+
+
+def test_genomes(aphidicola):
+    assert len(list(aphidicola.genomes())) == 10
+    assert isinstance(next(aphidicola.genomes()), Genome)
+
+
+def test_genome_ids(aphidicola):
+    genome_ids = aphidicola.genome_ids()
+    assert sorted(genome_ids.tolist()) == sorted(aphidicola.stats.index.tolist())
+    # assert assert_index_equal(genome_ids, aphidicola.stats.index)
+
+
+def test_sketches(aphidicola):
+    from re import match
+    from os.path import basename
+    aphidicola_sketches = aphidicola.sketches()
+    for i in aphidicola_sketches:
+        assert isinstance(i, str)
+        assert match('GCA.*msh', basename(i))
+
+
+def test_sketch(aphidicola_bare):
+    aphidicola = aphidicola_bare
+    aphidicola.sketch()
+    aphidicola_sketches = aphidicola.sketches()
+    for i in aphidicola_sketches:
+        assert i is not None
+        assert os.path.isfile(i)
+
+
+def test_mash_paste(aphidicola_bare):
+    aphidicola = aphidicola_bare
+    aphidicola.mash_paste()
+    assert os.path.isfile(aphidicola.paste_file)
+
+
+def test_mash_dist(aphidicola_bare):
+    aphidicola = aphidicola_bare
+    aphidicola.mash_dist()
+    assert os.path.isfile(aphidicola.dmx_path)
+    assert type(aphidicola.dmx) == pd.DataFrame
+
+
+def test_mash(aphidicola_bare):
+    aphidicola = aphidicola_bare
+    aphidicola.run_mash()
+    assert os.path.isfile(aphidicola.paste_file)
+    assert os.path.isfile(aphidicola.dmx_path)
+    assert type(aphidicola.dmx) == pd.DataFrame
+    aphidicola_sketches = aphidicola.sketches()
+    for i in aphidicola_sketches:
+        assert i is not None
+        assert os.path.isfile(i)
+
+
+def test_tree(aphidicola_bare):
+    from ete3 import Tree
+    aphidicola = aphidicola_bare
+    aphidicola.get_tree()
+    assert type(aphidicola.tree) == Tree
+    assert os.path.isfile(aphidicola.nw_path)
+
+
+def test_get_stats(aphidicola_bare):
+    aphidicola = aphidicola_bare
+    aphidicola.get_stats()
+    assert os.path.isfile(aphidicola.stats_path)
+    assert type(aphidicola.stats) == pd.DataFrame

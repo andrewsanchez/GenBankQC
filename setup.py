@@ -1,6 +1,6 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
-package = 'genbankfilter'
+package = 'genbank-qc'
 version = '0.1'
 
 setup(name=package,
@@ -11,14 +11,13 @@ setup(name=package,
       url='',
       install_requires=[
           'click',
+          'numpy',
           'pandas',
-          'biopython',
-          'matplotlib',
-          'scipy',
-          'ncbitk',
+          'scikit-bio',
+          'biopython'
       ],
       entry_points='''
       [console_scripts]
-      gbf=genbankfilter.__main__:cli
+      genbank-qc=genbank_qc.__main__:cli
       ''',
       )
