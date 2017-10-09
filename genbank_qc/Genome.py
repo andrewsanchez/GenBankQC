@@ -62,14 +62,16 @@ class Genome:
         if not os.path.isfile(self.msh):
             subprocess.Popen(cmd, shell="True", stdout=subprocess.DEVNULL).wait()
 
-    def get_stats(self):
+    def get_stats(self, dmx_mean):
         from pandas import DataFrame
-        self.get_contigs()
-        self.get_assembly_size()
-        self.get_unknowns()
-        data = {"contigs": self.count_contigs,
-                "assembly_size": self.assembly_size,
-                "unknowns": self.unknowns}
-        self.stats = DataFrame(data, index=[self.name])
-        dst = os.path.join(self.qc_dir, self.name+'.csv')
-        self.stats.to_csv(dst, index=0)
+        if not os.path.isfile(self.stats_path):
+            self.get_contigs()
+            self.get_assembly_size()
+            self.get_unknowns()
+            self.get_distance(dmx_mean)
+            data = {"contigs": self.count_contigs,
+                    "assembly_size": self.assembly_size,
+                    "unknowns": self.unknowns,
+                    "distance": self.distance}
+            self.stats = DataFrame(data, index=[self.name])
+            self.stats.to_csv(self.stats_path)
