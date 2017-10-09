@@ -39,7 +39,9 @@ def test_sketch(genome):
     assert os.path.isfile(genome.msh)
 
 
-def test_get_stats(genome):
+def test_get_stats(genome, aphidicola):
     from pandas import DataFrame
-    genome.get_stats()
+    dmx_mean = aphidicola.dmx.mean()
+    genome.get_stats(dmx_mean)
     assert isinstance(genome.stats, DataFrame)
+    assert os.path.isfile(genome.stats_path)
