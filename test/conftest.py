@@ -79,7 +79,7 @@ def filtered(aphidicolaQC):
 
 
 @pytest.fixture(scope="module")
-def genome(request, aphidicola):
+def genome(aphidicola):
     genome = next(aphidicola.genomes())
     genome.get_contigs()
     genome.get_assembly_size()
