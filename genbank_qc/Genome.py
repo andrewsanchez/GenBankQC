@@ -2,6 +2,7 @@ import os.path
 import re
 import subprocess
 
+import pandas as pd
 from Bio import SeqIO
 
 
@@ -24,8 +25,12 @@ class Genome:
         if not os.path.isdir(self.qc_dir):
             os.mkdir(self.qc_dir)
         self.msh = os.path.join(self.qc_dir, self.name + ".msh")
-        if not os.path.isfile(self.msh):
-            self.msh = None
+        self.stats_path = os.path.join(self.qc_dir, self.name+'.csv')
+        if os.path.isfile(self.stats_path):
+            self.stats_df = pd.read_csv(self.stats_path, index_col=0)
+        else:
+            self.stats_df = None
+        # TODO: Maybe include the species_mean_distance here
 
     def get_contigs(self):
         """Return a list of of Bio.Seq.Seq objects for fasta and calculate
