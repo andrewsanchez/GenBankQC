@@ -1,13 +1,17 @@
+<<<<<<< HEAD
 import os
 import shutil
 import tempfile
 import unittest
 
+=======
+>>>>>>> develop
 from click.testing import CliRunner
 
-from genbankfilter.__main__ import cli
+from genbank_qc.__main__ import cli
 
 
+<<<<<<< HEAD
 class TestCli(unittest.TestCase):
     def setUp(self):
         self.runner = CliRunner()
@@ -36,3 +40,9 @@ class TestCli(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.tmp)
+=======
+def test_cli(path):
+    runner = CliRunner()
+    result = runner.invoke(cli, [path])
+    assert result.exit_code == 0
+>>>>>>> develop
