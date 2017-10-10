@@ -1,6 +1,6 @@
 import click
 
-from genbank_qc import QC
+from genbank_qc import Species
 
 
 @click.command()
@@ -23,7 +23,7 @@ from genbank_qc import QC
 def cli(filter_level, max_unknowns, c_range, s_range, m_range,
         dry_run, filter_only, path):
     """ Assess the integrity of your FASTA collection."""
-    species = QC(path, max_unknowns, c_range, s_range, m_range)
+    species = Species(path, max_unknowns, c_range, s_range, m_range)
     if dry_run:
         species = gbf.FilteredSpecies(species_dir, max_unknowns,
                                       c_range, s_range, m_range)
