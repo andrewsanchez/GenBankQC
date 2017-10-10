@@ -38,11 +38,8 @@ def test_genomes(aphidicola):
 
 
 def test_genome_ids(aphidicola):
-    genome_ids = aphidicola.genome_ids()
-    print(genome_ids)
-    print(aphidicola.stats.index)
-    assert_index_equal(aphidicola.genome_ids(), aphidicola.stats.index)
-    assert sorted(genome_ids.tolist()) == sorted(aphidicola.stats.index.tolist())
+    assert_index_equal(aphidicola.genome_ids().sort_values(),
+                       aphidicola.stats.index.sort_values())
 
 
 def test_sketches(aphidicola):

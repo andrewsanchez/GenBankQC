@@ -81,7 +81,8 @@ class Species:
     def assess(self):
         if self.stats is not None:
             try:
-                assert_index_equal(self.genome_ids(), self.stats.index)
+                assert_index_equal(self.genome_ids().sort_values(),
+                                   self.stats.index.sort_values())
                 return True
             except AssertionError:
                 return False
