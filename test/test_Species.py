@@ -29,6 +29,7 @@ def test_init(aphidicola_multi):
     assert aphidicola.tolerance["distance"] == d
     assert aphidicola.label == "-".join(map(str, params))
     assert id(aphidicola.stats) == id(aphidicola.passed)
+    assert aphidicola.complete is True
 
 
 def test_genomes(aphidicola):
@@ -51,6 +52,10 @@ def test_sketches(aphidicola):
     for i in aphidicola_sketches:
         assert isinstance(i, str)
         assert match('GCA.*msh', basename(i))
+
+
+def test_assess(aphidicola_bare):
+    assert aphidicola_bare.complete is False
 
 
 def test_sketch(aphidicola_bare):
@@ -147,10 +152,6 @@ def test_filter(aphidicola):
 def test_color_tree(aphidicola):
     aphidicola.color_tree()
     assert os.path.isfile(aphidicola.tree_img)
-
-
-def test_assess_metadata(aphidicola):
-    assert aphidicola.status is True
 
 
 def test_summary(aphidicola):
