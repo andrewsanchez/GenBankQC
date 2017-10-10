@@ -4,7 +4,7 @@ import tempfile
 
 import pytest
 
-from genbank_qc import QC, Species
+from genbank_qc import Species
 
 
 @pytest.fixture(scope="module",
@@ -12,12 +12,12 @@ from genbank_qc import QC, Species
 @pytest.fixture()
 def species(request):
     species = "test/resources/{}".format(request.param)
-    species = QC(species)
+    species = Species(species)
     yield species
 
 
 @pytest.fixture(scope="module")
-def aphidicola(request):
+def aphidicola():
     tmp = tempfile.mkdtemp()
     aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
     shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
@@ -29,15 +29,15 @@ def aphidicola(request):
 def aphidicola_multi(request):
     a, b, c, d = request.param
     aphidicola = "test/resources/Buchnera_aphidicola"
-    aphidicola = QC(aphidicola, a, b, c, d)
+    aphidicola = Species(aphidicola, a, b, c, d)
     yield request.param, aphidicola
 
 
 def altered_unknowns():
-    aphidicola = QC("test/resources/Buchnera_aphidicola")
+    aphidicola = Species("test/resources/Buchnera_aphidicola")
     expected_failures = []
     yield aphidicola, expected_failures
-    aphidicola = QC("test/resources/Buchnera_aphidicola")
+    aphidicola = Species("test/resources/Buchnera_aphidicola")
     aphidicola.stats.iloc[:, 0] = 0
     aphidicola.stats.iloc[:10, 0] = 300
     expected_failures = aphidicola.stats.iloc[:10, 0].index.tolist()
@@ -52,29 +52,19 @@ def unknowns(request):
 
 
 @pytest.fixture(scope="module")
-def aphidicolaQC():
+def aphidicola_bare():
     tmp = tempfile.mkdtemp()
     aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
     shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
-    yield QC(aphidicola)
+    aphidicola = Species(aphidicola)
+    shutil.rmtree(aphidicola.qc_dir)
+    yield aphidicola
     shutil.rmtree(tmp)
 
 
 @pytest.fixture(scope="module")
-def aphidicola_bare(aphidicolaQC):
-    aphidicola = aphidicolaQC
-    shutil.rmtree(aphidicola.qc_dir)
-    aphidicola.dmx = None
-    aphidicola.tree = None
-    aphidicola.stats = None
-    yield aphidicola
-
-
-@pytest.fixture(scope="module")
-def filtered(aphidicolaQC):
-    aphidicola = aphidicolaQC
+def filtered(aphidicola):
     aphidicola.filter()
-    print(aphidicola.path)
     yield aphidicola
 
 
