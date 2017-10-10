@@ -2,6 +2,7 @@ import os
 from subprocess import DEVNULL, Popen
 
 import pandas as pd
+from pandas.util.testing import assert_index_equal
 
 from ete3 import Tree
 from genbank_qc import Genome
@@ -56,6 +57,7 @@ class Species:
                           "contigs": contigs,
                           "assembly_size": assembly_size,
                           "distance": mash}
+        self.passed = self.stats
         self.failed = {}
         self.med_abs_devs = {}
         self.dev_refs = {}
@@ -65,7 +67,7 @@ class Species:
                        "contigs": "green",
                        "distance": "purple",
                        "assembly_size": "orange"}
-        self.passed = self.stats
+        self.complete = self.assess()
 
     def __str__(self):
         self.message = [
@@ -75,6 +77,16 @@ class Species:
             "Assembly Size: {}".format(self.assembly_size),
             "MASH: {}".format(self.mash)]
         return '\n'.join(self.message)
+
+    def assess(self):
+        if self.stats is not None:
+            try:
+                assert_index_equal(self.genome_ids(), self.stats.index)
+                return True
+            except AssertionError:
+                return False
+        else:
+            return False
 
     def genomes(self, ext="fasta"):
         # TODO: Maybe this should return a tuple (genome-path, genome-id)
