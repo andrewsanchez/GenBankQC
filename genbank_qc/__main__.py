@@ -28,12 +28,10 @@ def cli(filter_level, max_unknowns, c_range, s_range, m_range,
         species = gbf.FilteredSpecies(species_dir, max_unknowns,
                                       c_range, s_range, m_range)
         click.echo(print(species))
-    elif filter_only:
-        species.filter()
-        species.color_tree()
     else:
-        species.run_mash()
-        species.get_tree()
-        species.get_stats()
+        if species.complete is False:
+            species.run_mash()
+            species.get_stats()
         species.filter()
+        species.get_tree()
         species.color_tree()
