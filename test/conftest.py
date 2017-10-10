@@ -56,8 +56,8 @@ def aphidicola_bare():
     tmp = tempfile.mkdtemp()
     aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
     shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
+    shutil.rmtree(os.path.join(aphidicola, 'qc'))
     aphidicola = Species(aphidicola)
-    shutil.rmtree(aphidicola.qc_dir)
     yield aphidicola
     shutil.rmtree(tmp)
 
