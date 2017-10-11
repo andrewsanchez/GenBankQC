@@ -78,14 +78,12 @@ class Species:
 
     def assess(self):
         from pandas.util.testing import assert_index_equal
-        if self.stats is not None:
-            try:
-                assert_index_equal(self.genome_ids().sort_values(),
-                                   self.stats.index.sort_values())
-                return True
-            except AssertionError:
-                return False
-        else:
+        try:
+            assert self.stats is not None
+            assert_index_equal(self.genome_ids().sort_values(),
+                               self.stats.index.sort_values())
+            return True
+        except AssertionError:
             return False
 
     def genomes(self, ext="fasta"):
