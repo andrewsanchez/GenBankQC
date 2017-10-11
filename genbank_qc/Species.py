@@ -2,10 +2,8 @@ import os
 from subprocess import DEVNULL, Popen
 
 import pandas as pd
-from pandas.util.testing import assert_index_equal
 
 from ete3 import Tree
-from genbank_qc import Genome
 
 
 class Species:
@@ -79,6 +77,7 @@ class Species:
         return '\n'.join(self.message)
 
     def assess(self):
+        from pandas.util.testing import assert_index_equal
         if self.stats is not None:
             try:
                 assert_index_equal(self.genome_ids().sort_values(),
@@ -97,6 +96,7 @@ class Species:
         :returns: Generator of Genome objects for all genomes in species dir
         :rtype: generator
         """
+        from genbank_qc import Genome
         genomes = (Genome(os.path.join(self.path, f)) for
                    f in os.listdir(self.path) if f.endswith(ext))
         return genomes
@@ -148,9 +148,10 @@ class Species:
         triu = np.triu(self.dmx.as_matrix())
         hclust = weighted(triu)
         t = TreeNode.from_linkage_matrix(hclust, ids)
-        # t = t.root_at_midpoint()
-        t.write(self.nw_path)
-        self.tree = Tree(self.nw_path, 1)
+        self.tree = Tree(t.__str__().replace("'", ""))
+        # midpoint root tree
+        self.tree.set_outgroup(self.tree.get_midpoint_outgroup())
+        self.tree.write(outfile=self.nw_path)
 
     def get_stats(self):
         """Get stats for all genomes. Concat the results into a DataFrame
@@ -233,7 +234,6 @@ class Species:
         """Color nodes using ete3 """
         from ete3 import NodeStyle
         for genome in self.failed[criteria]:
-            genome = "'{}'".format(genome)
             n = self.tree.get_leaves_by_name(genome).pop()
             nstyle = NodeStyle()
             nstyle["fgcolor"] = self.colors[criteria]
@@ -243,8 +243,6 @@ class Species:
     # Might be better in a layout function
     def style_and_render_tree(self, file_types=["svg", "pdf"]):
         from ete3 import TreeStyle, TextFace, CircleFace
-        # midpoint root tree
-        self.tree.set_outgroup(self.tree.get_midpoint_outgroup())
         ts = TreeStyle()
         title_face = TextFace(self.species, fsize=20)
         ts.title.add_face(title_face, column=0)
@@ -284,8 +282,6 @@ class Species:
         self.base_node_style()
         for i in self.criteria:
             self.color_clade(i)
-        # out_tree = os.path.join(self.qc_results_dir, 'tree.svg')
-        # self.tree.render(out_tree)
         self.style_and_render_tree()
 
     def filter(self):
