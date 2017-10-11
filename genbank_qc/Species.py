@@ -2,10 +2,8 @@ import os
 from subprocess import DEVNULL, Popen
 
 import pandas as pd
-from pandas.util.testing import assert_index_equal
 
 from ete3 import Tree
-from genbank_qc import Genome
 
 
 class Species:
@@ -79,6 +77,7 @@ class Species:
         return '\n'.join(self.message)
 
     def assess(self):
+        from pandas.util.testing import assert_index_equal
         if self.stats is not None:
             try:
                 assert_index_equal(self.genome_ids(), self.stats.index)
@@ -96,6 +95,7 @@ class Species:
         :returns: Generator of Genome objects for all genomes in species dir
         :rtype: generator
         """
+        from genbank_qc import Genome
         genomes = (Genome(os.path.join(self.path, f)) for
                    f in os.listdir(self.path) if f.endswith(ext))
         return genomes
