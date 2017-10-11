@@ -1,4 +1,5 @@
 import os
+import re
 from subprocess import DEVNULL, Popen
 
 import pandas as pd
@@ -120,7 +121,6 @@ class Species:
             self.paste_file = None
 
     def mash_dist(self):
-        import re
         cmd = "mash dist -t '{}' '{}' > '{}'".format(
             self.paste_file, self.paste_file, self.dmx_path)
         Popen(cmd, shell="True", stdout=DEVNULL).wait()
@@ -231,13 +231,11 @@ class Species:
         nstyle["fgcolor"] = "black"
         for n in self.tree.traverse():
             n.set_style(nstyle)
-            # if not n.name.startswith('Inner'):
-            #     nf = AttrFace('name', fsize=8)
-            #     nf.margin_right = 100
-            #     nf.margin_left = 3
-            #     n.add_face(nf, column=0)
-            # else:
-            #     n.name = ' '
+            if re.match('^GCA', n.name):
+                nf = AttrFace('name', fsize=8)
+                nf.margin_right = 100
+                nf.margin_left = 3
+                n.add_face(nf, column=0)
 
     def color_clade(self, criteria):
         """Color nodes using ete3 """
