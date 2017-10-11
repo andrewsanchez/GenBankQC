@@ -140,18 +140,29 @@ class Species:
         self.mash_paste()
         self.mash_dist()
 
+    def assess_tree(self):
+        try:
+            assert (sorted(self.tree.get_leaf_names()) ==
+                    sorted(self.stats.index.tolist()) ==
+                    sorted(self.genome_ids().tolist()))
+            return True
+        except:
+            return False
+
     def get_tree(self):
-        import numpy as np
-        from skbio.tree import TreeNode
-        from scipy.cluster.hierarchy import weighted
-        ids = self.dmx.index.tolist()
-        triu = np.triu(self.dmx.as_matrix())
-        hclust = weighted(triu)
-        t = TreeNode.from_linkage_matrix(hclust, ids)
-        self.tree = Tree(t.__str__().replace("'", ""))
-        # midpoint root tree
-        self.tree.set_outgroup(self.tree.get_midpoint_outgroup())
-        self.tree.write(outfile=self.nw_path)
+        if not self.assess_tree():
+            import numpy as np
+            from skbio.tree import TreeNode
+            from scipy.cluster.hierarchy import weighted
+            ids = self.dmx.index.tolist()
+            triu = np.triu(self.dmx.as_matrix())
+            hclust = weighted(triu)
+            t = TreeNode.from_linkage_matrix(hclust, ids)
+            nw = t.__str__().replace("'", "")
+            self.tree = Tree(nw)
+            # midpoint root tree
+            self.tree.set_outgroup(self.tree.get_midpoint_outgroup())
+            self.tree.write(outfile=self.nw_path)
 
     def get_stats(self):
         """Get stats for all genomes. Concat the results into a DataFrame
