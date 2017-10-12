@@ -53,6 +53,7 @@ def test_sketches(aphidicola):
 
 def test_assess(aphidicola_bare):
     assert aphidicola_bare.complete is False
+    assert aphidicola_bare.assess_tree() is False
 
 
 def test_sketch(aphidicola_bare):
@@ -89,19 +90,24 @@ def test_mash(aphidicola_bare):
         assert os.path.isfile(i)
 
 
-def test_tree(aphidicola_bare):
-    from ete3 import Tree
-    aphidicola = aphidicola_bare
-    aphidicola.get_tree()
-    assert type(aphidicola.tree) == Tree
-    assert os.path.isfile(aphidicola.nw_path)
-
-
 def test_get_stats(aphidicola_bare):
     aphidicola = aphidicola_bare
     aphidicola.get_stats()
     assert os.path.isfile(aphidicola.stats_path)
     assert type(aphidicola.stats) == pd.DataFrame
+
+
+def test_get_tree(aphidicola_bare):
+    from ete3 import Tree
+    aphidicola = aphidicola_bare
+    aphidicola.get_tree()
+    assert type(aphidicola.tree) == Tree
+    assert os.path.isfile(aphidicola.nw_path)
+    os.remove(aphidicola.nw_path)
+    aphidicola.get_tree()
+    assert not os.path.isfile(aphidicola.nw_path)
+    assert type(aphidicola.tree) == Tree
+
 
 def test_filter_unknowns(unknowns):
     aphidicola, expected_failures = unknowns
