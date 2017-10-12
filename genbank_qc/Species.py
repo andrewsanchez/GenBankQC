@@ -213,15 +213,25 @@ class Species:
         med_abs_dev = abs(self.passed[criteria] -
                           self.passed[criteria].median()).mean()
         dev_ref = med_abs_dev * self.tolerance[criteria]
-        self.allowed[criteria] = "{:.4f}".format(self.passed[criteria].median() + dev_ref)
+        lower = self.passed[criteria].median() - dev_ref
+        upper = self.passed[criteria].median() + dev_ref
+
+        def format_allowed_range():
+            if criteria == "assembly_size":
+                allowed_range = (str(int(x)) for x in [lower, upper])
+                allowed_range = '-'.join(allowed_range)
+            elif criteria == "distance":
+                allowed_range = "{:.4f}-{:.4f}".format(lower, upper)
+            return allowed_range
+
+        allowed_range = format_allowed_range()
+        self.allowed[criteria] = allowed_range
         self.failed[criteria] = self.passed[
             abs(self.passed[criteria] -
                 self.passed[criteria].median()) > dev_ref].index
         self.passed = self.passed[
             abs(self.passed[criteria] -
                 self.passed[criteria].median()) <= dev_ref]
-        # lower = self.passed[criteria].median() - dev_ref
-        # upper = self.passed[criteria].median() + dev_ref
 
     def base_node_style(self):
         from ete3 import NodeStyle, AttrFace
@@ -233,7 +243,7 @@ class Species:
             n.set_style(nstyle)
             if re.match('^GCA', n.name):
                 nf = AttrFace('name', fsize=8)
-                nf.margin_right = 100
+                nf.margin_right = 150
                 nf.margin_left = 3
                 n.add_face(nf, column=0)
 
@@ -244,43 +254,41 @@ class Species:
             n = self.tree.get_leaves_by_name(genome).pop()
             nstyle = NodeStyle()
             nstyle["fgcolor"] = self.colors[criteria]
-            nstyle["size"] = 6
+            nstyle["size"] = 9
             n.set_style(nstyle)
 
     # Might be better in a layout function
     def style_and_render_tree(self, file_types=["svg", "pdf"]):
         from ete3 import TreeStyle, TextFace, CircleFace
         ts = TreeStyle()
-        title_face = TextFace(self.species, fsize=20)
+        title_face = TextFace(self.species.replace('_', ' '), fsize=20)
         ts.title.add_face(title_face, column=0)
         ts.branch_vertical_margin = 10
-        # ts.show_leaf_name = False
+        ts.show_leaf_name = False
         # Legend
         # TODO: use ordered dictionary
         for k, v in self.colors.items():
-            failures = "Filtered: {}".format(len(self.failed[k]))
-            failures = TextFace(failures, fgcolor=v)
-            failures.margin_bottom = 5
-            tolerance = "Tolerance: {}".format(self.tolerance[k])
-            tolerance = TextFace(tolerance, fgcolor=v)
+            filtered = TextFace(len(self.failed[k]), fsize=8)
+            filtered.margin_bottom = 5
+            tolerance = TextFace(self.tolerance[k], fsize=8)
             tolerance.margin_bottom = 5
-            allowed = "Allowed: {}".format(self.allowed[k])
-            allowed = TextFace(allowed, fgcolor=v)
+            allowed = TextFace(self.allowed[k], fsize=8)
             allowed.margin_bottom = 5
-            f = TextFace(k, fgcolor=v)
-            f.margin_bottom = 5
-            f.margin_right = 40
+            allowed.margin_right = 25
+            criteria = TextFace(k.capitalize(), fsize=8, bold=True)
+            criteria.margin_bottom = 2
+            criteria.margin_right = 40
             cf = CircleFace(3, v, style="sphere")
             cf.margin_bottom = 5
             cf.margin_right = 5
-            ts.legend.add_face(f, column=1)
+            ts.legend.add_face(criteria, column=1)
             ts.legend.add_face(cf, column=2)
-            ts.legend.add_face(failures, 1)
-            ts.legend.add_face(TextFace(""), 2)
-            ts.legend.add_face(tolerance, 1)
-            ts.legend.add_face(TextFace(""), 2)
-            ts.legend.add_face(allowed, 1)
-            ts.legend.add_face(TextFace(""), 2)
+            ts.legend.add_face(TextFace("Allowed", fsize=8), 1)
+            ts.legend.add_face(allowed, 2)
+            ts.legend.add_face(TextFace("Tolerance", fsize=8), 1)
+            ts.legend.add_face(tolerance, 2)
+            ts.legend.add_face(TextFace("Filtered", fsize=8), 1)
+            ts.legend.add_face(filtered, 2)
         for f in file_types:
             out_tree = os.path.join(self.qc_results_dir, 'tree.{}'.format(f))
             self.tree.render(out_tree, tree_style=ts)
@@ -315,11 +323,22 @@ class Species:
 
     def summary(self):
         summary = [
-            "Filtered genomes",
-            "Unknown Bases: {}".format(len(self.failed["unknowns"])),
-            "Contigs: {}".format(len(self.failed["contigs"])),
-            "Assembly Size: {}".format(len(self.failed["assembly_size"])),
-            "MASH: {}".format(len(self.failed["distance"]))]
+            "Unknown Bases",
+            "Allowed: {}".format(self.allowed["unknowns"]),
+            "Tolerance: {}".format(self.tolerance["unknowns"]),
+            "Filtered: {}".format(len(self.failed["unknowns"])),
+            "Contigs",
+            "Allowed: {}".format(self.allowed["contigs"]),
+            "Tolerance: {}".format(self.tolerance["contigs"]),
+            "Filtered: {}".format(len(self.failed["contigs"])),
+            "Assembly Size",
+            "Allowed: {}".format(self.allowed["assembly_size"]),
+            "Tolerance: {}".format(self.tolerance["assembly_size"]),
+            "Filtered: {}".format(len(self.failed["assembly_size"])),
+            "MASH",
+            "Allowed: {}".format(self.allowed["distance"]),
+            "Tolerance: {}".format(self.tolerance["distance"]),
+            "Filtered: {}".format(len(self.failed["distance"]))]
         summary = '\n'.join(summary)
         with open(os.path.join(self.summary_path), "w") as f:
             f.write(summary)
