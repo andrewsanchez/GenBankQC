@@ -3,17 +3,19 @@ env:
   - PYTHON_VERSION=3.4
 before_install:
   - "sh -e /etc/init.d/xvfb start"
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - wget -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - wget -q https://github.com/marbl/Mash/releases/download/v2.0/mash-Linux64-v2.0.tar
   - chmod +x miniconda.sh
   - ./miniconda.sh -b
-  - export PATH=/home/travis/miniconda3/bin:$PATH
+  - mkdir -p $HOME/usr/bin
+  - tar -xf mash-Linux64-v2.0.tar
+  - mv mash-Linux64-v2.0/mash $HOME/usr/bin/mash
+  - chmod +x $HOME/usr/bin/mash
+  - export PATH=/home/travis/miniconda3/bin:$HOME/usr/bin:$PATH
+  - which mash
 install:
   - conda create -q -y -n genbank-qc -c etetoolkit python=$PYTHON_VERSION ete3 pip pytest
   - source activate genbank-qc
   - pip install -q .
-  - source deactivate genbank-qc
-  - source activate genbank-qc
 script:
-  - which python
-  - which pytest
   - pytest -v
