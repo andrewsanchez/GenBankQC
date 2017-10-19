@@ -1,0 +1,16 @@
+language: python
+env:
+  - PYTHON_VERSION=3.4
+before_install:
+  - "sh -e /etc/init.d/xvfb start"
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda3/bin:$PATH
+install:
+  - conda create -q -y -n genbank-qc -c etetoolkit python=$PYTHON_VERSION ete3 pip pytest
+  - source activate genbank-qc
+  - pip install -q flake8
+  - pip install .
+script:
+  - pytest
