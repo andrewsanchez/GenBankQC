@@ -10,7 +10,10 @@ before_install:
 install:
   - conda create -q -y -n genbank-qc -c etetoolkit python=$PYTHON_VERSION ete3 pip pytest
   - source activate genbank-qc
-  - pip install -q flake8
-  - pip install .
+  - pip install -q .
+  - source deactivate genbank-qc
+  - source activate genbank-qc
 script:
-  - pytest
+  - which python
+  - which pytest
+  - pytest -v
