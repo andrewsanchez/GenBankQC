@@ -161,11 +161,3 @@ def test_color_tree(filtered):
     except:
         pass
     assert os.path.isfile(aphidicola.tree_img)
-
-
-def test_summary(aphidicola):
-    pass
-
-
-def test_failed_report():
-    pass
