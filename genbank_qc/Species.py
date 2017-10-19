@@ -266,22 +266,21 @@ class Species:
         ts.branch_vertical_margin = 10
         ts.show_leaf_name = False
         # Legend
-        # TODO: use ordered dictionary
-        for k, v in self.colors.items():
-            filtered = TextFace(len(self.failed[k]), fsize=8)
+        for i, criteria in enumerate(self.criteria, 1):
+            filtered = TextFace(len(self.failed[criteria]), fsize=8)
             filtered.margin_bottom = 5
-            tolerance = TextFace(self.tolerance[k], fsize=8)
+            tolerance = TextFace(self.tolerance[criteria], fsize=8)
             tolerance.margin_bottom = 5
-            allowed = TextFace(self.allowed[k], fsize=8)
+            allowed = TextFace(self.allowed[criteria], fsize=8)
             allowed.margin_bottom = 5
             allowed.margin_right = 25
-            criteria = TextFace(k.capitalize(), fsize=8, bold=True)
-            criteria.margin_bottom = 2
-            criteria.margin_right = 40
-            cf = CircleFace(3, v, style="sphere")
+            title = TextFace(criteria.capitalize(), fsize=8, bold=True)
+            title.margin_bottom = 2
+            title.margin_right = 40
+            cf = CircleFace(3, self.colors[criteria], style="sphere")
             cf.margin_bottom = 5
             cf.margin_right = 5
-            ts.legend.add_face(criteria, column=1)
+            ts.legend.add_face(title, column=1)
             ts.legend.add_face(cf, column=2)
             ts.legend.add_face(TextFace("Allowed", fsize=8), 1)
             ts.legend.add_face(allowed, 2)
