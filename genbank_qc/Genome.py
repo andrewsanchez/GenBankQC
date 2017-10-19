@@ -60,7 +60,8 @@ class Genome:
     def sketch(self):
         cmd = "mash sketch '{}' -o '{}'".format(self.path, self.msh)
         if not os.path.isfile(self.msh):
-            subprocess.Popen(cmd, shell="True", stdout=subprocess.DEVNULL).wait()
+            subprocess.Popen(
+                cmd, shell="True", stdout=subprocess.DEVNULL).wait()
 
     def get_stats(self, dmx_mean):
         from pandas import DataFrame
