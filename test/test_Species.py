@@ -1,4 +1,4 @@
-import os.path
+import os
 
 import pandas as pd
 from pandas.util.testing import assert_index_equal
@@ -152,8 +152,14 @@ def test_filter(aphidicola):
                 len(aphidicola.passed)]) == len(aphidicola.stats)
 
 
-def test_color_tree(aphidicola):
+def test_color_tree(filtered):
+    aphidicola = filtered
     aphidicola.color_tree()
+    import subprocess
+    try:
+        subprocess.call("open {}".format(aphidicola.tree_img), shell=True)
+    except:
+        pass
     assert os.path.isfile(aphidicola.tree_img)
 
 
