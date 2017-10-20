@@ -9,11 +9,11 @@ before_install:
     else
         wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
-  - bash miniconda.sh -b
+  - bash miniconda.sh -b -p $HOME/miniconda
   - wget -q https://github.com/marbl/Mash/releases/download/v2.0/mash-Linux64-v2.0.tar
   - tar -xf mash-Linux64-v2.0.tar
   - mkdir -p $HOME/usr/bin && mv mash-Linux64-v2.0/mash $HOME/usr/bin/mash
-  - export PATH=/home/travis/miniconda3/bin:$HOME/usr/bin:$PATH
+  - export PATH=$HOME/miniconda/bin:$HOME/usr/bin:$PATH
 install:
   - conda create -q -y -n genbank-qc -c etetoolkit python=$PYTHON_VERSION --file=ci/conda-requirements.txt pytest
   - pip install -q .
