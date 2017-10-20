@@ -15,7 +15,7 @@ before_install:
   - mkdir -p $HOME/usr/bin && mv mash-Linux64-v2.0/mash $HOME/usr/bin/mash
   - export PATH=$HOME/miniconda/bin:$HOME/usr/bin:$PATH
 install:
-  - conda create -q -y -n genbank-qc -c etetoolkit python=$PYTHON_VERSION --file=ci/conda-requirements.txt pytest
+  - conda create -q -y -n genbank-qc -c etetoolkit python=$PYTHON_VERSION --file=ci/conda-requirements.txt
   - pip install -q .
 script:
   - pytest -v
