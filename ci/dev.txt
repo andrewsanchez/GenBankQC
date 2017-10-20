@@ -1,0 +1,4 @@
+pudb
+pytest
+pytest-cov
+ipython
