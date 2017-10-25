@@ -24,9 +24,4 @@ def cli(filter_level, max_unknowns, c_range, s_range, m_range,
         dry_run, filter_only, path):
     """Assess the integrity of your FASTA collection."""
     species = Species(path, max_unknowns, c_range, s_range, m_range)
-    if species.complete is False:
-        species.run_mash()
-        species.get_stats()
-    species.get_tree()
-    species.filter()
-    species.color_tree()
+    species.qc()

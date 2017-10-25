@@ -347,6 +347,14 @@ class Species:
             f.write(summary)
         return summary
 
+    def qc(self):
+        if self.complete is False:
+            self.run_mash()
+            self.get_stats()
+        self.get_tree()
+        self.filter()
+        self.color_tree()
+
 
 def check_df_len(df, criteria, num=5):
     """
