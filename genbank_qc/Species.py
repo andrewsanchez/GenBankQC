@@ -309,18 +309,17 @@ class Species:
         if check_df_len(self.passed, "distance"):
             self.filter_med_abs_dev("distance")
         self.summary()
-        self.failed_report()
+        self.write_failed_report()
 
-    def failed_report(self):
+    def write_failed_report(self):
+        from itertools import chain
         if os.path.isfile(self.failed_path):
             os.remove(self.failed_path)
-        with open(self.failed_path, "a") as f:
-            for criteria in self.failed.keys():
-                ixs = self.failed[criteria]
-                for genome in ixs:
-                    value = str(self.stats.loc[genome, criteria])
-                    f.write('\t'.join([genome, criteria, value]))
-                    f.write('\n')
+        ixs = chain.from_iterable([i for i in self.failed.values()])
+        df = pd.DataFrame(index=ixs, columns=["criteria"])
+        for criteria in self.failed.keys():
+            df.loc[self.failed[criteria], 'criteria'] = criteria
+        df.to_csv(self.failed_path)
 
     def summary(self):
         summary = [
