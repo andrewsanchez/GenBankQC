@@ -31,6 +31,7 @@ def test_init(aphidicola_multi):
     assert aphidicola.label == "-".join(map(str, params))
     assert id(aphidicola.stats) == id(aphidicola.passed)
     assert aphidicola.complete is True
+    assert aphidicola.tree_complete is True
 
 
 def test_genomes(aphidicola):
@@ -52,62 +53,83 @@ def test_sketches(aphidicola):
         assert match('GCA.*msh', basename(i))
 
 
-def test_assess(aphidicola_bare):
-    assert aphidicola_bare.complete is False
-    assert aphidicola_bare.assess_tree() is False
+def test_filter(aphidicola):
+    aphidicola.filter()
+    total_failed = sum(map(len, aphidicola.failed.values()))
+    assert os.path.isfile(aphidicola.summary_path)
+    assert sum([total_failed, len(aphidicola.passed)]) \
+        == len(aphidicola.stats)
 
 
-def test_sketch(aphidicola_bare):
-    aphidicola = aphidicola_bare
-    aphidicola.sketch()
-    aphidicola_sketches = aphidicola.sketches()
-    for i in aphidicola_sketches:
-        assert i is not None
-        assert os.path.isfile(i)
+def test_failed_report(aphidicola):
+    assert os.path.isfile(aphidicola.failed_path)
 
 
-def test_mash_paste(aphidicola_bare):
-    aphidicola = aphidicola_bare
-    aphidicola.mash_paste()
-    assert os.path.isfile(aphidicola.paste_file)
+def test_color_tree(filtered):
+    aphidicola = filtered
+    aphidicola.color_tree()
+    import subprocess
+    try:
+        subprocess.call("open {}".format(aphidicola.tree_img), shell=True)
+    except:
+        pass
+    assert os.path.isfile(aphidicola.tree_img)
 
 
-def test_mash_dist(aphidicola_bare):
-    aphidicola = aphidicola_bare
-    aphidicola.mash_dist()
-    assert os.path.isfile(aphidicola.dmx_path)
-    assert type(aphidicola.dmx) == pd.DataFrame
+@pytest.mark.usefixtures("aphidicola_bare")
+class TestBare:
 
+    def test_assess(self, aphidicola_bare):
+        assert aphidicola_bare.complete is False
+        assert aphidicola_bare.tree_complete is False
 
-def test_mash(aphidicola_bare):
-    aphidicola = aphidicola_bare
-    aphidicola.run_mash()
-    assert os.path.isfile(aphidicola.paste_file)
-    assert os.path.isfile(aphidicola.dmx_path)
-    assert type(aphidicola.dmx) == pd.DataFrame
-    aphidicola_sketches = aphidicola.sketches()
-    for i in aphidicola_sketches:
-        assert i is not None
-        assert os.path.isfile(i)
+    def test_sketch(self, aphidicola_bare):
+        aphidicola = aphidicola_bare
+        aphidicola.sketch()
+        aphidicola_sketches = aphidicola.sketches()
+        for i in aphidicola_sketches:
+            assert i is not None
+            assert os.path.isfile(i)
 
+    def test_mash_paste(self, aphidicola_bare):
+        aphidicola = aphidicola_bare
+        aphidicola.mash_paste()
+        assert os.path.isfile(aphidicola.paste_file)
 
-def test_get_stats(aphidicola_bare):
-    aphidicola = aphidicola_bare
-    aphidicola.get_stats()
-    assert os.path.isfile(aphidicola.stats_path)
-    assert type(aphidicola.stats) == pd.DataFrame
+    def test_mash_dist(self, aphidicola_bare):
+        aphidicola = aphidicola_bare
+        aphidicola.mash_dist()
+        assert os.path.isfile(aphidicola.dmx_path)
+        assert type(aphidicola.dmx) == pd.DataFrame
 
+    def test_mash(self, aphidicola_bare):
+        aphidicola = aphidicola_bare
+        aphidicola.run_mash()
+        assert os.path.isfile(aphidicola.paste_file)
+        assert os.path.isfile(aphidicola.dmx_path)
+        assert type(aphidicola.dmx) == pd.DataFrame
+        aphidicola_sketches = aphidicola.sketches()
+        for i in aphidicola_sketches:
+            assert i is not None
+            assert os.path.isfile(i)
 
-def test_get_tree(aphidicola_bare):
-    from ete3 import Tree
-    aphidicola = aphidicola_bare
-    aphidicola.get_tree()
-    assert type(aphidicola.tree) == Tree
-    assert os.path.isfile(aphidicola.nw_path)
-    os.remove(aphidicola.nw_path)
-    aphidicola.get_tree()
-    assert not os.path.isfile(aphidicola.nw_path)
-    assert type(aphidicola.tree) == Tree
+    def test_get_stats(self, aphidicola_bare):
+        aphidicola = aphidicola_bare
+        aphidicola.get_stats()
+        assert os.path.isfile(aphidicola.stats_path)
+        assert type(aphidicola.stats) == pd.DataFrame
+
+    def test_get_tree(self, aphidicola_bare):
+        from ete3 import Tree
+        aphidicola = aphidicola_bare
+        aphidicola.get_tree()
+        assert type(aphidicola.tree) == Tree
+        assert os.path.isfile(aphidicola.nw_path)
+        os.remove(aphidicola.nw_path)
+        aphidicola.assess_tree()
+        aphidicola.get_tree()
+        assert not os.path.isfile(aphidicola.nw_path)
+        assert type(aphidicola.tree) == Tree
 
 
 def test_filter_unknowns(unknowns):
@@ -142,23 +164,3 @@ def test_filter_med_abs_dev(species):
         passed_and_failed = sum(map(len, [species.failed[criteria],
                                           species.passed]))
         assert passed_and_failed == genomes_before_filtering
-
-
-def test_filter(aphidicola):
-    aphidicola.filter()
-    total_failed = sum(map(len, aphidicola.failed.values()))
-    assert os.path.isfile(aphidicola.summary_path)
-    assert os.path.isfile(aphidicola.failed_path)
-    assert sum([total_failed,
-                len(aphidicola.passed)]) == len(aphidicola.stats)
-
-
-def test_color_tree(filtered):
-    aphidicola = filtered
-    aphidicola.color_tree()
-    import subprocess
-    try:
-        subprocess.call("open {}".format(aphidicola.tree_img), shell=True)
-    except:
-        pass
-    assert os.path.isfile(aphidicola.tree_img)
