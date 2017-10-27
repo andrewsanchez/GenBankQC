@@ -1,4 +1,5 @@
 import os
+import pytest
 
 import pandas as pd
 from pandas.util.testing import assert_index_equal
