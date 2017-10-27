@@ -66,7 +66,8 @@ class Species:
                        "contigs": "green",
                        "distance": "purple",
                        "assembly_size": "orange"}
-        self.complete = self.assess()
+        self.assess()
+        self.assess_tree()
 
     def __str__(self):
         self.message = [
@@ -78,14 +79,21 @@ class Species:
         return '\n'.join(self.message)
 
     def assess(self):
-        from pandas.util.testing import assert_index_equal
         try:
-            assert self.stats is not None
-            assert_index_equal(self.genome_ids().sort_values(),
-                               self.stats.index.sort_values())
-            return True
+            assert (sorted(self.genome_ids().tolist()) ==
+                    sorted(self.stats.index.tolist()))
+            self.complete = True
         except AssertionError:
-            return False
+            self.complete = False
+
+    def assess_tree(self):
+        try:
+            assert (sorted(self.tree.get_leaf_names()) ==
+                    sorted(self.stats.index.tolist()) ==
+                    sorted(self.genome_ids().tolist()))
+            self.tree_complete = True
+        except AssertionError:
+            self.tree_complete = False
 
     def genomes(self, ext="fasta"):
         # TODO: Maybe this should return a tuple (genome-path, genome-id)
@@ -138,17 +146,8 @@ class Species:
         self.mash_paste()
         self.mash_dist()
 
-    def assess_tree(self):
-        try:
-            assert (sorted(self.tree.get_leaf_names()) ==
-                    sorted(self.stats.index.tolist()) ==
-                    sorted(self.genome_ids().tolist()))
-            return True
-        except:
-            return False
-
     def get_tree(self):
-        if not self.assess_tree():
+        if self.tree_complete is False:
             import numpy as np
             from skbio.tree import TreeNode
             from scipy.cluster.hierarchy import weighted
