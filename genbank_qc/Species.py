@@ -248,16 +248,6 @@ class Species:
                 nf.margin_left = 3
                 n.add_face(nf, column=0)
 
-    def color_clade(self, criteria):
-        """Color nodes using ete3 """
-        from ete3 import NodeStyle
-        for genome in self.failed[criteria]:
-            n = self.tree.get_leaves_by_name(genome).pop()
-            nstyle = NodeStyle()
-            nstyle["fgcolor"] = self.colors[criteria]
-            nstyle["size"] = 9
-            n.set_style(nstyle)
-
     # Might be better in a layout function
     def style_and_render_tree(self, file_types=["svg", "pdf"]):
         from ete3 import TreeStyle, TextFace, CircleFace
@@ -298,9 +288,16 @@ class Species:
             self.tree.render(out_tree, tree_style=ts)
 
     def color_tree(self):
+        from ete3 import NodeStyle
         self.base_node_style()
-        for i in self.criteria:
-            self.color_clade(i)
+        for genome in self.failed_report.index:
+            n = self.tree.get_leaves_by_name(genome).pop()
+            nstyle = NodeStyle()
+            nstyle["fgcolor"] = self.colors[
+                self.failed_report.loc[genome, 'criteria']]
+            nstyle["size"] = 9
+            n.set_style(nstyle)
+
         self.style_and_render_tree()
 
     def filter(self):
