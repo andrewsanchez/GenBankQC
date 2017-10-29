@@ -1,8 +1,17 @@
-class Genbank:
-    def __init__(self, path):
-        """Genbank"""
-        self.path = path
+import os.path as path
 
-    def get_species(self):
-        # generate species objects
-        pass
+from genbank_qc import Species
+
+
+class Genbank:
+    def __init__(self, genbank):
+        """Genbank"""
+        self.genbank = genbank
+        self.species = self.get_species()
+
+    @property
+    def species(self):
+        for i in path.listdir(self.genbank):
+            p = path.join(self.genbank, i)
+            if path.isdir(p):
+                yield Species(p)
