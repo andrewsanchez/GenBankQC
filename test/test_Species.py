@@ -54,18 +54,22 @@ def test_sketches(aphidicola):
 
 def test_filter(aphidicola):
     aphidicola.filter()
+    assert aphidicola.complete is False
     total_failed = sum(map(len, aphidicola.failed.values()))
     assert os.path.isfile(aphidicola.summary_path)
     assert sum([total_failed, len(aphidicola.passed)]) \
         == len(aphidicola.stats)
+    aphidicola.filter()
+    assert aphidicola.complete is True
+    assert isinstance(aphidicola.allowed, dict)
 
 
 def test_failed_report(aphidicola):
     assert os.path.isfile(aphidicola.failed_path)
 
 
-def test_color_tree(filtered):
-    aphidicola = filtered
+def test_color_tree(aphidicola):
+    aphidicola = aphidicola
     aphidicola.color_tree()
     import subprocess
     try:
