@@ -68,7 +68,6 @@ class Species:
                        "contigs": "green",
                        "distance": "purple",
                        "assembly_size": "orange"}
-        self.assess()
         self.assess_tree()
 
     def __str__(self):
@@ -80,16 +79,33 @@ class Species:
             "MASH: {}".format(self.mash)]
         return '\n'.join(self.message)
 
-    def assess(self):
-        try:
-            assert (sorted(self.genome_ids().tolist()) ==
-                    sorted(self.stats.index.tolist()))
-            self.complete = True
-        except AssertionError:
-            self.complete = False
+    def assess(f):
+        import pickle
+        from functools import wraps
+
+        @wraps(f)
+        def wrapper(self):
+            try:
+                assert self.stats is not None
+                assert os.path.isfile(self.allowed_path)
+                assert (sorted(self.genome_ids().tolist()) ==
+                        sorted(self.stats.index.tolist()))
+                self.complete = True
+                with open(self.allowed_path, 'rb') as p:
+                    self.allowed = pickle.load(p)
+            except AssertionError:
+                self.complete = False
+                f(self)
+                with open(self.allowed_path, 'wb') as p:
+                    pickle.dump(self.allowed, p)
+                self.summary()
+                self.write_failed_report()
+        return wrapper
 
     def assess_tree(self):
         try:
+            assert self.tree is not None
+            assert self.stats is not None
             assert (sorted(self.tree.get_leaf_names()) ==
                     sorted(self.stats.index.tolist()) ==
                     sorted(self.genome_ids().tolist()))
@@ -300,6 +316,7 @@ class Species:
 
         self.style_and_render_tree()
 
+    @assess
     def filter(self):
         self.filter_unknown_bases()
         if check_df_len(self.passed, "unknowns"):
