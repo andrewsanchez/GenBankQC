@@ -82,10 +82,6 @@ def test_color_tree(aphidicola):
 @pytest.mark.usefixtures("aphidicola_bare")
 class TestBare:
 
-    def test_assess(self, aphidicola_bare):
-        assert aphidicola_bare.complete is False
-        assert aphidicola_bare.tree_complete is False
-
     def test_sketch(self, aphidicola_bare):
         aphidicola = aphidicola_bare
         aphidicola.sketch()
