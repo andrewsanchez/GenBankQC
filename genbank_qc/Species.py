@@ -190,6 +190,23 @@ class Species:
         self.stats = pd.concat(species_stats)
         self.stats.to_csv(self.stats_path)
 
+    def MAD(self, df, col):
+        """Get the median absolute deviation for col
+        """
+        MAD = abs(df[col] - df[col].median()).mean()
+        return MAD
+
+    def MAD_ref(MAD, tolerance):
+        """Get the reference value for median absolute deviation
+        """
+        dev_ref = MAD * tolerance
+        return dev_ref
+
+    def bound(df, col, dev_ref):
+        lower = df[col].median() - dev_ref
+        upper = df[col].median() + dev_ref
+        return lower, upper
+
     def filter_unknown_bases(self):
         """Filter out genomes with too many unknown bases."""
         self.failed["unknowns"] = self.stats.index[
