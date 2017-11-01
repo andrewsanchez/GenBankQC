@@ -15,6 +15,7 @@ def species(request):
     species = Species(species)
     yield species
 
+
 @pytest.fixture(scope="module")
 def aphidicola():
     tmp = tempfile.mkdtemp()
