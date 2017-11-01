@@ -328,18 +328,17 @@ class Species:
             self.filter_med_abs_dev("assembly_size")
         if check_df_len(self.passed, "distance"):
             self.filter_med_abs_dev("distance")
-        self.summary()
-        self.write_failed_report()
 
     def write_failed_report(self):
         from itertools import chain
         if os.path.isfile(self.failed_path):
             os.remove(self.failed_path)
         ixs = chain.from_iterable([i for i in self.failed.values()])
-        df = pd.DataFrame(index=ixs, columns=["criteria"])
+        self.failed_report = pd.DataFrame(index=ixs, columns=["criteria"])
         for criteria in self.failed.keys():
-            df.loc[self.failed[criteria], 'criteria'] = criteria
-        df.to_csv(self.failed_path)
+            self.failed_report.loc[self.failed[criteria],
+                                   'criteria'] = criteria
+        self.failed_report.to_csv(self.failed_path)
 
     def summary(self):
         summary = [
