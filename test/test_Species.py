@@ -72,10 +72,7 @@ def test_color_tree(aphidicola):
     aphidicola = aphidicola
     aphidicola.color_tree()
     import subprocess
-    try:
-        subprocess.call("open {}".format(aphidicola.tree_img), shell=True)
-    except:
-        print("Unable to automatically open Species.tree_img")
+    subprocess.call("open {}".format(aphidicola.tree_img), shell=True)
     assert os.path.isfile(aphidicola.tree_img)
 
 
