@@ -287,7 +287,9 @@ class Species:
             title.margin_right = 40
             cf = CircleFace(4, self.colors[criteria], style="sphere")
             cf.margin_bottom = 5
-            filtered = TextFace(len(self.failed[criteria]), fsize=8)
+            filtered_count = len(list(
+                filter(None, self.failed_report.criteria == criteria)))
+            filtered = TextFace(filtered_count, fsize=8)
             filtered.margin_bottom = 5
             allowed = TextFace(self.allowed[criteria], fsize=8)
             allowed.margin_bottom = 5
