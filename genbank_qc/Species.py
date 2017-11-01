@@ -35,6 +35,7 @@ class Species:
         self.failed_path = os.path.join(self.qc_results_dir, "failed.csv")
         self.tree_img = os.path.join(self.qc_results_dir, "tree.svg")
         self.summary_path = os.path.join(self.qc_results_dir, "summary.txt")
+        self.allowed_path = os.path.join(self.qc_results_dir, "allowed.p")
         self.paste_file = os.path.join(self.qc_dir, 'all.msh')
         self.tree = None
         self.stats = None
