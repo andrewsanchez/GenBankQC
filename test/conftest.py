@@ -15,7 +15,6 @@ def species(request):
     species = Species(species)
     yield species
 
-
 @pytest.fixture(scope="module")
 def aphidicola():
     tmp = tempfile.mkdtemp()
@@ -60,12 +59,6 @@ def aphidicola_bare():
     aphidicola = Species(aphidicola)
     yield aphidicola
     shutil.rmtree(tmp)
-
-
-@pytest.fixture(scope="module")
-def filtered(aphidicola):
-    aphidicola.filter()
-    yield aphidicola
 
 
 @pytest.fixture(scope="module")
