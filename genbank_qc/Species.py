@@ -238,28 +238,20 @@ class Species:
             abs(eligible_contigs - eligible_contigs.median()) <= dev_ref]
         # Add genomes with < 10 contigs back in
         eligible_contigs = pd.concat([eligible_contigs, not_enough_contigs])
-        # We only need the index of passed genomes at this point
         eligible_contigs = eligible_contigs.index
         self.passed = self.passed.loc[eligible_contigs]
 
-    def filter_med_abs_dev(self, criteria):
-        """Filter based on median absolute deviation."""
+    def filter_MAD_range(self, criteria):
+        """Filter based on median absolute deviation.
+        Passing values fall within a lower and upper bound."""
         # Get the median absolute deviation
         med_abs_dev = abs(self.passed[criteria] -
                           self.passed[criteria].median()).mean()
         dev_ref = med_abs_dev * self.tolerance[criteria]
         lower = self.passed[criteria].median() - dev_ref
         upper = self.passed[criteria].median() + dev_ref
-
-        def format_allowed_range():
-            if criteria == "assembly_size":
-                allowed_range = (str(int(x)) for x in [lower, upper])
-                allowed_range = '-'.join(allowed_range)
-            elif criteria == "distance":
-                allowed_range = "{:.4f}-{:.4f}".format(lower, upper)
-            return allowed_range
-
-        allowed_range = format_allowed_range()
+        allowed_range = (str(int(x)) for x in [lower, upper])
+        allowed_range = '-'.join(allowed_range)
         self.allowed[criteria] = allowed_range
         self.failed[criteria] = self.passed[
             abs(self.passed[criteria] -
@@ -267,6 +259,21 @@ class Species:
         self.passed = self.passed[
             abs(self.passed[criteria] -
                 self.passed[criteria].median()) <= dev_ref]
+
+    def filter_MAD_upper(self, criteria):
+        """Filter based on median absolute deviation.
+        Passing values fall under the upper bound."""
+        # Get the median absolute deviation
+        med_abs_dev = abs(self.passed[criteria] -
+                          self.passed[criteria].median()).mean()
+        dev_ref = med_abs_dev * self.tolerance[criteria]
+        upper = self.passed[criteria].median() + dev_ref
+        self.failed[criteria] = self.passed[
+            self.passed[criteria] > upper].index
+        self.passed = self.passed[
+            self.passed[criteria] <= upper]
+        upper = "{:.4f}".format(upper)
+        self.allowed[criteria] = upper
 
     def base_node_style(self):
         from ete3 import NodeStyle, AttrFace
@@ -342,9 +349,9 @@ class Species:
         if check_df_len(self.passed, "unknowns"):
             self.filter_contigs()
         if check_df_len(self.passed, "assembly_size"):
-            self.filter_med_abs_dev("assembly_size")
+            self.filter_MAD_range("assembly_size")
         if check_df_len(self.passed, "distance"):
-            self.filter_med_abs_dev("distance")
+            self.filter_MAD_upper("distance")
 
     def write_failed_report(self):
         from itertools import chain
