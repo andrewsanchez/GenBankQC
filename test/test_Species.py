@@ -30,7 +30,6 @@ def test_init(aphidicola_multi):
     assert aphidicola.tolerance["distance"] == d
     assert aphidicola.label == "-".join(map(str, params))
     assert id(aphidicola.stats) == id(aphidicola.passed)
-    assert aphidicola.complete is True
     assert aphidicola.tree_complete is True
 
 
