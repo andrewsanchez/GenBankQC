@@ -75,7 +75,7 @@ def test_color_tree(aphidicola):
     try:
         subprocess.call("open {}".format(aphidicola.tree_img), shell=True)
     except:
-        pass
+        print("Unable to automatically open Species.tree_img")
     assert os.path.isfile(aphidicola.tree_img)
 
 
@@ -154,12 +154,18 @@ def test_filter_contigs(species):
     assert isinstance(species.passed, pd.DataFrame)
 
 
-def test_filter_med_abs_dev(species):
-    for criteria in ["distance", "assembly_size"]:
-        genomes_before_filtering = len(species.passed)
-        species.filter_med_abs_dev(criteria)
-        assert type(species.passed) == pd.DataFrame
-        assert type(species.failed[criteria]) == pd.Index
-        passed_and_failed = sum(map(len, [species.failed[criteria],
-                                          species.passed]))
-        assert passed_and_failed == genomes_before_filtering
+def test_filter_MAD(species):
+    genomes_before_filtering = len(species.passed)
+    species.filter_MAD_range('assembly_size')
+    assert type(species.passed) == pd.DataFrame
+    assert type(species.failed['assembly_size']) == pd.Index
+    passed_and_failed = sum(
+        map(len, [species.failed['assembly_size'], species.passed]))
+    assert passed_and_failed == genomes_before_filtering
+    genomes_before_filtering = len(species.passed)
+    species.filter_MAD_upper('distance')
+    assert type(species.passed) == pd.DataFrame
+    assert type(species.failed['distance']) == pd.Index
+    passed_and_failed = sum(
+        map(len, [species.failed['distance'], species.passed]))
+    assert passed_and_failed == genomes_before_filtering
