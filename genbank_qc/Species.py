@@ -308,7 +308,7 @@ class Species:
         for i, criteria in enumerate(self.criteria, 2):
             title = criteria.replace("_", " ").title()
             title = TextFace(title, fsize=8, bold=True)
-            # title.margin_bottom = 2
+            title.margin_bottom = 2
             title.margin_right = 40
             cf = CircleFace(4, self.colors[criteria], style="sphere")
             cf.margin_bottom = 5
