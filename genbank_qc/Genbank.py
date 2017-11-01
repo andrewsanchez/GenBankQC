@@ -1,5 +1,4 @@
-import os.path as path
-
+import os
 from genbank_qc import Species
 
 
@@ -7,11 +6,14 @@ class Genbank:
     def __init__(self, genbank):
         """Genbank"""
         self.genbank = genbank
-        self.species = self.get_species()
 
     @property
     def species(self):
-        for i in path.listdir(self.genbank):
-            p = path.join(self.genbank, i)
-            if path.isdir(p):
+        for i in os.listdir(self.genbank):
+            p = os.path.join(self.genbank, i)
+            if os.path.isdir(p):
                 yield Species(p)
+
+    def qc(self):
+        for i in self.species:
+            i.qc()
