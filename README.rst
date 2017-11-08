@@ -10,7 +10,7 @@ A set of tools for curating your genomes from the `National Center for Biotechno
 
 - Assess the integrity of your FASTA collection
 
-- Labelling/annotation-independent quality control using
+- Labelling/annotation-independent quality control
 
   -  statistical quality metrics
 
@@ -21,8 +21,6 @@ A set of tools for curating your genomes from the `National Center for Biotechno
     Installation
 ====================
 
-While I have not yet created a conda recipe for genbank-qc, the recommended installation method is to use conda.  Genbank-qc uses the `ETE Toolkit`_ which can conflict with other dependencies due to the version of python it requires.  Anaconda makes it easy to create a virtual environment with a specific version of python.
-
 .. _ETE Toolkit: http://etetoolkit.org/ 
 
 If you don't yet have a working conda installation, please download and install `Miniconda`_.
@@ -31,5 +29,6 @@ If you don't yet have a working conda installation, please download and install 
 
 .. code:: bash
 
-    conda create --name genbank-qc python=3.4
+    conda create --name genbank-qc pip numpy
+    source activate genbank-qc
     pip install genbank-qc
