@@ -35,6 +35,7 @@ class Species:
         self.failed_path = os.path.join(self.qc_results_dir, "failed.csv")
         self.tree_img = os.path.join(self.qc_results_dir, "tree.svg")
         self.summary_path = os.path.join(self.qc_results_dir, "summary.txt")
+        self.allowed_path = os.path.join(self.qc_results_dir, "allowed.p")
         self.paste_file = os.path.join(self.qc_dir, 'all.msh')
         self.tree = None
         self.stats = None
@@ -51,6 +52,8 @@ class Species:
             self.tree = Tree(self.nw_path, 1)
         if os.path.isfile(self.dmx_path):
             self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
+        if os.path.isfile(self.failed_path):
+            self.failed_report = pd.read_csv(self.failed_path, index_col=0)
         self.criteria = ["unknowns", "contigs", "assembly_size", "distance"]
         self.tolerance = {"unknowns": max_unknowns,
                           "contigs": contigs,
@@ -66,7 +69,7 @@ class Species:
                        "contigs": "green",
                        "distance": "purple",
                        "assembly_size": "orange"}
-        self.complete = self.assess()
+        self.assess_tree()
 
     def __str__(self):
         self.message = [
@@ -77,15 +80,39 @@ class Species:
             "MASH: {}".format(self.mash)]
         return '\n'.join(self.message)
 
-    def assess(self):
-        from pandas.util.testing import assert_index_equal
+    def assess(f):
+        import pickle
+        from functools import wraps
+
+        @wraps(f)
+        def wrapper(self):
+            try:
+                assert self.stats is not None
+                assert os.path.isfile(self.allowed_path)
+                assert (sorted(self.genome_ids().tolist()) ==
+                        sorted(self.stats.index.tolist()))
+                self.complete = True
+                with open(self.allowed_path, 'rb') as p:
+                    self.allowed = pickle.load(p)
+            except AssertionError:
+                self.complete = False
+                f(self)
+                with open(self.allowed_path, 'wb') as p:
+                    pickle.dump(self.allowed, p)
+                self.summary()
+                self.write_failed_report()
+        return wrapper
+
+    def assess_tree(self):
         try:
+            assert self.tree is not None
             assert self.stats is not None
-            assert_index_equal(self.genome_ids().sort_values(),
-                               self.stats.index.sort_values())
-            return True
+            assert (sorted(self.tree.get_leaf_names()) ==
+                    sorted(self.stats.index.tolist()) ==
+                    sorted(self.genome_ids().tolist()))
+            self.tree_complete = True
         except AssertionError:
-            return False
+            self.tree_complete = False
 
     def genomes(self, ext="fasta"):
         # TODO: Maybe this should return a tuple (genome-path, genome-id)
@@ -138,18 +165,11 @@ class Species:
         self.mash_paste()
         self.mash_dist()
 
-    def assess_tree(self):
-        try:
-            assert (sorted(self.tree.get_leaf_names()) ==
-                    sorted(self.stats.index.tolist()) ==
-                    sorted(self.genome_ids().tolist()))
-            return True
-        except:
-            return False
-
     def get_tree(self):
-        if not self.assess_tree():
+        if self.tree_complete is False:
             import numpy as np
+            import matplotlib as mpl
+            mpl.use('TkAgg')
             from skbio.tree import TreeNode
             from scipy.cluster.hierarchy import weighted
             ids = self.dmx.index.tolist()
@@ -171,6 +191,23 @@ class Species:
         species_stats = [genome.stats_df for genome in self.genomes()]
         self.stats = pd.concat(species_stats)
         self.stats.to_csv(self.stats_path)
+
+    def MAD(self, df, col):
+        """Get the median absolute deviation for col
+        """
+        MAD = abs(df[col] - df[col].median()).mean()
+        return MAD
+
+    def MAD_ref(MAD, tolerance):
+        """Get the reference value for median absolute deviation
+        """
+        dev_ref = MAD * tolerance
+        return dev_ref
+
+    def bound(df, col, dev_ref):
+        lower = df[col].median() - dev_ref
+        upper = df[col].median() + dev_ref
+        return lower, upper
 
     def filter_unknown_bases(self):
         """Filter out genomes with too many unknown bases."""
@@ -203,28 +240,20 @@ class Species:
             abs(eligible_contigs - eligible_contigs.median()) <= dev_ref]
         # Add genomes with < 10 contigs back in
         eligible_contigs = pd.concat([eligible_contigs, not_enough_contigs])
-        # We only need the index of passed genomes at this point
         eligible_contigs = eligible_contigs.index
         self.passed = self.passed.loc[eligible_contigs]
 
-    def filter_med_abs_dev(self, criteria):
-        """Filter based on median absolute deviation."""
+    def filter_MAD_range(self, criteria):
+        """Filter based on median absolute deviation.
+        Passing values fall within a lower and upper bound."""
         # Get the median absolute deviation
         med_abs_dev = abs(self.passed[criteria] -
                           self.passed[criteria].median()).mean()
         dev_ref = med_abs_dev * self.tolerance[criteria]
         lower = self.passed[criteria].median() - dev_ref
         upper = self.passed[criteria].median() + dev_ref
-
-        def format_allowed_range():
-            if criteria == "assembly_size":
-                allowed_range = (str(int(x)) for x in [lower, upper])
-                allowed_range = '-'.join(allowed_range)
-            elif criteria == "distance":
-                allowed_range = "{:.4f}-{:.4f}".format(lower, upper)
-            return allowed_range
-
-        allowed_range = format_allowed_range()
+        allowed_range = (str(int(x)) for x in [lower, upper])
+        allowed_range = '-'.join(allowed_range)
         self.allowed[criteria] = allowed_range
         self.failed[criteria] = self.passed[
             abs(self.passed[criteria] -
@@ -232,6 +261,21 @@ class Species:
         self.passed = self.passed[
             abs(self.passed[criteria] -
                 self.passed[criteria].median()) <= dev_ref]
+
+    def filter_MAD_upper(self, criteria):
+        """Filter based on median absolute deviation.
+        Passing values fall under the upper bound."""
+        # Get the median absolute deviation
+        med_abs_dev = abs(self.passed[criteria] -
+                          self.passed[criteria].median()).mean()
+        dev_ref = med_abs_dev * self.tolerance[criteria]
+        upper = self.passed[criteria].median() + dev_ref
+        self.failed[criteria] = self.passed[
+            self.passed[criteria] > upper].index
+        self.passed = self.passed[
+            self.passed[criteria] <= upper]
+        upper = "{:.4f}".format(upper)
+        self.allowed[criteria] = upper
 
     def base_node_style(self):
         from ete3 import NodeStyle, AttrFace
@@ -246,16 +290,6 @@ class Species:
                 nf.margin_right = 150
                 nf.margin_left = 3
                 n.add_face(nf, column=0)
-
-    def color_clade(self, criteria):
-        """Color nodes using ete3 """
-        from ete3 import NodeStyle
-        for genome in self.failed[criteria]:
-            n = self.tree.get_leaves_by_name(genome).pop()
-            nstyle = NodeStyle()
-            nstyle["fgcolor"] = self.colors[criteria]
-            nstyle["size"] = 9
-            n.set_style(nstyle)
 
     # Might be better in a layout function
     def style_and_render_tree(self, file_types=["svg", "pdf"]):
@@ -276,11 +310,13 @@ class Species:
         for i, criteria in enumerate(self.criteria, 2):
             title = criteria.replace("_", " ").title()
             title = TextFace(title, fsize=8, bold=True)
-            # title.margin_bottom = 2
+            title.margin_bottom = 2
             title.margin_right = 40
             cf = CircleFace(4, self.colors[criteria], style="sphere")
             cf.margin_bottom = 5
-            filtered = TextFace(len(self.failed[criteria]), fsize=8)
+            filtered_count = len(list(
+                filter(None, self.failed_report.criteria == criteria)))
+            filtered = TextFace(filtered_count, fsize=8)
             filtered.margin_bottom = 5
             allowed = TextFace(self.allowed[criteria], fsize=8)
             allowed.margin_bottom = 5
@@ -297,32 +333,38 @@ class Species:
             self.tree.render(out_tree, tree_style=ts)
 
     def color_tree(self):
+        from ete3 import NodeStyle
         self.base_node_style()
-        for i in self.criteria:
-            self.color_clade(i)
+        for genome in self.failed_report.index:
+            n = self.tree.get_leaves_by_name(genome).pop()
+            nstyle = NodeStyle()
+            nstyle["fgcolor"] = self.colors[
+                self.failed_report.loc[genome, 'criteria']]
+            nstyle["size"] = 9
+            n.set_style(nstyle)
+
         self.style_and_render_tree()
 
+    @assess
     def filter(self):
         self.filter_unknown_bases()
         if check_df_len(self.passed, "unknowns"):
             self.filter_contigs()
         if check_df_len(self.passed, "assembly_size"):
-            self.filter_med_abs_dev("assembly_size")
+            self.filter_MAD_range("assembly_size")
         if check_df_len(self.passed, "distance"):
-            self.filter_med_abs_dev("distance")
-        self.summary()
-        self.failed_report()
+            self.filter_MAD_upper("distance")
 
-    def failed_report(self):
+    def write_failed_report(self):
+        from itertools import chain
         if os.path.isfile(self.failed_path):
             os.remove(self.failed_path)
-        with open(self.failed_path, "a") as f:
-            for criteria in self.failed.keys():
-                ixs = self.failed[criteria]
-                for genome in ixs:
-                    value = str(self.stats.loc[genome, criteria])
-                    f.write('\t'.join([genome, criteria, value]))
-                    f.write('\n')
+        ixs = chain.from_iterable([i for i in self.failed.values()])
+        self.failed_report = pd.DataFrame(index=ixs, columns=["criteria"])
+        for criteria in self.failed.keys():
+            self.failed_report.loc[self.failed[criteria],
+                                   'criteria'] = criteria
+        self.failed_report.to_csv(self.failed_path)
 
     def summary(self):
         summary = [
@@ -346,6 +388,13 @@ class Species:
         with open(os.path.join(self.summary_path), "w") as f:
             f.write(summary)
         return summary
+
+    def qc(self):
+        self.run_mash()
+        self.get_stats()
+        self.filter()
+        self.get_tree()
+        self.color_tree()
 
 
 def check_df_len(df, criteria, num=5):

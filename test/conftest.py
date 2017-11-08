@@ -63,12 +63,6 @@ def aphidicola_bare():
 
 
 @pytest.fixture(scope="module")
-def filtered(aphidicola):
-    aphidicola.filter()
-    yield aphidicola
-
-
-@pytest.fixture(scope="module")
 def genome(aphidicola):
     genome = next(aphidicola.genomes())
     genome.get_contigs()
@@ -77,10 +71,13 @@ def genome(aphidicola):
     yield genome
 
 
-@pytest.fixture()
-def path():
+@pytest.fixture(scope="module")
+def genbank():
     tmp = tempfile.mkdtemp()
-    path = os.path.join(tmp, "Buchnera_aphidicola")
-    shutil.copytree('test/resources/Buchnera_aphidicola', path)
-    yield path
+    genbank = os.path.join(tmp, 'genbank')
+    shutil.copytree('test/resources/Acinetobacter_baumannii',
+                    os.path.join(genbank, "Acinetobacter_baumannii"))
+    shutil.copytree('test/resources/Buchnera_aphidicola',
+                    os.path.join(genbank, "Buchnera_aphidicola"))
+    yield genbank
     shutil.rmtree(tmp)
