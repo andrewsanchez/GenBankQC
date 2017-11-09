@@ -168,8 +168,8 @@ class Species:
     def get_tree(self):
         if self.tree_complete is False:
             import numpy as np
-            import matplotlib as mpl
-            mpl.use('TkAgg')
+            # import matplotlib as mpl
+            # mpl.use('TkAgg')
             from skbio.tree import TreeNode
             from scipy.cluster.hierarchy import weighted
             ids = self.dmx.index.tolist()
