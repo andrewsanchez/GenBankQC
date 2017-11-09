@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 
 setup(name='genbank-qc',
-      version='0.1a2',
+      version='0.1a3',
       license="MIT",
       url="https://github.com/andrewsanchez/genbank-qc",
       description="Automated quality control for Genbank genomes.",
@@ -13,9 +13,8 @@ setup(name='genbank-qc',
       python_requires='>=3.4',
       install_requires=[
           'click',
-          'pytest',
           'pandas',
-          'numpy',
+          'pytest',
           'biopython'],
       entry_points='''
       [console_scripts]
