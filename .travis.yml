@@ -21,4 +21,4 @@ install:
   - pip install flake8
 script:
   - pytest -v
-  - flake8
+  - flake8 --exclude=docs/conf.py
