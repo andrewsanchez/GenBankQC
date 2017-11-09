@@ -1,14 +1,16 @@
 .. image:: https://travis-ci.org/andrewsanchez/genbank-qc.svg?branch=master
 
-================================
-           Genbank-QC
-================================
+=============================================
+           Genbank Quality Control
+=============================================
 
-A set of tools for curating your genomes from the `National Center for Biotechnology Information's`_ public database.
+Automatic quality control of genomes downloaded from public repositories such as the `National Center for Biotechnology Information's`_ public database.
 
 .. _National Center for Biotechnology Information's: https://www.ncbi.nlm.nih.gov/ 
 
 - Assess the integrity of your FASTA collection
+
+- Flag potential outliers to exlcude them from polluting your pipelines
 
 - Labelling/annotation-independent quality control
 
@@ -23,7 +25,7 @@ A set of tools for curating your genomes from the `National Center for Biotechno
 
 .. _ETE Toolkit: http://etetoolkit.org/ 
 
-If you don't yet have a working conda installation, please download and install `Miniconda`_.
+If you don't yet have a functional conda environment, please download and install `Miniconda`_.
 
 .. _Miniconda: https://conda.io/miniconda.html
 
