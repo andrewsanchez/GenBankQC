@@ -29,6 +29,6 @@ If you don't yet have a working conda installation, please download and install 
 
 .. code:: bash
 
-    conda create --name genbank-qc pip numpy
+    conda create -n genbank-qc -c etetoolkit -c biocore pip ete3 scikit-bio
     source activate genbank-qc
     pip install genbank-qc
