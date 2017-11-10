@@ -2,7 +2,7 @@ import os.path
 
 
 def test_init(genome):
-    from genbank_qc import Genome
+    from genbankqc import Genome
     expected_name = ("GCA_000007365.1_Buchnera_aphidicola_Sg_"
                      "Schizaphis_graminum_Complete_Genome")
     expected_path = os.path.join(genome.species_dir, expected_name+'.fasta')

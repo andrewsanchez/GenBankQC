@@ -122,7 +122,7 @@ class Species:
         :returns: Generator of Genome objects for all genomes in species dir
         :rtype: generator
         """
-        from genbank_qc import Genome
+        from genbankqc import Genome
         genomes = (Genome(os.path.join(self.path, f)) for
                    f in os.listdir(self.path) if f.endswith(ext))
         return genomes

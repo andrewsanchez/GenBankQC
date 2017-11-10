@@ -1,6 +1,6 @@
 import click
 
-from genbank_qc import Species, Genbank
+from genbankqc import Species, Genbank
 
 
 @click.command()

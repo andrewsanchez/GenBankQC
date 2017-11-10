@@ -4,7 +4,7 @@ import tempfile
 
 import pytest
 
-from genbank_qc import Species
+from genbankqc import Species
 
 
 @pytest.fixture(scope="module",

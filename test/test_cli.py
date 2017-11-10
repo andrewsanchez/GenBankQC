@@ -1,6 +1,6 @@
 # from click.testing import CliRunner
 
-# from genbank_qc.__main__ import cli
+# from genbankqc.__main__ import cli
 
 
 # def test_cli(aphidicola_bare):

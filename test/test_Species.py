@@ -4,7 +4,7 @@ import pytest
 import pandas as pd
 from pandas.util.testing import assert_index_equal
 
-from genbank_qc import Genome, Species
+from genbankqc import Genome, Species
 
 
 def test_init(aphidicola_multi):

@@ -14,7 +14,7 @@ setup(name='genbank-qc',
           'biopython'],
       entry_points='''
       [console_scripts]
-      genbank-qc=genbank_qc.__main__:cli
+      genbank-qc=genbankqc.__main__:cli
       ''',
       classifiers=[
             'Topic :: Scientific/Engineering :: Bio-Informatics',
