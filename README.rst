@@ -16,7 +16,7 @@ Automatic quality control of genomes downloaded from public repositories such as
 
   -  statistical quality metrics
 
-  - `Genome and metagenome distance estimation using MinHash <http://mash.readthedocs.io/en/latest/>`_
+  - `Genome distance estimation using MASH <http://mash.readthedocs.io/en/latest/>`_
   
 
 ====================
