@@ -4,7 +4,7 @@
            Genbank Quality Control
 =============================================
 
-Automatic quality control of genomes downloaded from public repositories such as the `National Center for Biotechnology Information's`_ public database.
+Automatic quality control of genomes downloaded from public repositories such as the `National Center for Biotechnology Information's`_ GenBank database.
 
 .. _National Center for Biotechnology Information's: https://www.ncbi.nlm.nih.gov/ 
 
