@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(name='genbank-qc',
       version='0.1a4',
-      license="MIT",
+      license='BSD-3-Clause',
       keywords='NCBI bioinformatics',
       packages=find_packages(),
       python_requires='>=3.4',
