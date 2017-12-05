@@ -1,15 +1,18 @@
-.. image:: https://travis-ci.org/andrewsanchez/genbank-qc.svg?branch=master
+.. image:: https://api.travis-ci.org/andrewsanchez/GenBankQC.svg?branch=master 
 
 
 =============================================
            GenBank Quality Control
 =============================================
 
-Please see `genbank-qc.readthedocs.io`_ for complete documentation.
+Complete documentation lives at `genbank-qc.readthedocs.io`_.  It is a work in progress.
 
 GenBankQC is an effort to address the quality control problem for public databases such as the National Center for Biotechnology Information's `GenBank`_.  The goal is to offer a simple, efficient, and automated solution for assessing the quality of your genomes.
 
-Please note that GenbankQC is currently in beta.  As a proof of concept for a very specific use case, it currently has some limitations that users should be aware of.  If there is interest, we will address the issues to make it more convenient.  Please see :ref:`caveats` for more details.
+Note
+----
+
+    Please note that GenbankQC is currently in beta.  As a proof of concept for a specific use case, it currently has limitations that users should be aware of.  If there is interest, we will address the issues to make it more convenient to use.  Please see :ref:`caveats` for more details.
 
 
 Features
@@ -73,8 +76,9 @@ If you don't yet have a functional conda environment, please download and instal
 Caveats and Current State
 -------------------------
 
+There are some arbitrary, hard-coded limitations regarding file names and directory structures.  This is because the project originally began as a part of the NCBI Tool Kit (`NCBITK`_.) which we use for downloading genomes from NCBI.  NCBITK generates a specific directory structure and file naming scheme which GenbankQC currently expects.  Therefor, the simplest solution is to use `NCBITK`_ to download bacteria genomes, and run GenBankQC on the directories you are interested in.  Please see `NCBITK`_. for installation and usage information for NCBITK.
 
-
+.. _NCBITK:  https://github.com/andrewsanchez/NCBITK
 .. _GenBank: https://www.ncbi.nlm.nih.gov/genbank/
 .. _ETE Toolkit: http://etetoolkit.org/ 
 .. _Miniconda: https://conda.io/miniconda.html
