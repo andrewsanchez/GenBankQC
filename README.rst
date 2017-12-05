@@ -1,23 +1,27 @@
 .. image:: https://travis-ci.org/andrewsanchez/genbank-qc.svg?branch=master
 
+
 =============================================
            GenBank Quality Control
 =============================================
 
-Please see http://genbank-qc.readthedocs.io/en/latest/ for complete documentation.
+Please see `genbank-qc.readthedocs.io`_ for complete documentation.
 
 GenBankQC is an effort to address the quality control problem for public databases such as the National Center for Biotechnology Information's `GenBank`_.  The goal is to offer a simple, efficient, and automated solution for assessing the quality of your genomes.
 
+Please note that GenbankQC is currently in beta.  As a proof of concept for a very specific use case, it currently has some limitations that users should be aware of.  If there is interest, we will address the issues to make it more convenient.  Please see :ref:`caveats` for more details.
+
+
 Features
 --------
-
-- Flag potential outliers to exclude them from polluting your pipelines
 
 - Labelling/annotation-independent quality control based on:
 
   -  Simple metrics
 
   - Genome distance estimation using `MASH`_
+
+- Flag potential outliers to exclude them from polluting your pipelines
 
 The genbankqc work-flow consists of the following steps:
 
@@ -64,7 +68,15 @@ If you don't yet have a functional conda environment, please download and instal
     pip install genbankqc
 
 
+.. _caveats:
+
+Caveats and Current State
+-------------------------
+
+
+
 .. _GenBank: https://www.ncbi.nlm.nih.gov/genbank/
 .. _ETE Toolkit: http://etetoolkit.org/ 
 .. _Miniconda: https://conda.io/miniconda.html
 .. _MASH: http://mash.readthedocs.io/en/latest/
+.. _genbank-qc.readthedocs.io: http://genbank-qc.readthedocs.io/en/latest/
