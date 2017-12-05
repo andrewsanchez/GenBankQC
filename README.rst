@@ -1,6 +1,5 @@
 .. image:: https://api.travis-ci.org/andrewsanchez/GenBankQC.svg?branch=master 
 
-
 =============================================
            GenBank Quality Control
 =============================================
@@ -12,7 +11,7 @@ GenBankQC is an effort to address the quality control problem for public databas
 Note
 ----
 
-    Please note that GenbankQC is currently in beta.  As a proof of concept for a specific use case, it currently has limitations that users should be aware of.  If there is interest, we will address the issues to make it more convenient to use.  Please see :ref:`caveats` for more details.
+    Please note that GenbankQC is currently in beta.  As a proof of concept for a specific use case, it currently has limitations that users should be aware of.  If there is interest, we will address the issues to make it more convenient to use.  Please see `caveats <#caveats>`__ for more details.
 
 
 Features
@@ -73,8 +72,8 @@ If you don't yet have a functional conda environment, please download and instal
 
 .. _caveats:
 
-Caveats and Current State
--------------------------
+Caveats
+--------
 
 There are some arbitrary, hard-coded limitations regarding file names and directory structures.  This is because the project originally began as a part of the NCBI Tool Kit (`NCBITK`_.) which we use for downloading genomes from NCBI.  NCBITK generates a specific directory structure and file naming scheme which GenbankQC currently expects.  Therefor, the simplest solution is to use `NCBITK`_ to download bacteria genomes, and run GenBankQC on the directories you are interested in.  Please see `NCBITK`_. for installation and usage information for NCBITK.
 
