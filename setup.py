@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 
 
-setup(name='genbank-qc',
-      version='0.1a5',
+setup(name='GenBankQC',
+      version='0.1a',
       license='BSD-3-Clause',
-      keywords='NCBI bioinformatics',
+      keywords='NCBI bioinformatics genomics',
       packages=find_packages(),
       python_requires='>=3.4',
       install_requires=[
@@ -14,7 +14,7 @@ setup(name='genbank-qc',
           'biopython'],
       entry_points='''
       [console_scripts]
-      genbank-qc=genbankqc.__main__:cli
+      genbankqc=genbankqc.__main__:cli
       ''',
       classifiers=[
             'Topic :: Scientific/Engineering :: Bio-Informatics',
