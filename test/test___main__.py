@@ -14,4 +14,3 @@ def test_help():
     result = runner.invoke(cli, ['--help'])
     print(result.output)
     assert result.exit_code == 0
-
