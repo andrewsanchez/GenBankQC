@@ -35,7 +35,7 @@ def sketch_genome(genome_path):
     """
     sketch_cmd = generate_sketch_command(genome_path)
     subprocess.Popen(
-        sketch_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
+        sketch_cmd, shell="True", stderr=subprocess.DEVNULL).wait()
 
 
 def sketch_dir(directory):
@@ -60,7 +60,7 @@ def paste(species_dir):
     remove_old(paste_file)
     sketches = os.path.join(species_dir, "GCA*msh")
     paste_cmd = "mash paste {} {}".format(paste_file, sketches)
-    subprocess.Popen(paste_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
+    subprocess.Popen(paste_cmd, shell="True", stderr=subprocess.DEVNULL).wait()
     return paste_file
 
 
@@ -77,7 +77,7 @@ def dist(species_dir):
     remove_old(dmx_path)
     dist_cmd = "mash dist -t '{}' '{}' > '{}'".format(paste_file, paste_file,
                                                       dmx_path)
-    subprocess.Popen(dist_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
+    subprocess.Popen(dist_cmd, shell="True", stderr=subprocess.DEVNULL).wait()
     dmx = format_dmx(dmx_path)
     return dmx
 
