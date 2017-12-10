@@ -11,7 +11,7 @@ GenBankQC is an effort to address the quality control problem for public databas
 Note
 ----
 
-    Please note that GenbankQC is currently in beta.  As a proof of concept for a specific use case, it currently has limitations that users should be aware of.  If there is interest, we will address the issues to make it more convenient to use.  Please see `caveats <#caveats>`__ for more details.
+    Please note that GenbankQC is currently in alpha.  As a proof of concept for a specific use case, it currently has limitations that users should be aware of.  If there is interest, we will address the issues to make it more convenient to use.  Please see `caveats <#caveats>`__ for more details.
 
 
 Features
@@ -49,11 +49,10 @@ The genbankqc work-flow consists of the following steps:
 Usage
 -----
 
-.. code:: bash
+::
 
-          genbankqc /path/to/genomes
-
-          open /path/to/genomes/Escherichia_coli/qc/200_3.0_3.0_3.0/tree.svg
+    genbankqc /path/to/genomes
+    open /path/to/genomes/Escherichia_coli/qc/200_3.0_3.0_3.0/tree.svg
 
 
 Installation
@@ -75,7 +74,11 @@ If you don't yet have a functional conda environment, please download and instal
 Caveats
 --------
 
-There are some arbitrary, hard-coded limitations regarding file names and directory structures.  This is because the project originally began as a part of the NCBI Tool Kit (`NCBITK`_.) which we use for downloading genomes from NCBI.  NCBITK generates a specific directory structure and file naming scheme which GenbankQC currently expects.  Therefor, the simplest solution is to use `NCBITK`_ to download bacteria genomes, and run GenBankQC on the directories you are interested in.  Please see `NCBITK`_. for installation and usage information for NCBITK.
+There are some arbitrary, hard-coded limitations regarding file names.  This is because the project originally began as a part of the NCBI Tool Kit (`NCBITK`_) which we use for downloading genomes from NCBI.  NCBITK generates a specific directory structure and file naming scheme which GenbankQC currently expects.
+
+If you'd like to use GenBankQC without using NCBITK, all that is required is that your file names match the python regular expression ``re.compile('.*(GCA_\d+\.\d.*)(.fasta)')``.  You can quickly test this by following my example at `pythex.org`_.
+
+.. _pythex.org: https://pythex.org/?regex=.*(GCA_%5Cd%2B%5C.%5Cd.*)(.fasta)&test_string=GCA_002415405.1_Acinetobacter_nosocomialis_UBA5139_Scaffold.fasta&ignorecase=0&multiline=0&dotall=0&verbose=0
 
 .. _NCBITK:  https://github.com/andrewsanchez/NCBITK
 .. _GenBank: https://www.ncbi.nlm.nih.gov/genbank/
@@ -83,3 +86,6 @@ There are some arbitrary, hard-coded limitations regarding file names and direct
 .. _Miniconda: https://conda.io/miniconda.html
 .. _MASH: http://mash.readthedocs.io/en/latest/
 .. _genbank-qc.readthedocs.io: http://genbank-qc.readthedocs.io/en/latest/
+
+.. image:: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square 
+           :target: https://yangsu.github.io/pull-request-tutorial/
