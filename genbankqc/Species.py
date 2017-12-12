@@ -410,9 +410,13 @@ class Species:
         return summary
 
     def assess_total_genomes(f):
+        """
+        Count the number of total genomes in species_dir.
+        Do nothing if less than five genomes.
+        """
         @wraps(f)
         def wrapper(self):
-            if self.total_genomes >= 5:
+            if self.total_genomes > 5:
                 f(self)
             else:
                 pass
