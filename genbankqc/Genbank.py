@@ -1,5 +1,5 @@
 import os
-from genbank_qc import Species
+from genbankqc import Species
 
 
 class Genbank:

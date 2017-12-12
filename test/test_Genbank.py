@@ -1,4 +1,4 @@
-from genbank_qc import Genbank, Species
+from genbankqc import Genbank, Species
 
 
 def test_genbank_init(genbank):

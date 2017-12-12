@@ -1,3 +1,4 @@
 /.dir-locals.el
 /.coverage
 coverage/
+docs/_build/

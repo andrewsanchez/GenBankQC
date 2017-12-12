@@ -2,10 +2,10 @@ import os.path
 
 
 def test_init(genome):
-    from genbank_qc import Genome
-    expected_name = ("GCA_000007365.1_Buchnera_aphidicola_Sg_"
-                     "Schizaphis_graminum_Complete_Genome")
-    expected_path = os.path.join(genome.species_dir, expected_name+'.fasta')
+    from genbankqc import Genome
+    expected_name = ("GCA_000521565.1_Buchnera_aphidicola_G002_"
+                     "Myzus_persicae_Complete_Genome")
+    expected_path = os.path.join(genome.species_dir, expected_name+".fasta")
     assert genome.path == expected_path
     assert isinstance(genome, Genome)
     assert genome.name == expected_name

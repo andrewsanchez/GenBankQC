@@ -1,28 +1,20 @@
-from setuptools import find_packages, setup
+from setuptools import setup, find_packages
 
 
-setup(name='genbank-qc',
-      version='0.1a0',
-      license="MIT",
-      url="https://github.com/andrewsanchez/genbank-qc",
-      description="Automated quality control for Genbank genomes.",
-      author='Andrew Sanchez',
-      author_email='inbox.asanchez@gmail.com',
-      keywords='NCBI bioinformatics',
+setup(name='GenBankQC',
+      version='0.2a',
+      license='BSD-3-Clause',
+      keywords='NCBI bioinformatics genomics',
       packages=find_packages(),
       python_requires='>=3.4',
       install_requires=[
           'click',
-          'ete3',
-          'pyqt5',
-          'pytest',
           'pandas',
-          'numpy',
-          'scikit-bio',
+          'pytest',
           'biopython'],
       entry_points='''
       [console_scripts]
-      genbank-qc=genbank_qc.__main__:cli
+      genbankqc=genbankqc.__main__:cli
       ''',
       classifiers=[
             'Topic :: Scientific/Engineering :: Bio-Informatics',

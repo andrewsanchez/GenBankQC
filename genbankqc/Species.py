@@ -1,5 +1,6 @@
 import os
 import re
+from functools import wraps
 from subprocess import DEVNULL, Popen
 
 import pandas as pd
@@ -80,9 +81,14 @@ class Species:
             "MASH: {}".format(self.mash)]
         return '\n'.join(self.message)
 
+    @property
+    def total_genomes(self):
+        return len(list(self.genomes()))
+
     def assess(f):
+        # TODO: This can have a more general application if the pickling
+        # functionality is implemented elsewhere
         import pickle
-        from functools import wraps
 
         @wraps(f)
         def wrapper(self):
@@ -97,6 +103,7 @@ class Species:
             except AssertionError:
                 self.complete = False
                 f(self)
+                # TODO: move to filter
                 with open(self.allowed_path, 'wb') as p:
                     pickle.dump(self.allowed, p)
                 self.summary()
@@ -122,7 +129,7 @@ class Species:
         :returns: Generator of Genome objects for all genomes in species dir
         :rtype: generator
         """
-        from genbank_qc import Genome
+        from genbankqc import Genome
         genomes = (Genome(os.path.join(self.path, f)) for
                    f in os.listdir(self.path) if f.endswith(ext))
         return genomes
@@ -143,14 +150,14 @@ class Species:
             os.remove(self.paste_file)
         sketches = os.path.join(self.qc_dir, "GCA*msh")
         cmd = "mash paste {} {}".format(self.paste_file, sketches)
-        Popen(cmd, shell="True", stdout=DEVNULL).wait()
+        Popen(cmd, shell="True", stderr=DEVNULL).wait()
         if not os.path.isfile(self.paste_file):
             self.paste_file = None
 
     def mash_dist(self):
         cmd = "mash dist -t '{}' '{}' > '{}'".format(
             self.paste_file, self.paste_file, self.dmx_path)
-        Popen(cmd, shell="True", stdout=DEVNULL).wait()
+        Popen(cmd, shell="True", stderr=DEVNULL).wait()
         self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
         # Make distance matrix more readable
         p = re.compile('.*(GCA_\d+\.\d.*)(.fasta)')
@@ -168,8 +175,8 @@ class Species:
     def get_tree(self):
         if self.tree_complete is False:
             import numpy as np
-            import matplotlib as mpl
-            mpl.use('TkAgg')
+            # import matplotlib as mpl
+            # mpl.use('TkAgg')
             from skbio.tree import TreeNode
             from scipy.cluster.hierarchy import weighted
             ids = self.dmx.index.tolist()
@@ -215,6 +222,20 @@ class Species:
             self.stats["unknowns"] > self.tolerance["unknowns"]]
         self.passed = self.stats.drop(self.failed["unknowns"])
 
+    def check_passed_count(f):
+        """
+        Count the number of genomes in self.passed.
+        Commence with filtering only if self.passed has more than five genomes.
+        """
+        @wraps(f)
+        def wrapper(self, *args):
+            if len(self.passed) > 5:
+                f(self, *args)
+            else:
+                pass
+        return wrapper
+
+    @check_passed_count
     def filter_contigs(self):
         # Only look at genomes with > 10 contigs to avoid throwing off the
         # median absolute deviation
@@ -243,6 +264,7 @@ class Species:
         eligible_contigs = eligible_contigs.index
         self.passed = self.passed.loc[eligible_contigs]
 
+    @check_passed_count
     def filter_MAD_range(self, criteria):
         """Filter based on median absolute deviation.
         Passing values fall within a lower and upper bound."""
@@ -262,6 +284,7 @@ class Species:
             abs(self.passed[criteria] -
                 self.passed[criteria].median()) <= dev_ref]
 
+    @check_passed_count
     def filter_MAD_upper(self, criteria):
         """Filter based on median absolute deviation.
         Passing values fall under the upper bound."""
@@ -348,12 +371,9 @@ class Species:
     @assess
     def filter(self):
         self.filter_unknown_bases()
-        if check_df_len(self.passed, "unknowns"):
-            self.filter_contigs()
-        if check_df_len(self.passed, "assembly_size"):
-            self.filter_MAD_range("assembly_size")
-        if check_df_len(self.passed, "distance"):
-            self.filter_MAD_upper("distance")
+        self.filter_contigs()
+        self.filter_MAD_range("assembly_size")
+        self.filter_MAD_upper("distance")
 
     def write_failed_report(self):
         from itertools import chain
@@ -389,22 +409,23 @@ class Species:
             f.write(summary)
         return summary
 
+    def assess_total_genomes(f):
+        """
+        Count the number of total genomes in species_dir.
+        Do nothing if less than five genomes.
+        """
+        @wraps(f)
+        def wrapper(self):
+            if self.total_genomes > 5:
+                f(self)
+            else:
+                pass
+        return wrapper
+
+    @assess_total_genomes
     def qc(self):
         self.run_mash()
         self.get_stats()
         self.filter()
         self.get_tree()
         self.color_tree()
-
-
-def check_df_len(df, criteria, num=5):
-    """
-    Verify that df has > than num genomes
-    """
-    if len(df) > num:
-        return True
-    else:
-        # TODO: Just pass and return false here.
-        # info in this print statement will be apparent in summary
-        print("Filtering based on {} resulted in less than 5 genomes.")
-        return False

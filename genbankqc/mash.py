@@ -1,4 +1,14 @@
-#!/usr/bin/env python
+"""
+Functions for calling MASH with ``subprocess``.
+
+`MASH`_ is a tool for fast genome and metagenome distance estimation using
+`MinHash`_.  Make sure you have a MASH executable in your ``$PATH``.  Please
+download the appropriate executable for your machine `here`_.
+
+.. _MASH: https://mash.readthedocs.io/en/latest/
+.. _here: https://github.com/marbl/Mash/releases
+.. _MinHash: https://en.wikipedia.org/wiki/MinHash
+"""
 
 import os
 import re
@@ -8,10 +18,9 @@ import pandas as pd
 
 def generate_sketch_command(genome_path):
     """
-    Return sketch command for genome_path.
-    sketch_cmd is based on full path to genome_path.
+    Return MASH sketch command corresponding to the full path of
+    ``genome_path``.
     """
-
     basename = os.path.splitext(genome_path)[0]
     sketch_file = "{}.msh".format(basename)
     sketch_cmd = "mash sketch '{}' -o '{}'".format(genome_path, sketch_file)
@@ -20,17 +29,18 @@ def generate_sketch_command(genome_path):
 
 def sketch_genome(genome_path):
     """
-    Produce a sketch file for genome, where genome is the full path to a FASTA.
-    """
+    :param genome_path: the full path to a FASTA
 
+    Produce a MASH sketch file for ``genome``
+    """
     sketch_cmd = generate_sketch_command(genome_path)
     subprocess.Popen(
-        sketch_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
+        sketch_cmd, shell="True", stderr=subprocess.DEVNULL).wait()
 
 
 def sketch_dir(directory):
     """
-    Produce sketch files for each FASTA in dir.
+    Produce MASH sketch files for each FASTA in ``directory``
     """
 
     genome_paths = find_all_genome_paths(directory)
@@ -40,29 +50,44 @@ def sketch_dir(directory):
 
 def paste(species_dir):
     """
-    Generate a master sketch file representing all genomes in species_dir/*msh
+    :param species_dir: path a directory containg FASTAs for
+    a species or group of related genomes.
+
+    Generate a master sketch file representing all genomes in
+    ``species_dir``
     """
     paste_file = os.path.join(species_dir, 'all.msh')
     remove_old(paste_file)
     sketches = os.path.join(species_dir, "GCA*msh")
     paste_cmd = "mash paste {} {}".format(paste_file, sketches)
-    subprocess.Popen(paste_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
+    subprocess.Popen(paste_cmd, shell="True", stderr=subprocess.DEVNULL).wait()
     return paste_file
 
 
 def dist(species_dir):
+    """Generate a MASH distance matrix, ``dmx.txt``
 
+    :param species_dir: genome directory
+    :returns: Pandas DataFrame representation of MASH distance matrix
+    :rtype: pd.DataFrame
+
+    """
     dmx_path = os.path.join(species_dir, 'dmx.txt')
     paste_file = os.path.join(species_dir, 'all.msh')
     remove_old(dmx_path)
     dist_cmd = "mash dist -t '{}' '{}' > '{}'".format(paste_file, paste_file,
                                                       dmx_path)
-    subprocess.Popen(dist_cmd, shell="True", stdout=subprocess.DEVNULL).wait()
+    subprocess.Popen(dist_cmd, shell="True", stderr=subprocess.DEVNULL).wait()
     dmx = format_dmx(dmx_path)
     return dmx
 
 
 def mash(species_dir):
+    """Convenience function to run the complete MASH workflow:
+    * Create MASH sketch files
+    * Create master sketch file, ``all.msh`` for all genomes
+    * Generate distance matrix
+    """
     sketch_dir(species_dir)
     paste(species_dir)
     dmx = dist(species_dir)
@@ -71,9 +96,9 @@ def mash(species_dir):
 
 def format_dmx(dmx_path):
     """
-    Set indices and headers to the accession ID's
+    Set indices and headers of distance matrix to genome accession ID's
+    instead of complete path to genome for readability.
     """
-
     dmx = pd.read_csv(dmx_path, index_col=0, sep="\t")
     genome_ids = []
     for i in dmx.index:
@@ -92,7 +117,7 @@ def remove_old(f):
 
 def find_all_genome_paths(directory):
     """
-    Return full paths to all FASTAs in `directory`.
+    Return full paths to all FASTAs in ``directory``.
     """
     genome_paths = []
     for root, dirs, files in os.walk(directory):
@@ -104,6 +129,9 @@ def find_all_genome_paths(directory):
 
 
 def find_all_sketches(genbank):
+    """
+    Return full paths to all MASH sketch files in ``directory``.
+    """
     sketches = []
     for root, dirs, files in os.walk(genbank):
         for f in files:

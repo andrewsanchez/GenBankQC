@@ -4,7 +4,8 @@ import tempfile
 
 import pytest
 
-from genbank_qc import Species
+from genbankqc import Species
+from genbankqc import Genome
 
 
 @pytest.fixture(scope="module",
@@ -64,11 +65,22 @@ def aphidicola_bare():
 
 @pytest.fixture(scope="module")
 def genome(aphidicola):
-    genome = next(aphidicola.genomes())
+    genome = ("GCA_000521565.1_Buchnera_aphidicola_G002_"
+              "Myzus_persicae_Complete_Genome.fasta")
+    genome = os.path.join(aphidicola.path, genome)
+    genome = Genome(genome)
     genome.get_contigs()
     genome.get_assembly_size()
     genome.get_unknowns()
     yield genome
+
+
+@pytest.fixture(scope="module")
+def five_genomes(aphidicola):
+    shutil.rmtree(aphidicola.qc_dir)
+    for genome in list(aphidicola.genomes())[:5]:
+        os.remove(genome.path)
+    yield aphidicola
 
 
 @pytest.fixture(scope="module")
