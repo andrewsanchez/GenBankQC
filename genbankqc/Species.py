@@ -222,6 +222,20 @@ class Species:
             self.stats["unknowns"] > self.tolerance["unknowns"]]
         self.passed = self.stats.drop(self.failed["unknowns"])
 
+    def check_passed_count(f):
+        """
+        Count the number of genomes in self.passed.
+        Commence with filtering only if self.passed has more than five genomes.
+        """
+        @wraps(f)
+        def wrapper(self, *args):
+            if len(self.passed) > 5:
+                f(self, *args)
+            else:
+                pass
+        return wrapper
+
+    @check_passed_count
     def filter_contigs(self):
         # Only look at genomes with > 10 contigs to avoid throwing off the
         # median absolute deviation
@@ -250,6 +264,7 @@ class Species:
         eligible_contigs = eligible_contigs.index
         self.passed = self.passed.loc[eligible_contigs]
 
+    @check_passed_count
     def filter_MAD_range(self, criteria):
         """Filter based on median absolute deviation.
         Passing values fall within a lower and upper bound."""
@@ -269,6 +284,7 @@ class Species:
             abs(self.passed[criteria] -
                 self.passed[criteria].median()) <= dev_ref]
 
+    @check_passed_count
     def filter_MAD_upper(self, criteria):
         """Filter based on median absolute deviation.
         Passing values fall under the upper bound."""
@@ -355,13 +371,9 @@ class Species:
     @assess
     def filter(self):
         self.filter_unknown_bases()
-        # TODO: Replace with a decorator
-        if check_df_len(self.passed, "unknowns"):
-            self.filter_contigs()
-        if check_df_len(self.passed, "assembly_size"):
-            self.filter_MAD_range("assembly_size")
-        if check_df_len(self.passed, "distance"):
-            self.filter_MAD_upper("distance")
+        self.filter_contigs()
+        self.filter_MAD_range("assembly_size")
+        self.filter_MAD_upper("distance")
 
     def write_failed_report(self):
         from itertools import chain
@@ -413,16 +425,3 @@ class Species:
         self.filter()
         self.get_tree()
         self.color_tree()
-
-
-def check_df_len(df, criteria, num=5):
-    """
-    Verify that df has > than num genomes
-    """
-    if len(df) > num:
-        return True
-    else:
-        # TODO: Just pass and return false here.
-        # info in this print statement will be apparent in summary
-        print("Filtering based on {} resulted in less than 5 genomes.")
-        return False
