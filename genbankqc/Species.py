@@ -1,5 +1,6 @@
 import os
 import re
+from functools import wraps
 from subprocess import DEVNULL, Popen
 
 import pandas as pd
@@ -82,7 +83,6 @@ class Species:
 
     def assess(f):
         import pickle
-        from functools import wraps
 
         @wraps(f)
         def wrapper(self):
