@@ -81,6 +81,10 @@ class Species:
             "MASH: {}".format(self.mash)]
         return '\n'.join(self.message)
 
+    @property
+    def total_genomes(self):
+        return len(list(self.genomes()))
+
     def assess(f):
         # TODO: This can have a more general application if the pickling
         # functionality is implemented elsewhere
