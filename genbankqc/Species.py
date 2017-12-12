@@ -150,14 +150,14 @@ class Species:
             os.remove(self.paste_file)
         sketches = os.path.join(self.qc_dir, "GCA*msh")
         cmd = "mash paste {} {}".format(self.paste_file, sketches)
-        Popen(cmd, shell="True", stdout=DEVNULL).wait()
+        Popen(cmd, shell="True", stderr=DEVNULL).wait()
         if not os.path.isfile(self.paste_file):
             self.paste_file = None
 
     def mash_dist(self):
         cmd = "mash dist -t '{}' '{}' > '{}'".format(
             self.paste_file, self.paste_file, self.dmx_path)
-        Popen(cmd, shell="True", stdout=DEVNULL).wait()
+        Popen(cmd, shell="True", stderr=DEVNULL).wait()
         self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
         # Make distance matrix more readable
         p = re.compile('.*(GCA_\d+\.\d.*)(.fasta)')
