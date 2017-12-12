@@ -76,6 +76,14 @@ def genome(aphidicola):
 
 
 @pytest.fixture(scope="module")
+def five_genomes(aphidicola):
+    shutil.rmtree(aphidicola.qc_dir)
+    for genome in list(aphidicola.genomes())[:5]:
+        os.remove(genome.path)
+    yield aphidicola
+
+
+@pytest.fixture(scope="module")
 def genbank():
     tmp = tempfile.mkdtemp()
     genbank = os.path.join(tmp, 'genbank')

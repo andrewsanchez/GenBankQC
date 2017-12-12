@@ -15,6 +15,7 @@ def test_init(aphidicola_multi):
     assert type(aphidicola.stats) == pd.DataFrame
     assert type(aphidicola.tree) == Tree
     assert type(aphidicola.dmx) == pd.DataFrame
+    assert aphidicola.total_genomes == 10
     assert aphidicola.dmx.index.tolist() == aphidicola.stats.index.tolist()
     assert (aphidicola.dmx.mean().index.tolist() ==
             aphidicola.stats.index.tolist())
@@ -166,3 +167,8 @@ def test_filter_MAD(species):
     passed_and_failed = sum(
         map(len, [species.failed['distance'], species.passed]))
     assert passed_and_failed == genomes_before_filtering
+
+
+def test_min_genomes(five_genomes):
+    five_genomes.qc()
+    assert not os.listdir(five_genomes.qc_dir)
