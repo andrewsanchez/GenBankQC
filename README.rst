@@ -4,7 +4,7 @@
            GenBank Quality Control
 =============================================
 
-Complete documentation lives at `genbank-qc.readthedocs.io`_.  It is a work in progress.
+Complete documentation lives at `genbankqc.readthedocs.io`_.  It is a work in progress.
 
 GenBankQC is an effort to address the quality control problem for public databases such as the National Center for Biotechnology Information's `GenBank`_.  The goal is to offer a simple, efficient, and automated solution for assessing the quality of your genomes.
 
@@ -85,7 +85,7 @@ If you'd like to use GenBankQC without using NCBITK, all that is required is tha
 .. _ETE Toolkit: http://etetoolkit.org/ 
 .. _Miniconda: https://conda.io/miniconda.html
 .. _MASH: http://mash.readthedocs.io/en/latest/
-.. _genbank-qc.readthedocs.io: http://genbank-qc.readthedocs.io/en/latest/
+.. _genbankqc.readthedocs.io: http://genbankqc.readthedocs.io/en/latest/
 
 .. image:: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square 
            :target: https://yangsu.github.io/pull-request-tutorial/
