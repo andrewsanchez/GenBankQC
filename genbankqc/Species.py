@@ -397,6 +397,16 @@ class Species:
             f.write(summary)
         return summary
 
+    def assess_total_genomes(f):
+        @wraps(f)
+        def wrapper(self):
+            if self.total_genomes >= 5:
+                f(self)
+            else:
+                pass
+        return wrapper
+
+    @assess_total_genomes
     def qc(self):
         self.run_mash()
         self.get_stats()
