@@ -82,6 +82,8 @@ class Species:
         return '\n'.join(self.message)
 
     def assess(f):
+        # TODO: This can have a more general application if the pickling
+        # functionality is implemented elsewhere
         import pickle
 
         @wraps(f)
@@ -97,6 +99,7 @@ class Species:
             except AssertionError:
                 self.complete = False
                 f(self)
+                # TODO: move to filter
                 with open(self.allowed_path, 'wb') as p:
                     pickle.dump(self.allowed, p)
                 self.summary()
@@ -348,6 +351,7 @@ class Species:
     @assess
     def filter(self):
         self.filter_unknown_bases()
+        # TODO: Replace with a decorator
         if check_df_len(self.passed, "unknowns"):
             self.filter_contigs()
         if check_df_len(self.passed, "assembly_size"):
