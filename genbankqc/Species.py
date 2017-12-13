@@ -232,11 +232,12 @@ class Species:
             if len(self.passed) > 5:
                 f(self, *args)
             else:
-                pass
+                self.allowed[args[0]] = ''
+                self.failed[args[0]] = ''
         return wrapper
 
     @check_passed_count
-    def filter_contigs(self):
+    def filter_contigs(self, criteria):
         # Only look at genomes with > 10 contigs to avoid throwing off the
         # median absolute deviation
         # Extract genomes with < 10 contigs to add them back in later.
@@ -371,7 +372,7 @@ class Species:
     @assess
     def filter(self):
         self.filter_unknown_bases()
-        self.filter_contigs()
+        self.filter_contigs("contigs")
         self.filter_MAD_range("assembly_size")
         self.filter_MAD_upper("distance")
 
@@ -388,6 +389,7 @@ class Species:
 
     def summary(self):
         summary = [
+            self.species,
             "Unknown Bases",
             "Allowed: {}".format(self.allowed["unknowns"]),
             "Tolerance: {}".format(self.tolerance["unknowns"]),

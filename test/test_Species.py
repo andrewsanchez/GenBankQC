@@ -142,7 +142,7 @@ def test_filter_unknowns(unknowns):
 
 
 def test_filter_contigs(species):
-    species.filter_contigs()
+    species.filter_contigs('contigs')
     total_genomes = len(species.passed) + len(species.failed["contigs"])
     assert total_genomes == len(species.stats)
     assert isinstance(species.med_abs_devs["contigs"], float)
