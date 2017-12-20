@@ -383,8 +383,9 @@ class Species:
         ixs = chain.from_iterable([i for i in self.failed.values()])
         self.failed_report = pd.DataFrame(index=ixs, columns=["criteria"])
         for criteria in self.failed.keys():
-            self.failed_report.loc[self.failed[criteria],
-                                   'criteria'] = criteria
+            if type(self.failed[criteria]) == pd.Index:
+                self.failed_report.loc[self.failed[criteria],
+                                    'criteria'] = criteria
         self.failed_report.to_csv(self.failed_path)
 
     def summary(self):
