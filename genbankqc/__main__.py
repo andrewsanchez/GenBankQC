@@ -1,12 +1,13 @@
-import click
+import click, traceback
 
-from genbankqc import Species, Genbank
 
 help_text = """
 Assess the integrity of your FASTA collection.
 
-Run genbankqc on subdirectories in parent directory GENKBANK.
+Run genbankqc on subdirectories in parent directory PATH.
 Subdirectories should contain 5 or more FASTAs.
+
+Specify a single species directory with the --species flag.
 """
 
 
@@ -22,14 +23,20 @@ Subdirectories should contain 5 or more FASTAs.
 @click.option('-l', '--filter-level', type=float,
               help='Deviations for all metrics')
 @click.option('-d', '--dry-run', is_flag=True)
-@click.option('--subdir', is_flag=True,
+@click.option('--species', is_flag=True,
               help='Run on single species')
-@click.argument('genbank', type=click.Path(exists=True, file_okay=False))
+@click.argument('path', type=click.Path(exists=True, file_okay=False))
 def cli(filter_level, max_unknowns, c_deviations, s_deviations, m_deviations,
-        dry_run, subdir, genbank):
-    if subdir:
-        species = Species(genbank, max_unknowns, c_deviations, s_deviations,
-                          m_deviations)
-        species.qc()
+        dry_run, species, path):
+    if species:
+        from genbankqc import Species
+        try:
+            s = Species(path, max_unknowns, c_deviations, s_deviations,
+                            m_deviations)
+            s.qc()
+        except:
+            print('Failed ', species.species)
+            traceback.print_exc()
     else:
-        Genbank(genbank).qc()
+        from genbankqc import Genbank
+        Genbank(path).qc()

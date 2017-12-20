@@ -1,4 +1,4 @@
-import os
+import os, traceback
 from genbankqc import Species
 
 
@@ -9,11 +9,20 @@ class Genbank:
 
     @property
     def species(self):
-        for i in os.listdir(self.genbank):
-            p = os.path.join(self.genbank, i)
-            if os.path.isdir(p):
-                yield Species(p)
+        for root, dirs, files in os.walk(self.genbank):
+            for d in dirs:
+                d = os.path.join(root, d)
+                try:
+                    yield Species(p)
+                except:
+                    print('Skipping ', d)
+                    traceback.print_exc()
 
     def qc(self):
-        for i in self.species:
-            i.qc()
+            for i in self.species:
+                try:
+                    i.qc()
+                    print('Completed ', i.species)
+                except:
+                    print('Failed ', i.species)
+                    traceback.print_exc()
