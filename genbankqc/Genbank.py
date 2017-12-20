@@ -9,14 +9,15 @@ class Genbank:
 
     @property
     def species(self):
-        for root, dirs, files in os.walk(self.genbank):
-            for d in dirs:
-                d = os.path.join(root, d)
-                try:
-                    yield Species(p)
-                except:
-                    print('Skipping ', d)
-                    traceback.print_exc()
+        dirs = (os.path.join(self.genbank, d)
+                for d in os.listdir(self.genbank)
+                if os.path.isdir(d))
+        for d in dirs:
+            try:
+                yield Species(d)
+            except:
+                print('Skipping ', d)
+                traceback.print_exc()
 
     def qc(self):
             for i in self.species:

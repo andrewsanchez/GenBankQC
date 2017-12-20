@@ -39,4 +39,5 @@ def cli(filter_level, max_unknowns, c_deviations, s_deviations, m_deviations,
             traceback.print_exc()
     else:
         from genbankqc import Genbank
-        Genbank(path).qc()
+        genbank = Genbank(path)
+        genbank.qc()
