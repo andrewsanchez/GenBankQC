@@ -1,4 +1,5 @@
-import click, traceback
+import click
+import traceback
 
 
 help_text = """
@@ -32,7 +33,7 @@ def cli(filter_level, max_unknowns, c_deviations, s_deviations, m_deviations,
         from genbankqc import Species
         try:
             s = Species(path, max_unknowns, c_deviations, s_deviations,
-                            m_deviations)
+                        m_deviations)
             s.qc()
         except:
             print('Failed ', species.species)

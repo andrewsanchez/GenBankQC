@@ -390,7 +390,7 @@ class Species:
         for criteria in self.failed.keys():
             if type(self.failed[criteria]) == pd.Index:
                 self.failed_report.loc[self.failed[criteria],
-                                    'criteria'] = criteria
+                                       'criteria'] = criteria
         self.failed_report.to_csv(self.failed_path)
 
     def summary(self):
