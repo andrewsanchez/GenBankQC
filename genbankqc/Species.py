@@ -174,6 +174,7 @@ class Species:
 
     def get_tree(self):
         if self.tree_complete is False:
+            from ete3.coretype.tree import TreeError
             import numpy as np
             # import matplotlib as mpl
             # mpl.use('TkAgg')
@@ -186,7 +187,11 @@ class Species:
             nw = t.__str__().replace("'", "")
             self.tree = Tree(nw)
             # midpoint root tree
-            self.tree.set_outgroup(self.tree.get_midpoint_outgroup())
+            try:
+                self.tree.set_outgroup(self.tree.get_midpoint_outgroup())
+            except TreeError as e:
+                print(self.species)
+                print(e)
             self.tree.write(outfile=self.nw_path)
 
     def get_stats(self):
