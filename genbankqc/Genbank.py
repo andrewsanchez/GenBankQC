@@ -15,9 +15,9 @@ class Genbank:
                 for d in os.listdir(self.genbank))
         dirs = (d for d in dirs if os.path.isdir(d))
         for d in dirs:
-            fastas = [f for f in os.listdir(d)
-                      if f.endswith('fasta')]
-            if len(fastas > 5):
+            fastas = len([f for f in os.listdir(d)
+                          if f.endswith('fasta')])
+            if fastas > 5:
                 try:
                     yield Species(d)
                 except:
