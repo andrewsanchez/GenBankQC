@@ -1,5 +1,6 @@
 import os
 import traceback
+
 from genbankqc import Species
 
 
@@ -14,12 +15,11 @@ class Genbank:
                 for d in os.listdir(self.genbank))
         dirs = (d for d in dirs if os.path.isdir(d))
         for d in dirs:
-            try:
-                yield Species(d)
-                print("Instantiated ", d)
-            except:
-                print('Skipping ', d)
-                traceback.print_exc()
+            fastas = [f for f in os.listdir(d)
+                      if f.endswith('fasta')]
+            if len(fastas > 5):
+                try:
+                    yield Species(d)
                 except:
                     print('Skipping ', d)
                     traceback.print_exc()
