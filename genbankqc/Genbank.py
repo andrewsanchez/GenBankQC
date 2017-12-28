@@ -20,12 +20,14 @@ class Genbank:
             except:
                 print('Skipping ', d)
                 traceback.print_exc()
+                except:
+                    print('Skipping ', d)
+                    traceback.print_exc()
 
     def qc(self):
         for i in self.species:
             try:
                 i.qc()
-                print('Completed ', i.species)
             except:
                 print('Failed ', i.species)
                 traceback.print_exc()

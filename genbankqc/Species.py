@@ -100,6 +100,7 @@ class Species:
                 self.complete = True
                 with open(self.allowed_path, 'rb') as p:
                     self.allowed = pickle.load(p)
+                print(self.species, ' already complete.')
             except AssertionError:
                 self.complete = False
                 f(self)
@@ -360,6 +361,7 @@ class Species:
         for f in file_types:
             out_tree = os.path.join(self.qc_results_dir, 'tree.{}'.format(f))
             self.tree.render(out_tree, tree_style=ts)
+        print(self.species, "trees created.")
 
     def color_tree(self):
         from ete3 import NodeStyle
@@ -427,7 +429,8 @@ class Species:
             if self.total_genomes > 5:
                 f(self)
             else:
-                pass
+                print('Skipping ', self.species)
+                print('Less than 5 genomes.')
         return wrapper
 
     @assess_total_genomes
