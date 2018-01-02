@@ -30,6 +30,7 @@ class Species:
         self.label = '{}-{}-{}-{}'.format(
             max_unknowns, contigs, assembly_size, mash)
         self.qc_results_dir = os.path.join(self.qc_dir, self.label)
+        self.passed_dir = os.path.join(self.qc_results_dir, "passed")
         self.stats_path = os.path.join(self.qc_dir, 'stats.csv')
         self.nw_path = os.path.join(self.qc_dir, 'tree.nw')
         self.dmx_path = os.path.join(self.qc_dir, 'dmx.csv')
@@ -196,7 +197,8 @@ class Species:
             self.tree.write(outfile=self.nw_path)
 
     def get_stats(self):
-        """Get stats for all genomes. Concat the results into a DataFrame
+        """
+        Get stats for all genomes. Concat the results into a DataFrame
         """
         dmx_mean = self.dmx.mean()
         for genome in self.genomes():
@@ -419,6 +421,18 @@ class Species:
             f.write(summary)
         return summary
 
+    def link_genomes(self):
+        try:
+            os.mkdir(self.passed_dir)
+        except FileExistsError:
+            pass
+        for genome in self.passed.index:
+            src = os.path.join(self.path, "{}.fasta".format(genome))
+            dst = os.path.join(self.passed_dir, genome)
+            os.symlink(src, dst)
+
+    # TODO: This check should be performed before instantiation of a Species
+    # object, or instantiation should not do anything, i.e. create directories
     def assess_total_genomes(f):
         """
         Count the number of total genomes in species_dir.
@@ -429,8 +443,7 @@ class Species:
             if self.total_genomes > 5:
                 f(self)
             else:
-                print('Skipping ', self.species)
-                print('Less than 5 genomes.')
+                pass
         return wrapper
 
     @assess_total_genomes
@@ -438,5 +451,6 @@ class Species:
         self.run_mash()
         self.get_stats()
         self.filter()
+        self.link_genomes()
         self.get_tree()
         self.color_tree()

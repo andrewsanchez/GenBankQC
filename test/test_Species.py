@@ -65,6 +65,13 @@ def test_filter(aphidicola):
     assert isinstance(aphidicola.allowed, dict)
 
 
+def test_link_genomes(aphidicola):
+    aphidicola.link_genomes()
+    assert os.listdir(aphidicola.passed_dir)
+    assert sorted(os.listdir(aphidicola.passed_dir)) == \
+        sorted(aphidicola.passed.index.tolist())
+
+
 def test_failed_report(aphidicola):
     assert os.path.isfile(aphidicola.failed_path)
 
