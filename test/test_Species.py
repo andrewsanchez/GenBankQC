@@ -67,9 +67,11 @@ def test_filter(aphidicola):
 
 def test_link_genomes(aphidicola):
     aphidicola.link_genomes()
+    passed = ["{}.fasta".format(i)
+              for i in aphidicola.passed.index.tolist()]
     assert os.listdir(aphidicola.passed_dir)
     assert sorted(os.listdir(aphidicola.passed_dir)) == \
-        sorted(aphidicola.passed.index.tolist())
+        sorted(passed)
 
 
 def test_failed_report(aphidicola):

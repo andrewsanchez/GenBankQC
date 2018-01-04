@@ -427,8 +427,9 @@ class Species:
         except FileExistsError:
             pass
         for genome in self.passed.index:
-            src = os.path.join(self.path, "{}.fasta".format(genome))
-            dst = os.path.join(self.passed_dir, genome)
+            fname = "{}.fasta".format(genome)
+            src = os.path.join(self.path, fname)
+            dst = os.path.join(self.passed_dir, fname)
             os.symlink(src, dst)
 
     # TODO: This check should be performed before instantiation of a Species
