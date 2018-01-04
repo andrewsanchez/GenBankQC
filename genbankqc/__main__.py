@@ -37,7 +37,7 @@ def cli(filter_level, max_unknowns, c_deviations, s_deviations, m_deviations,
             s.qc()
             print("Completed ", s.species)
             print(s)
-        except:
+        except Exception:
             print('Failed ', species.species)
             traceback.print_exc()
     else:

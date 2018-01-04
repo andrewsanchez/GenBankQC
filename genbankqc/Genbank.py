@@ -20,7 +20,7 @@ class Genbank:
             if fastas > 5:
                 try:
                     yield Species(d)
-                except:
+                except Exception:
                     print('Skipping ', d)
                     traceback.print_exc()
 
@@ -28,6 +28,6 @@ class Genbank:
         for i in self.species:
             try:
                 i.qc()
-            except:
+            except Exception:
                 print('Failed ', i.species)
                 traceback.print_exc()
