@@ -150,7 +150,7 @@ class Species:
     def mash_paste(self):
         if os.path.isfile(self.paste_file):
             os.remove(self.paste_file)
-        sketches = os.path.join(self.qc_dir, "GCA*msh")
+        sketches = os.path.join(self.qc_dir, "*msh")
         cmd = "mash paste {} {}".format(self.paste_file, sketches)
         Popen(cmd, shell="True", stderr=DEVNULL).wait()
         if not os.path.isfile(self.paste_file):
@@ -162,8 +162,9 @@ class Species:
         Popen(cmd, shell="True", stderr=DEVNULL).wait()
         self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
         # Make distance matrix more readable
-        p = re.compile('.*(GCA_\d+\.\d.*)(.fasta)')
-        names = [re.match(p, i).group(1) for i in self.dmx.index]
+        names = [
+            os.path.splitext(i)[0].split('/')[-1] for i
+            in self.dmx.index]
         self.dmx.index = names
         self.dmx.columns = names
         self.dmx.to_csv(self.dmx_path, sep="\t")
@@ -317,7 +318,7 @@ class Species:
         nstyle["fgcolor"] = "black"
         for n in self.tree.traverse():
             n.set_style(nstyle)
-            if re.match('^GCA', n.name):
+            if not re.match('Inner', n.name):
                 nf = AttrFace('name', fsize=8)
                 nf.margin_right = 150
                 nf.margin_left = 3

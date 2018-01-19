@@ -50,7 +50,7 @@ def test_sketches(aphidicola):
     aphidicola_sketches = aphidicola.sketches()
     for i in aphidicola_sketches:
         assert isinstance(i, str)
-        assert match('GCA.*msh', basename(i))
+        assert basename(i).replace('.msh', '') in aphidicola.genome_ids()
 
 
 def test_filter(aphidicola):

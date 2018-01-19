@@ -14,9 +14,8 @@ class Genome:
         :rtype:
         """
         self.path = genome
-        p = re.compile('.*(GCA_\d+\.\d.*)(.fasta)')
-        self.name = re.match(p, genome).group(1)
         self.basename = os.path.splitext(self.path)[0]
+        self.name = self.basename.split('/')[-1]
         if '/' not in self.path:
             self.species_dir = '.'
         else:
