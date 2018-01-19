@@ -431,7 +431,10 @@ class Species:
             fname = "{}.fasta".format(genome)
             src = os.path.join(self.path, fname)
             dst = os.path.join(self.passed_dir, fname)
-            os.symlink(src, dst)
+            try:
+                os.symlink(src, dst)
+            except FileExistsError:
+                pass
 
     # TODO: This check should be performed before instantiation of a Species
     # object, or instantiation should not do anything, i.e. create directories
