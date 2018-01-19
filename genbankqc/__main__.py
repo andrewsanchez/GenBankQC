@@ -38,7 +38,7 @@ def cli(filter_level, max_unknowns, c_deviations, s_deviations, m_deviations,
             print("Completed ", s.species)
             print(s)
         except Exception:
-            print('Failed ', species.species)
+            print('Failed ', s.species)
             traceback.print_exc()
     else:
         from genbankqc import Genbank
