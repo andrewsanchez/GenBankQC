@@ -46,7 +46,6 @@ def test_genome_ids(aphidicola):
 
 
 def test_sketches(aphidicola):
-    from re import match
     from os.path import basename
     aphidicola_sketches = aphidicola.sketches()
     for i in aphidicola_sketches:
