@@ -138,8 +138,8 @@ class TestBare:
         assert type(aphidicola.tree) == Tree
 
 
-def test_filter_unknowns(unknowns):
-    aphidicola, expected_failures = unknowns
+def test_filter_unknowns(altered_unknowns):
+    aphidicola, expected_failures = altered_unknowns
     aphidicola.filter_unknown_bases()
     passed_and_failed = sum(map(len, [aphidicola.failed["unknowns"],
                                       aphidicola.passed]))
