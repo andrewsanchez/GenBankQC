@@ -116,7 +116,9 @@ class Species:
         try:
             assert self.tree is not None
             assert self.stats is not None
-            assert (sorted(self.tree.get_leaf_names()) ==
+            leaf_names = [re.sub(".fasta", "", i) for i in
+                          self.tree.get_leaf_names()]
+            assert (sorted(leaf_names) ==
                     sorted(self.stats.index.tolist()) ==
                     sorted(self.genome_ids().tolist()))
             self.tree_complete = True
@@ -183,7 +185,7 @@ class Species:
             # mpl.use('TkAgg')
             from skbio.tree import TreeNode
             from scipy.cluster.hierarchy import weighted
-            ids = self.dmx.index.tolist()
+            ids = ['{}.fasta'.format(i) for i in self.dmx.index.tolist()]
             triu = np.triu(self.dmx.as_matrix())
             hclust = weighted(triu)
             t = TreeNode.from_linkage_matrix(hclust, ids)
@@ -318,7 +320,7 @@ class Species:
         nstyle["fgcolor"] = "black"
         for n in self.tree.traverse():
             n.set_style(nstyle)
-            if not re.match('Inner', n.name):
+            if re.match('.*fasta', n.name):
                 nf = AttrFace('name', fsize=8)
                 nf.margin_right = 150
                 nf.margin_left = 3
@@ -370,13 +372,12 @@ class Species:
         from ete3 import NodeStyle
         self.base_node_style()
         for genome in self.failed_report.index:
-            n = self.tree.get_leaves_by_name(genome).pop()
+            n = self.tree.get_leaves_by_name(genome+".fasta").pop()
             nstyle = NodeStyle()
             nstyle["fgcolor"] = self.colors[
                 self.failed_report.loc[genome, 'criteria']]
             nstyle["size"] = 9
             n.set_style(nstyle)
-
         self.style_and_render_tree()
 
     @assess
