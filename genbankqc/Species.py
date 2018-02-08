@@ -406,18 +406,22 @@ class Species:
             "Allowed: {}".format(self.allowed["unknowns"]),
             "Tolerance: {}".format(self.tolerance["unknowns"]),
             "Filtered: {}".format(len(self.failed["unknowns"])),
+            "\n",
             "Contigs",
             "Allowed: {}".format(self.allowed["contigs"]),
             "Tolerance: {}".format(self.tolerance["contigs"]),
             "Filtered: {}".format(len(self.failed["contigs"])),
+            "\n",
             "Assembly Size",
             "Allowed: {}".format(self.allowed["assembly_size"]),
             "Tolerance: {}".format(self.tolerance["assembly_size"]),
             "Filtered: {}".format(len(self.failed["assembly_size"])),
+            "\n",
             "MASH",
             "Allowed: {}".format(self.allowed["distance"]),
             "Tolerance: {}".format(self.tolerance["distance"]),
-            "Filtered: {}".format(len(self.failed["distance"]))]
+            "Filtered: {}".format(len(self.failed["distance"])),
+            "\n"]
         summary = '\n'.join(summary)
         with open(os.path.join(self.summary_path), "w") as f:
             f.write(summary)
