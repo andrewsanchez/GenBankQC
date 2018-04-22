@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 import traceback
 
 from genbankqc import Species
@@ -6,8 +7,19 @@ from genbankqc import Species
 
 class Genbank:
     def __init__(self, genbank):
+
         """Genbank"""
+
         self.genbank = genbank
+        self.assembly_summary = os.path.join(
+            self.genbank,
+            ".info/assembly_summary.txt",
+        )
+        self.assembly_summary = pd.read_csv(
+            self.assembly_summary,
+            sep="\t",
+            index_col=0,
+        )
 
     @property
     def species(self):
