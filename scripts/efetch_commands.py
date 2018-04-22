@@ -1,5 +1,6 @@
 import subprocess
-import os, stat
+import os
+import stat
 import shlex
 
 
