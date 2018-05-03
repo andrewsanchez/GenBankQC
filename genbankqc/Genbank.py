@@ -15,11 +15,15 @@ class Genbank:
             self.genbank,
             ".info/assembly_summary.txt",
         )
-        self.assembly_summary = pd.read_csv(
-            self.assembly_summary,
-            sep="\t",
-            index_col=0,
-        )
+        try:
+            self.assembly_summary = pd.read_csv(
+                self.assembly_summary,
+                sep="\t",
+                index_col=0,
+            )
+        except FileNotFoundError:
+            pass
+
 
     @property
     def species(self):
