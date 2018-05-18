@@ -145,6 +145,11 @@ class Species:
         ids = [i.name for i in self.genomes()]
         return pd.Index(ids)
 
+    @property
+    def accession_ids(self):
+        ids = [i.accession_id for i in self.genomes()]
+        return ids
+
     def sketch(self):
         for genome in self.genomes():
             genome.sketch()
