@@ -2,7 +2,6 @@ import os
 import pandas as pd
 import xml.etree.cElementTree as ET
 from  xml.etree.ElementTree import ParseError
-from pprint import pprint as pp
 
 fields = [
     "geo_loc_name",
@@ -41,7 +40,8 @@ for f in fs:
     except ParseError:
         continue
     accession = tree.find("DocumentSummary/Accession").text
-    xp = 'DocumentSummary/SampleData/BioSample/Attributes/Attribute/[@harmonized_name]'
+    xp = ('DocumentSummary/SampleData/BioSample/Attributes/'
+          'Attribute/[@harmonized_name]')
     attribs = tree.iterfind(xp)
     for i in attribs:
         name = i.attrib["harmonized_name"]

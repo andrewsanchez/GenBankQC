@@ -1,7 +1,5 @@
-import subprocess
 import os
 import stat
-import shlex
 
 
 bacteria_genbank = "/common/contrib/databases/bacteria_genbank"
