@@ -16,6 +16,7 @@ class Genome:
         self.path = genome
         self.basename = os.path.splitext(self.path)[0]
         self.name = self.basename.split('/')[-1]
+        self.accession_id = re.match('GCA_.*\.\d', self.name).group()
         if '/' not in self.path:
             self.species_dir = '.'
         else:
