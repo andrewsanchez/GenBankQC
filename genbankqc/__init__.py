@@ -3,4 +3,4 @@ from .Species import Species
 from .Genbank import Genbank
 from . import Metadata
 
-__all__ = [Genome, Species, Genbank]
+__all__ = [Genome, Species, Genbank, Metadata]

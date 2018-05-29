@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import xml.etree.cElementTree as ET
-from  xml.etree.ElementTree import ParseError
+from xml.etree.ElementTree import ParseError
 
 fields = [
     "geo_loc_name",

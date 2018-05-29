@@ -1,8 +1,8 @@
-import re
 import os
+import stat
 import pandas as pd
 import xml.etree.cElementTree as ET
-from  xml.etree.ElementTree import ParseError
+from xml.etree.ElementTree import ParseError
 
 from genbankqc import Genbank
 
@@ -87,13 +87,12 @@ class Metadata(Genbank):
         srs_df.columns = ["SRS"]
         srs_df.to_csv(srs_all)
         return srs_df
-    
+
     @property
     def biosample_df(self):
         from glob import iglob
         biosample_all = os.path.join(self.biosample_dir, "biosample_all.csv")
         csvs = iglob(os.path.join(self.biosample_dir, "*csv"))
-        data = []
         if os.path.isfile(biosample_all):
             os.remove(biosample_all)
         with open(biosample_all, "a") as f:
@@ -101,37 +100,39 @@ class Metadata(Genbank):
                     f.write(open(csv).readlines()[1])
         # dfs = (pd.read_csv(f, index_col=0) for f in csvs)
         biosample_df = pd.read_csv(biosample_all, index_col=0, header=None)
-        biosample_df.columns = ["scientific_name",
-                                "SRA",
-                                "accession_id",
-                                "geo_loc_name",
-                                "collection_date",
-                                "strain",
-                                "isolation_source",
-                                "host",
-                                "collected_by",
-                                "sample_type",
-                                "sample_name",
-                                "host_disease",
-                                "isolate",
-                                "host_health_state",
-                                "serovar",
-                                "env_biome",
-                                "env_feature",
-                                "ref_biomaterial",
-                                "env_material",
-                                "isol_growth_condt",
-                                " num_replicons",
-                                " sub_species",
-                                " host_age",
-                                " genotype",
-                                " host_sex",
-                                " serotype",
-                                " host_disease_outcome",
+        biosample_df.columns = [
+            "scientific_name",
+            "SRA",
+            "accession_id",
+            "geo_loc_name",
+            "collection_date",
+            "strain",
+            "isolation_source",
+            "host",
+            "collected_by",
+            "sample_type",
+            "sample_name",
+            "host_disease",
+            "isolate",
+            "host_health_state",
+            "serovar",
+            "env_biome",
+            "env_feature",
+            "ref_biomaterial",
+            "env_material",
+            "isol_growth_condt",
+            " num_replicons",
+            " sub_species",
+            " host_age",
+            " genotype",
+            " host_sex",
+            " serotype",
+            " host_disease_outcome",
         ]
-        biosample_df.to_csv(os.path.join(self.biosample_dir, "biosample_all.csv"))
+        biosample_df.to_csv(
+            os.path.join(self.biosample_dir, "biosample_all.csv"))
         return biosample_df
-    
+
     def commands_biosample(self):
         efetch_biosample = os.path.join(
             self.biosample_dir,
@@ -201,15 +202,16 @@ class Metadata(Genbank):
             df.loc[accession, "SRA"] = sra
             df.loc[accession, "accession_id"] = gca
             for name in self.biosample_fields:
-                xp = ('DocumentSummary/SampleData/BioSample/Attributes/Attribute'
-                      '[@harmonized_name="{}"]'.format(name))
+                xp = (
+                    'DocumentSummary/SampleData/BioSample/Attributes/Attribute'
+                    '[@harmonized_name="{}"]'.format(name)
+                )
                 try:
                     attrib = tree.find(xp).text
                     df.loc[accession, name] = attrib
                 except AttributeError:
                     df.loc[accession, name] = None
             df.to_csv(out)
-
 
     def parse_sra_xml(self):
         for f in self.sra_xml:
@@ -232,11 +234,11 @@ class Metadata(Genbank):
             srs_accessions = ','.join(srs_accessions)
             df.loc[name, "SRS"] = srs_accessions
             df.to_csv(out)
-        
+
     def metadata(self):
         biosample_df = self.biosample_df
         for s in self.species:
-            df = pd.DataFrame(columns=[''])
+            # df = pd.DataFrame(columns=[''])
             print(s.species)
             gcas = s.accession_ids
             biosamples = self.assembly_summary.loc[gcas].biosample

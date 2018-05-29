@@ -24,7 +24,6 @@ class Genbank:
         except FileNotFoundError:
             pass
 
-
     @property
     def species(self):
         dirs = (os.path.join(self.genbank, d)
