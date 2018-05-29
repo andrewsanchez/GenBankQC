@@ -442,7 +442,7 @@ class Species:
             src = os.path.join(self.path, fname)
             dst = os.path.join(self.passed_dir, fname)
             try:
-                os.symlink(src, dst)
+                os.link(src, dst)
             except FileExistsError:
                 pass
 
