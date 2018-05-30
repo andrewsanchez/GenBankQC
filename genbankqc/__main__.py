@@ -27,18 +27,24 @@ Specify a single species directory with the --species flag.
 @click.option('--species', is_flag=True,
               help='Run on single species')
 @click.argument('path', type=click.Path(exists=True, file_okay=False))
-def cli(filter_level, max_unknowns, c_deviations, s_deviations, m_deviations,
-        dry_run, species, path):
+def cli(filter_level,
+        max_unknowns,
+        c_deviations,
+        s_deviations,
+        m_deviations,
+        dry_run,
+        species,
+        path):
     if species:
         from genbankqc import Species
         try:
             s = Species(path, max_unknowns, c_deviations, s_deviations,
                         m_deviations)
             s.qc()
-            print("Completed ", s.species)
+            print("Completed", s.species)
             print(s)
         except Exception:
-            print('Failed ', s.species)
+            print('Failed', s.species)
             traceback.print_exc()
     else:
         from genbankqc import Genbank
