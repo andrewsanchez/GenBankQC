@@ -2,7 +2,6 @@ import os
 import re
 from functools import wraps
 from subprocess import DEVNULL, Popen
-from pandas.errors import EmptyDataError
 
 import pandas as pd
 
@@ -56,7 +55,7 @@ class Species:
         if os.path.isfile(self.dmx_path):
             try:
                 self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
-            except EmptyDataError:
+            except pd.errors.EmptyDataError:
                 print(self.species)
         if os.path.isfile(self.failed_path):
             self.failed_report = pd.read_csv(self.failed_path, index_col=0)
