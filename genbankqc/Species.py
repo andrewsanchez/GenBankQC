@@ -2,6 +2,7 @@ import os
 import re
 from functools import wraps
 from subprocess import DEVNULL, Popen
+from pandas.errors import EmptyDataError
 
 import pandas as pd
 
@@ -53,7 +54,10 @@ class Species:
         if os.path.isfile(self.nw_path):
             self.tree = Tree(self.nw_path, 1)
         if os.path.isfile(self.dmx_path):
-            self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
+            try:
+                self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
+            except EmptyDataError:
+                print(self.species)
         if os.path.isfile(self.failed_path):
             self.failed_report = pd.read_csv(self.failed_path, index_col=0)
         self.criteria = ["unknowns", "contigs", "assembly_size", "distance"]
