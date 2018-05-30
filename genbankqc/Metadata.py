@@ -48,32 +48,6 @@ class Metadata(Genbank):
         )
 
     @property
-    def biosample_ids(self):
-        ids = self.assembly_summary.biosample[
-            self.assembly_summary.biosample.notnull()]
-        return ids
-
-    @property
-    def sra_ids(self):
-        ids = self.biosample_df.SRA[
-            self.biosample_df.SRA.notnull()]
-        return ids
-
-    @property
-    def biosample_xml(self):
-        for f in os.listdir(self.biosample_dir):
-            if not f.endswith(".xml"):
-                continue
-            yield os.path.join(self.biosample_dir, f)
-
-    @property
-    def sra_xml(self):
-        for f in os.listdir(self.sra_dir):
-            if not f.endswith(".xml"):
-                continue
-            yield os.path.join(self.sra_dir, f)
-
-    @property
     def srs_df(self):
         from glob import iglob
         srs_all = os.path.join(self.sra_dir, "srs_all.csv")
@@ -132,6 +106,31 @@ class Metadata(Genbank):
         biosample_df.to_csv(
             os.path.join(self.biosample_dir, "biosample_all.csv"))
         return biosample_df
+
+    @property
+    def biosample_ids(self):
+        ids = self.assembly_summary.biosample[
+            self.assembly_summary.biosample.notnull()]
+        return ids
+
+    @property
+    def sra_ids(self):
+        ids = self.biosample_df.SRA[
+            self.biosample_df.SRA.notnull()]
+        return ids
+
+    @property
+    def biosample_xml(self):
+        for f in os.listdir(self.biosample_dir):
+            if f.endswith(".xml"):
+                yield os.path.join(self.biosample_dir, f)
+
+    @property
+    def sra_xml(self):
+        for f in os.listdir(self.sra_dir):
+            if not f.endswith(".xml"):
+                continue
+            yield os.path.join(self.sra_dir, f)
 
     def commands_biosample(self):
         efetch_biosample = os.path.join(
@@ -239,7 +238,6 @@ class Metadata(Genbank):
         biosample_df = self.biosample_df
         for s in self.species:
             # df = pd.DataFrame(columns=[''])
-            print(s.species)
             gcas = s.accession_ids
             biosamples = self.assembly_summary.loc[gcas].biosample
             species_biosamples = biosample_df.loc[biosamples.values]
@@ -248,12 +246,5 @@ class Metadata(Genbank):
                 srs = srs.loc[species_biosamples.SRA.tolist()]
             except KeyError:
                 continue
-            print(len(srs))
-            print(len(species_biosamples))
             species_biosamples.to_csv(os.path.join(s.qc_dir, "biosamples.csv"))
             srs.to_csv(os.path.join(s.qc_dir, "SRS.csv"))
-            # selects only ids that are in master biosample df
-            # df = df.loc[df.index.intersection(self.biosample_ids)]
-            # df.at(df.index, 'SRS') = self.srs_df
-            # out = os.path.join(s.qc_dir, "biosamples.csv")
-            # df.to_csv(out)
