@@ -49,11 +49,11 @@ class Metadata(Genbank):
 
     @property
     def srs_df(self):
-        from glob import iglob
+        from glob import glob
         srs_all = os.path.join(self.sra_dir, "srs_all.csv")
-        csvs = iglob(os.path.join(self.sra_dir, "*csv"))
         if os.path.isfile(srs_all):
             os.remove(srs_all)
+        csvs = glob(os.path.join(self.sra_dir, "*csv"))
         with open(srs_all, "a") as f:
             for csv in csvs:
                 f.write(open(csv).readlines()[1])
@@ -64,14 +64,14 @@ class Metadata(Genbank):
 
     @property
     def biosample_df(self):
-        from glob import iglob
+        from glob import glob
         biosample_all = os.path.join(self.biosample_dir, "biosample_all.csv")
-        csvs = iglob(os.path.join(self.biosample_dir, "*csv"))
         if os.path.isfile(biosample_all):
             os.remove(biosample_all)
+        csvs = glob(os.path.join(self.biosample_dir, "*csv"))
         with open(biosample_all, "a") as f:
             for csv in csvs:
-                    f.write(open(csv).readlines()[1])
+                f.write(open(csv).readlines()[1])
         # dfs = (pd.read_csv(f, index_col=0) for f in csvs)
         biosample_df = pd.read_csv(biosample_all, index_col=0, header=None)
         biosample_df.columns = [
