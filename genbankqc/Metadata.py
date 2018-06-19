@@ -1,6 +1,7 @@
 import os
 import stat
 import pandas as pd
+from retrying import retry
 import xml.etree.cElementTree as ET
 from xml.etree.ElementTree import ParseError
 
@@ -237,14 +238,24 @@ class Metadata(Genbank):
     def metadata(self):
         biosample_df = self.biosample_df
         for s in self.species:
+            biosamples_out = os.path.join(s.qc_dir, "biosamples.csv")
+            srs_out = os.path.join(s.qc_dir, "SRS.csv")
+            if os.path.isfile(biosamples_out):
+                continue
+            elif os.path.isfile(srs_out):
+                continue
             # df = pd.DataFrame(columns=[''])
             gcas = s.accession_ids
             biosamples = self.assembly_summary.loc[gcas].biosample
-            species_biosamples = biosample_df.loc[biosamples.values]
-            srs = self.srs_df[self.srs_df.SRS.notnull()]
             try:
+                species_biosamples = biosample_df.loc[biosamples.values]
+            except KeyError:
+                continue
+            try:
+                srs = self.srs_df[self.srs_df.SRS.notnull()]
                 srs = srs.loc[species_biosamples.SRA.tolist()]
             except KeyError:
                 continue
-            species_biosamples.to_csv(os.path.join(s.qc_dir, "biosamples.csv"))
-            srs.to_csv(os.path.join(s.qc_dir, "SRS.csv"))
+            species_biosamples.to_csv(biosamples_out)
+            srs.to_csv(srs_out)
+            print(s.species)
