@@ -26,18 +26,21 @@ class Genbank:
 
     @property
     def species(self):
-        dirs = (os.path.join(self.genbank, d)
-                for d in os.listdir(self.genbank))
-        dirs = (d for d in dirs if os.path.isdir(d))
+        dirs = (
+            os.path.join(self.genbank, d)
+            for d in os.listdir(self.genbank)
+            if os.path.isdir(d)
+        )
         for d in dirs:
-            fastas = len([f for f in os.listdir(d)
-                          if f.endswith('fasta')])
+            fastas = len([f for f in os.listdir(d) if f.endswith('fasta')])
             if fastas > 5:
                 try:
                     yield Species(d)
                 except Exception:
                     print('Skipping ', d)
                     traceback.print_exc()
+            else:
+                print(f"Not enough fastas in {d}")
 
     def qc(self):
         for i in self.species:
