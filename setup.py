@@ -11,7 +11,9 @@ setup(name='GenBankQC',
           'click',
           'pandas',
           'pytest',
-          'biopython'],
+          'biopython',
+          'retrying',
+      ],
       entry_points='''
       [console_scripts]
       genbankqc=genbankqc.__main__:cli

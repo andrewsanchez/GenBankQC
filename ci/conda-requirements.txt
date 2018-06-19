@@ -5,3 +5,4 @@ pandas
 scikit-bio
 biopython
 pytest
+retrying
