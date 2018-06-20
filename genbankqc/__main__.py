@@ -1,11 +1,17 @@
 import click
 import traceback
+from collections import namedtuple
+from genbankqc import Genbank
+from genbankqc import Species
+from genbankqc import Metadata
+
 
 
 help_text = """
 Assess the integrity of your FASTA collection.
 
 Run genbankqc on subdirectories in parent directory PATH.
+
 Subdirectories should contain 5 or more FASTAs.
 
 Specify a single species directory with the --species flag.
