@@ -40,7 +40,7 @@ class Genbank:
                     print('Skipping ', d)
                     traceback.print_exc()
             else:
-                print(f"Not enough fastas in {d}")
+                print("Not enough fastas in {}".format(d))
 
     def qc(self):
         for i in self.species:
