@@ -56,3 +56,36 @@ def cli(filter_level,
         from genbankqc import Genbank
         genbank = Genbank(path)
         genbank.qc()
+
+
+@click.group()
+@click.pass_context
+@click.argument('root', type=click.Path(exists=True, file_okay=False))
+def cli(ctx, path):
+    """
+    Assess the integrity of your genomes through automated analysis of
+    species-based statistics and metadata.
+    """
+    _ctx = namedtuple('ctx', ['genbank'])
+    ctx.obj = _ctx(genbank=Genbank(path))
+    pass
+
+
+@cli.command()
+@click.pass_obj
+@click.option('--list', '-ls', help="List the species under PATH", isflag=True)
+def species(ctx):
+    """
+    Number of species in PATH
+    """
+    if list:
+        for name in ctx.genbank.species:
+            click.echo(name)
+
+
+@cli.command()
+def metadata():
+    """
+    Generate Metadata
+    """
+    pass
