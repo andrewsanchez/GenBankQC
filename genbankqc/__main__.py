@@ -2,85 +2,66 @@ import click
 import traceback
 from collections import namedtuple
 from genbankqc import Genbank
+from genbankqc import Genome
 from genbankqc import Species
 from genbankqc import Metadata
 
 
-
-help_text = """
-Assess the integrity of your FASTA collection.
-
-Run genbankqc on subdirectories in parent directory PATH.
-
-Subdirectories should contain 5 or more FASTAs.
-
-Specify a single species directory with the --species flag.
-"""
-
-
-@click.command(help=help_text)
-@click.option('-n', '--max_unknowns', type=int, default=200,
-              help='Maximum number of unknown bases')
-@click.option('-c', '--c-deviations', type=float, default=3.0,
-              help='Deviations for number of contigs',)
-@click.option('-s', '--s-deviations', type=float, default=3.0,
-              help='Deviations for the assembly size')
-@click.option('-m', '--m-deviations', type=float, default=3.0,
-              help='Deviations for MASH distances')
-@click.option('-l', '--filter-level', type=float,
-              help='Deviations for all metrics')
-@click.option('-d', '--dry-run', is_flag=True)
-@click.option('--species', is_flag=True,
-              help='Run on single species')
-@click.argument('path', type=click.Path(exists=True, file_okay=False))
-def cli(filter_level,
-        max_unknowns,
-        c_deviations,
-        s_deviations,
-        m_deviations,
-        dry_run,
-        species,
-        path):
-    if species:
-        from genbankqc import Species
+class MyGroup(click.Group):
+    def parse_args(self, ctx, args):
         try:
-            s = Species(path, max_unknowns, c_deviations, s_deviations,
-                        m_deviations)
-            s.qc()
-            print("Completed", s.species)
-            print(s)
-        except Exception:
-            print('Failed', s.species)
-            traceback.print_exc()
-    else:
-        from genbankqc import Genbank
-        genbank = Genbank(path)
-        genbank.qc()
+            if args[0] in self.commands:
+                if len(args) == 1 or args[1] not in self.commands:
+                    args.insert(0, '')
+        except IndexError:
+            pass
+        super(MyGroup, self).parse_args(ctx, args)
 
 
-@click.group()
+@click.group(invoke_without_command=True, no_args_is_help=True)
 @click.pass_context
-@click.argument('root', type=click.Path(exists=True, file_okay=False))
+@click.argument('path', type=click.Path(), required=False)
 def cli(ctx, path):
     """
     Assess the integrity of your genomes through automated analysis of
     species-based statistics and metadata.
     """
+    genbank = Genbank(path)
     _ctx = namedtuple('ctx', ['genbank'])
-    ctx.obj = _ctx(genbank=Genbank(path))
-    pass
+    ctx.obj = _ctx(genbank=genbank)
+    if ctx.invoked_subcommand is None:
+        genbank.qc()
 
 
 @cli.command()
 @click.pass_obj
-@click.option('--list', '-ls', help="List the species under PATH", isflag=True)
-def species(ctx):
+@click.option('--max_unknowns', '-n', type=int, default=200, help='Maximum number of unknown bases')
+@click.option('--c-deviations', '-c', type=float, default=3.0, help='Deviations for number of contigs',)
+@click.option('--s-deviations', '-s', type=float, default=3.0, help='Deviations for the assembly size')
+@click.option('--m-deviations', '-m', type=float, default=3.0, help='Deviations for MASH distances')
+@click.option('--filter-level', '-l', type=float, help='Deviations for all metrics')
+@click.argument('path', type=click.Path(exists=True, file_okay=False))
+def species(ctx, max_unknowns, c_deviations, s_deviations, m_deviations, filter_level, path):
     """
     Number of species in PATH
     """
-    if list:
-        for name in ctx.genbank.species:
-            click.echo(name)
+    try:
+        species = Species(path, max_unknowns, c_deviations, s_deviations, m_deviations)
+        species.qc()
+    except Exception:
+        click.echo('Failed', s.species)
+        traceback.print_exc()
+
+
+@cli.command()
+@click.pass_obj
+@click.argument('path', type=click.Path(exists=True))
+def genome(ctx, path):
+    """
+    Get information about a genome or list of genomes.
+    """
+    genome = Genome(path)
+    click.echo(genome.stats_df)
 
 
 @cli.command()
