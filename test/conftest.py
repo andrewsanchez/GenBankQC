@@ -86,3 +86,8 @@ def genbank():
                     os.path.join(genbank, "Buchnera_aphidicola"))
     yield genbank
     shutil.rmtree(tmp)
+
+
+@pytest.fixture(scope="module")
+def metadata(genbank):
+    yield Metadata(genbank.path)
