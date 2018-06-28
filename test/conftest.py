@@ -57,11 +57,11 @@ def aphidicola_bare():
 
 
 @pytest.fixture(scope="module")
-def genome(aphidicola):
+def genome(metadata, aphidicola):
     genome = ("GCA_000521565.1_Buchnera_aphidicola_G002_"
               "Myzus_persicae_Complete_Genome.fasta")
     genome = os.path.join(aphidicola.path, genome)
-    genome = Genome(genome)
+    genome = Genome(genome, metadata.assembly_summary)
     genome.get_contigs()
     genome.get_assembly_size()
     genome.get_unknowns()
