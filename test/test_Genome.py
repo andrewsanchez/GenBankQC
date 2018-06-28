@@ -45,3 +45,13 @@ def test_get_stats(genome, aphidicola):
     genome.get_stats(dmx_mean)
     assert isinstance(genome.stats, DataFrame)
     assert os.path.isfile(genome.stats_path)
+
+
+def test_get_biosample(genome):
+    genome.get_biosample()
+    assert os.path.isfile(genome.biosample_xml)
+
+
+def test_parse_biosample(genome):
+    genome.parse_biosample()
+    assert genome.sra
