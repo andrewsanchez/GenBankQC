@@ -51,6 +51,16 @@ class Genome:
         }
         return ids
 
+    @retry(stop_max_attempt_number=7, stop_max_delay=10000, wait_fixed=2000)
+    def get_biosample(self):
+        # TODO save file object in memory instead of saving to disk
+        cmd = (
+            "esearch -db biosample -query {} | "
+            "efetch -format docsum "
+            "> {}\n".format(self.biosample_id, self.biosample_xml)
+        )
+        subprocess.Popen(cmd, shell="True", stderr=subprocess.DEVNULL).wait()
+
     def get_contigs(self):
         """Return a list of of Bio.Seq.Seq objects for fasta and calculate
         the total the number of contigs.
