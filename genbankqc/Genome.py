@@ -34,7 +34,7 @@ class Genome:
             self.biosample_id = assembly_summary.loc[self.accession_id].biosample
             self.biosample_xml = os.path.join(self.qc_dir, self.biosample_id+".xml")
         self.msh = os.path.join(self.qc_dir, self.name + ".msh")
-        self.stats_path = os.path.join(self.qc_dir, self.name+'.csv')
+        self.stats_path = os.path.join(self.qc_dir, self.name + '.csv')
         if os.path.isfile(self.stats_path):
             self.stats_df = pd.read_csv(self.stats_path, index_col=0)
         else:
