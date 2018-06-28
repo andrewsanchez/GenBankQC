@@ -4,8 +4,10 @@ import tempfile
 
 import pytest
 
+from genbankqc import Genbank
 from genbankqc import Species
 from genbankqc import Genome
+from genbankqc import Metadata
 
 
 @pytest.fixture(scope="module",
