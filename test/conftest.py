@@ -80,11 +80,12 @@ def five_genomes(aphidicola):
 def genbank():
     tmp = tempfile.mkdtemp()
     genbank = os.path.join(tmp, 'genbank')
+    shutil.copytree('test/resources/.info', os.path.join(genbank, ".info"))
     shutil.copytree('test/resources/Acinetobacter_baumannii',
                     os.path.join(genbank, "Acinetobacter_baumannii"))
     shutil.copytree('test/resources/Buchnera_aphidicola',
                     os.path.join(genbank, "Buchnera_aphidicola"))
-    yield genbank
+    yield Genbank(genbank)
     shutil.rmtree(tmp)
 
 
