@@ -29,8 +29,6 @@ class Genome:
         else:
             self.species_dir = os.path.split(self.path)[0]
         self.qc_dir = os.path.join(self.species_dir, "qc")
-        if not os.path.isdir(self.qc_dir):
-            os.mkdir(self.qc_dir)
         self.msh = os.path.join(self.qc_dir, self.name + ".msh")
         self.stats_path = os.path.join(self.qc_dir, self.name+'.csv')
         if os.path.isfile(self.stats_path):
