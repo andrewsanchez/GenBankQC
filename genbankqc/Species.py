@@ -337,7 +337,7 @@ class Species:
                 n.add_face(nf, column=0)
 
     # Might be better in a layout function
-    def style_and_render_tree(self, file_types=["svg", "pdf"]):
+    def style_and_render_tree(self, file_types=["svg"]):
         from ete3 import TreeStyle, TextFace, CircleFace
         ts = TreeStyle()
         title_face = TextFace(self.species.replace('_', ' '), fsize=20)
