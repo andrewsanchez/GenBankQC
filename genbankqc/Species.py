@@ -6,6 +6,8 @@ from subprocess import DEVNULL, Popen
 import pandas as pd
 
 from ete3 import Tree
+# Figure out how to supress error output from this
+os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
 
 class Species:
