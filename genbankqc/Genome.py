@@ -61,6 +61,21 @@ class Genome:
         )
         subprocess.Popen(cmd, shell="True", stderr=subprocess.DEVNULL).wait()
 
+    def parse_biosample(self):
+        # TODO Parse file object from get_biosample() in memory
+        try:
+            tree = ET.ElementTree(self.biosample_xml)
+        except ParseError:
+            # log
+            pass
+        try:
+            sra_path = ('DocumentSummary/SampleData/'
+                        'BioSample/Ids/Id/[@db="SRA"]')
+            self.sra = tree.find(sra_path).text
+        except AttributeError:
+            # log
+            self.sra = None
+
     def get_contigs(self):
         """Return a list of of Bio.Seq.Seq objects for fasta and calculate
         the total the number of contigs.
