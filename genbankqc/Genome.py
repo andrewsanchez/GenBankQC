@@ -59,7 +59,8 @@ class Genome:
             "efetch -format docsum "
             "> {}\n".format(self.biosample_id, self.biosample_xml)
         )
-        subprocess.Popen(cmd, shell="True", stderr=subprocess.DEVNULL).wait()
+        if not os.path.isfile(self.biosample_xml):
+            subprocess.Popen(cmd, shell="True", stderr=subprocess.DEVNULL).wait()
 
     def parse_biosample(self):
         # TODO Parse file object from get_biosample() in memory
