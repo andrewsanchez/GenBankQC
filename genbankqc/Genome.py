@@ -41,6 +41,16 @@ class Genome:
             self.stats_df = None
         # TODO: Maybe include the species_mean_distance here
 
+    @property
+    def ids(self):
+        ids = {
+            "accession": self.accession_id,
+            "biosample": self.biosample_id,
+            "sra": self.sra,
+            "srs": self.srs,
+        }
+        return ids
+
     def get_contigs(self):
         """Return a list of of Bio.Seq.Seq objects for fasta and calculate
         the total the number of contigs.
