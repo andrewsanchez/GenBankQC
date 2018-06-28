@@ -11,7 +11,7 @@ from Bio import SeqIO
 
 
 class Genome:
-    def __init__(self, genome):
+    def __init__(self, genome, assembly_summary=None):
         """
         :param genome: Path to genome
         :returns: Path to genome and name of the genome
