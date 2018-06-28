@@ -6,11 +6,12 @@ from genbankqc import Species
 
 
 class Genbank:
-    def __init__(self, genbank):
+    def __init__(self, path):
 
         """Genbank"""
 
-        self.genbank = genbank
+        self.genbank = path
+        self.path = path
         self.assembly_summary = os.path.join(
             self.genbank,
             ".info/assembly_summary.txt",
