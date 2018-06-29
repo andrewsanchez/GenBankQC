@@ -19,6 +19,7 @@ install:
   - source activate genbank-qc
   - pip install -q . --no-deps
   - pip install flake8
+  - pip install -r ci/requirements.txt
 script:
   - pytest -v
   - flake8 --exclude=docs/conf.py
