@@ -37,8 +37,10 @@ class Genome:
         self.qc_dir = os.path.join(self.species_dir, "qc")
         if assembly_summary is not None:
             self.assembly_summary = assembly_summary
-            self.biosample_id = assembly_summary.loc[self.accession_id].biosample
-            self.biosample_xml = os.path.join(self.qc_dir, self.biosample_id+".xml")
+            self.metadata["biosample_id"] = assembly_summary.loc[
+                self.accession_id].biosample
+            self.biosample_xml = os.path.join(
+                self.qc_dir, self.metadata["biosample_id"] + ".xml")
         self.msh = os.path.join(self.qc_dir, self.name + ".msh")
         self.stats_path = os.path.join(self.qc_dir, self.name + '.csv')
         if os.path.isfile(self.stats_path):
