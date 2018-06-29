@@ -8,7 +8,18 @@ from xml.etree.ElementTree import ParseError
 from genbankqc import Genbank
 
 
+
 class Metadata(Genbank):
+    def __init__(self, genbank):
+        super().__init__(genbank)
+        self.biosample_dir = os.path.join(
+            self.genbank,
+            "biosample_data",
+        )
+        self.sra_dir = os.path.join(
+            self.genbank,
+            "sra",
+        )
 
     biosample_fields = [
         "geo_loc_name",
@@ -36,17 +47,6 @@ class Metadata(Genbank):
         "serotype",
         "host_disease_outcome",
     ]
-
-    def __init__(self, genbank):
-        super().__init__(genbank)
-        self.biosample_dir = os.path.join(
-            self.genbank,
-            "biosample_data",
-        )
-        self.sra_dir = os.path.join(
-            self.genbank,
-            "sra",
-        )
 
     @property
     def srs_df(self):
