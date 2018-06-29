@@ -180,4 +180,5 @@ def test_filter_MAD(species):
 
 def test_min_genomes(five_genomes):
     five_genomes.qc()
-    assert not os.listdir(five_genomes.qc_dir)
+    with pytest.raises(FileNotFoundError):
+        os.listdir(five_genomes.qc_dir)
