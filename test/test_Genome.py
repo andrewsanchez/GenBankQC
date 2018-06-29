@@ -47,11 +47,15 @@ def test_get_stats(genome, aphidicola):
     assert os.path.isfile(genome.stats_path)
 
 
-def test_get_biosample(genome):
-    genome.get_biosample()
-    assert os.path.isfile(genome.biosample_xml)
-
-
-def test_parse_biosample(genome):
-    genome.parse_biosample()
-    assert genome.sra
+def test_parse_biosample(aphidicola, metadata):
+    from collections import defaultdict
+    for genome in aphidicola.genomes():
+        if genome.name == "this_is_a_genome":
+            continue
+        genome = Genome(genome.path,
+                        assembly_summary=metadata.assembly_summary)
+        genome.get_biosample()
+        assert os.path.isfile(genome.biosample_xml)
+        genome.parse_biosample()
+        assert isinstance(genome.metadata, defaultdict)
+        pprint(genome.metadata)
