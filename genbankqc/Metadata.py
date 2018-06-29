@@ -1,12 +1,10 @@
 import os
 import stat
 import pandas as pd
-from retrying import retry
 import xml.etree.cElementTree as ET
 from xml.etree.ElementTree import ParseError
 
 from genbankqc import Genbank
-
 
 
 class Metadata(Genbank):
