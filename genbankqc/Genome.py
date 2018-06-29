@@ -26,6 +26,10 @@ class Genome:
             self.accession_id = re.match('GCA_.*\.\d', self.name).group()
         except AttributeError:
             self.accession_id = self.name
+        self.metadata = defaultdict(
+            lambda: 'missing',
+            accession=self.accession_id,
+        )
         if '/' not in self.path:
             self.species_dir = '.'
         else:
