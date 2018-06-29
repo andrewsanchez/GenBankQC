@@ -1,4 +1,5 @@
 import os.path
+from genbankqc import Genome
 
 
 def test_init(genome):
@@ -58,4 +59,3 @@ def test_parse_biosample(aphidicola, metadata):
         assert os.path.isfile(genome.biosample_xml)
         genome.parse_biosample()
         assert isinstance(genome.metadata, defaultdict)
-        pprint(genome.metadata)
