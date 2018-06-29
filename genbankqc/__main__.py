@@ -35,21 +35,28 @@ def cli(ctx, path):
 
 @cli.command()
 @click.pass_obj
-@click.option('--max_unknowns', '-n', type=int, default=200, help='Maximum number of unknown bases')
-@click.option('--c-deviations', '-c', type=float, default=3.0, help='Deviations for number of contigs',)
-@click.option('--s-deviations', '-s', type=float, default=3.0, help='Deviations for the assembly size')
-@click.option('--m-deviations', '-m', type=float, default=3.0, help='Deviations for MASH distances')
-@click.option('--filter-level', '-l', type=float, help='Deviations for all metrics')
+@click.option('--max_unknowns', '-n', type=int,
+              default=200, help='Maximum number of unknown bases')
+@click.option('--c-deviations', '-c', type=float,
+              default=3.0, help='Deviations for number of contigs',)
+@click.option('--s-deviations', '-s', type=float,
+              default=3.0, help='Deviations for the assembly size')
+@click.option('--m-deviations', '-m', type=float,
+              default=3.0, help='Deviations for MASH distances')
+@click.option('--filter-level', '-l', type=float,
+              help='Deviations for all metrics')
 @click.argument('path', type=click.Path(exists=True, file_okay=False))
-def species(ctx, max_unknowns, c_deviations, s_deviations, m_deviations, filter_level, path):
+def species(ctx, max_unknowns, c_deviations,
+            s_deviations, m_deviations, filter_level, path):
     """
     Number of species in PATH
     """
     try:
-        species = Species(path, max_unknowns, c_deviations, s_deviations, m_deviations)
+        species = Species(path, max_unknowns, c_deviations,
+                          s_deviations, m_deviations)
         species.qc()
     except Exception:
-        click.echo('Failed', s.species)
+        click.echo('Failed', species.species)
         traceback.print_exc()
 
 
@@ -60,8 +67,10 @@ def genome(ctx, path):
     """
     Get information about a genome or list of genomes.
     """
-    genome = Genome(path)
-    click.echo(genome.stats_df)
+    genbank = ctx.genbank
+    assembly_summary = genbank.assembly_summary
+    genome = Genome(path, assembly_summary)
+    genome.parse_biosample()
 
 
 @cli.command()
