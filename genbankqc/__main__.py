@@ -4,7 +4,6 @@ from collections import namedtuple
 from genbankqc import Genbank
 from genbankqc import Genome
 from genbankqc import Species
-from genbankqc import Metadata
 
 
 class MyGroup(click.Group):
