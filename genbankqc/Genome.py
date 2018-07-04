@@ -65,16 +65,16 @@ class Genome:
         # TODO Parse file object from get_biosample() in memory
         try:
             tree = ET.ElementTree(file=self.biosample_xml)
+            sra = tree.find('DocumentSummary/SampleData/'
+                            'BioSample/Ids/Id/[@db="SRA"]')
         except ParseError:
             # log
             pass
-        sra = tree.find('DocumentSummary/SampleData/'
-                        'BioSample/Ids/Id/[@db="SRA"]')
         try:
             self.metdata["sra"] = sra.text
         except AttributeError:
             pass
-        for name in Metadata.biosample_fields:
+        for name in Metadata.Metadata.biosample_fields:
             xp = ('DocumentSummary/SampleData/BioSample/Attributes/Attribute'
                   '[@harmonized_name="{}"]'.format(name))
             attrib = tree.find(xp)
