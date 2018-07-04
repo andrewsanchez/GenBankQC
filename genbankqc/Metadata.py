@@ -7,7 +7,7 @@ from xml.etree.ElementTree import ParseError
 from genbankqc import Genbank
 
 
-class Metadata(Genbank):
+class Metadata(Genbank.Genbank):
     def __init__(self, genbank):
         super().__init__(genbank)
         self.biosample_dir = os.path.join(
