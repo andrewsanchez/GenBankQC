@@ -5,7 +5,7 @@ from genbankqc.__main__ import cli
 
 def test_cli(aphidicola_bare):
     runner = CliRunner()
-    result = runner.invoke(cli, ['--species', aphidicola_bare.path])
+    result = runner.invoke(cli)
     assert result.exit_code == 0
 
 
