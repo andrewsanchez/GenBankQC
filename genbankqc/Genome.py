@@ -50,6 +50,8 @@ class Genome:
 
     @retry(stop_max_attempt_number=7, stop_max_delay=10000, wait_fixed=2000)
     def efetch(self, db):
+        # TODO: Figure out how to retry if the process doesn't complete
+        # after 20 seconds
         if db == "biosample":
             db_id = db + "_id"
         elif db == "sra":
@@ -59,6 +61,8 @@ class Genome:
         p = subprocess.Popen(cmd, shell="True", stdout=subprocess.PIPE,
                              stderr=subprocess.DEVNULL)
         xml, err = p.communicate()
+        # Maybe this should return something else of xml is empty
+        # or if err is not 0
         self.xml[db] = xml
 
     def parse_biosample(self):
