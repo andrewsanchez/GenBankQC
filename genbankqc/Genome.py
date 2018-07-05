@@ -73,20 +73,20 @@ class Genome:
             tree = ET.fromstring(f)
             sra = tree.find('DocumentSummary/SampleData/'
                             'BioSample/Ids/Id/[@db="SRA"]')
+            for name in Metadata.Metadata.biosample_fields:
+                xp = ('DocumentSummary/SampleData/BioSample/Attributes/'
+                      'Attribute/[@harmonized_name="{}"]'.format(name))
+                attrib = tree.find(xp)
+            try:
+                self.metadata[name] = attrib.text
+            except AttributeError:
+                self.metadata[name] = "missing"
             try:
                 self.metadata["sra"] = sra.text
             except AttributeError:
                 self.metadata["sra"] = "missing"
         except ParseError:
             self.metadata["sra"] = "missing"
-        for name in Metadata.Metadata.biosample_fields:
-            xp = ('DocumentSummary/SampleData/BioSample/Attributes/Attribute'
-                  '[@harmonized_name="{}"]'.format(name))
-            attrib = tree.find(xp)
-            try:
-                self.metadata[name] = attrib.text
-            except AttributeError:
-                self.metadata[name] = "missing"
 
     @retry(stop_max_attempt_number=7, stop_max_delay=10000, wait_fixed=2000)
     def get_sra(self):
