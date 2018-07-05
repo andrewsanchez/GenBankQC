@@ -51,7 +51,13 @@ class Genome:
         # TODO: Maybe include the species_mean_distance here
 
     @retry(stop_max_attempt_number=7, stop_max_delay=10000, wait_fixed=2000)
-    def get_biosample(self):
+    def get_biosample(self, db):
+        if db == "biosample":
+            db_id = db + "_id"
+            xml = self.biosample_xml
+        elif db == "sra":
+            db_id = db + "_id"
+            # xml = self.sra_xml
         # TODO save file object in memory instead of saving to disk
         cmd = (
             "esearch -db biosample -query {} | "
