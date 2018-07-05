@@ -55,7 +55,7 @@ def test_parse_biosample(aphidicola, metadata):
             continue
         genome = Genome(genome.path,
                         assembly_summary=metadata.assembly_summary)
-        genome.get_biosample()
+        genome.get_biosample("biosample")
         assert os.path.isfile(genome.biosample_xml)
         genome.parse_biosample()
         assert isinstance(genome.metadata, defaultdict)
