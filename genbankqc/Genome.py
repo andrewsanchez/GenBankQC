@@ -49,7 +49,7 @@ class Genome:
         # TODO: Maybe include the species_mean_distance here
 
     @retry(stop_max_attempt_number=7, stop_max_delay=10000, wait_fixed=2000)
-    def get_biosample(self, db):
+    def efetch(self, db):
         if db == "biosample":
             db_id = db + "_id"
         elif db == "sra":

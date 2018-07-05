@@ -71,7 +71,7 @@ def genome(ctx, path, metadata):
     genbank = ctx.genbank
     assembly_summary = genbank.assembly_summary
     genome = Genome(path, assembly_summary)
-    genome.get_biosample("biosample")
+    genome.efetch("biosample")
     genome.parse_biosample()
     for i in genome.metadata.items():
         click.echo(i)
