@@ -59,28 +59,26 @@ class Genome:
             db_id = db + "_id"
             # xml = self.sra_xml
         # TODO save file object in memory instead of saving to disk
-        cmd = (
-            "esearch -db biosample -query {} | "
-            "efetch -format docsum "
-            "> {}\n".format(self.metadata["biosample_id"], self.biosample_xml)
-        )
-        if not os.path.isfile(self.biosample_xml):
-            subprocess.Popen(
-                cmd, shell="True", stderr=subprocess.DEVNULL).wait()
+        cmd = ("esearch -db {} -query {} | "
+               "efetch -format docsum".format(db, self.metadata[db_id], xml))
+        p = subprocess.Popen(cmd, shell="True", stdout=subprocess.PIPE,
+                             stderr=subprocess.DEVNULL)
+        xml, err = p.communicate()
+        self.xml[db] = xml
 
     def parse_biosample(self):
         # TODO Parse file object from get_biosample() in memory
+        f = self.xml["biosample"]
         try:
-            tree = ET.ElementTree(file=self.biosample_xml)
+            tree = ET.fromstring(f)
             sra = tree.find('DocumentSummary/SampleData/'
                             'BioSample/Ids/Id/[@db="SRA"]')
+            try:
+                self.metadata["sra"] = sra.text
+            except AttributeError:
+                self.metadata["sra"] = "missing"
         except ParseError:
-            # log
-            pass
-        try:
-            self.metdata["sra"] = sra.text
-        except AttributeError:
-            pass
+            self.metadata["sra"] = "missing"
         for name in Metadata.Metadata.biosample_fields:
             xp = ('DocumentSummary/SampleData/BioSample/Attributes/Attribute'
                   '[@harmonized_name="{}"]'.format(name))
