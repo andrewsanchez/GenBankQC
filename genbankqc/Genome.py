@@ -66,29 +66,31 @@ class Genome:
         self.xml[db] = xml
 
     def parse_biosample(self):
-        # TODO Parse file object from get_biosample() in memory
-        f = self.xml["biosample"]
+        """
+        Get what we need to get out of the xml returned by efetch("biosample")
+        Including the SRA ID and fields of interest as defined in
+        Metadata.biosample_fields
+        """
         try:
-            tree = ET.fromstring(f)
+            tree = ET.fromstring(self.xml["biosample"])
             sra = tree.find('DocumentSummary/SampleData/'
                             'BioSample/Ids/Id/[@db="SRA"]')
+            try:
+                self.metadata["sra_id"] = sra.text
+            except AttributeError:
+                self.metadata["sra_id"] = "missing"
             for name in Metadata.Metadata.biosample_fields:
                 xp = ('DocumentSummary/SampleData/BioSample/Attributes/'
                       'Attribute/[@harmonized_name="{}"]'.format(name))
                 attrib = tree.find(xp)
-            try:
-                self.metadata[name] = attrib.text
-            except AttributeError:
-                self.metadata[name] = "missing"
-            try:
-                self.metadata["sra"] = sra.text
-            except AttributeError:
-                self.metadata["sra"] = "missing"
+                try:
+                    self.metadata[name] = attrib.text
+                except AttributeError:
+                    self.metadata[name] = "missing"
         except ParseError:
-            self.metadata["sra"] = "missing"
+            self.metadata["sra_id"] = "missing"
 
-    @retry(stop_max_attempt_number=7, stop_max_delay=10000, wait_fixed=2000)
-    def get_sra(self):
+    def parse_sra(self):
         pass
 
     def get_contigs(self):
