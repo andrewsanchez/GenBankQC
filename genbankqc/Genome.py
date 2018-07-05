@@ -86,8 +86,9 @@ class Genome:
             try:
                 self.metadata[name] = attrib.text
             except AttributeError:
-                pass
+                self.metadata[name] = "missing"
 
+    @retry(stop_max_attempt_number=7, stop_max_delay=10000, wait_fixed=2000)
     def get_sra(self):
         pass
 
