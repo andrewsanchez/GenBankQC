@@ -77,6 +77,14 @@ def genome(metadata, aphidicola):
               "Myzus_persicae_Complete_Genome.fasta")
     genome = os.path.join(aphidicola.path, genome)
     genome = Genome(genome, metadata.assembly_summary)
+
+
+@pytest.fixture(scope="module")
+def ecoli(genbank):
+    genome = ("GCA_900239835.1_Escherichia_coli_R0007_203_Contig.fasta")
+    genome = os.path.join(genbank.path, "Escherichia_coli", genome)
+    genome = Genome(genome, genbank.assembly_summary)
+    genome.sketch()
     genome.get_contigs()
     genome.get_assembly_size()
     genome.get_unknowns()
