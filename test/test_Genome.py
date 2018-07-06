@@ -60,6 +60,6 @@ def test_efetch_sra(ecoli):
     assert ecoli.xml["sra"] is not None
 
 
-# def test_parse_sra(ecoli):
-#     ecoli.parse_sra()
-#     assert ecoli.metadata.items["srs"] == ""
+def test_parse_sra(ecoli):
+    ecoli.parse_sra()
+    assert ecoli.metadata["srs_accessions"] is not None
