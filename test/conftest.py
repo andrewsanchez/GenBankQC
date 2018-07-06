@@ -86,7 +86,7 @@ def genome(genbank, aphidicola):
 
 @pytest.fixture(scope="module")
 def ecoli(genbank):
-    genome = ("GCA_900239835.1_Escherichia_coli_R0007_203_Contig.fasta")
+    genome = ("GCA_002012025.1_Escherichia_coli_Ecol_542_Complete_Genome.fasta")
     genome = os.path.join(genbank.path, "Escherichia_coli", genome)
     genome = Genome(genome, genbank.assembly_summary)
     yield genome
