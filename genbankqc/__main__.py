@@ -72,6 +72,7 @@ def genome(ctx, path, metadata):
     assembly_summary = genbank.assembly_summary
     genome = Genome(path, assembly_summary)
     genome.efetch("biosample")
+    genome.efetch("sra")
     genome.parse_biosample()
     click.echo(genome.metadata)
 
