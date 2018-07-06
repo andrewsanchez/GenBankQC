@@ -10,6 +10,21 @@ from genbankqc import Genome
 from genbankqc import Metadata
 
 
+@pytest.fixture(scope="module")
+def genbank():
+    tmp = tempfile.mkdtemp()
+    genbank = os.path.join(tmp, 'genbank')
+    shutil.copytree('test/resources/.info', os.path.join(genbank, ".info"))
+    shutil.copytree('test/resources/Acinetobacter_baumannii',
+                    os.path.join(genbank, "Acinetobacter_baumannii"))
+    shutil.copytree('test/resources/Buchnera_aphidicola',
+                    os.path.join(genbank, "Buchnera_aphidicola"))
+    shutil.copytree('test/resources/Escherichia_coli',
+                    os.path.join(genbank, "Escherichia_coli"))
+    yield Genbank(genbank)
+    shutil.rmtree(tmp)
+
+
 @pytest.fixture(scope="module",
                 params=["Buchnera_aphidicola", "Acinetobacter_baumannii"])
 @pytest.fixture()
@@ -74,19 +89,6 @@ def five_genomes(aphidicola):
     for genome in list(aphidicola.genomes())[:5]:
         os.remove(genome.path)
     yield aphidicola
-
-
-@pytest.fixture(scope="module")
-def genbank():
-    tmp = tempfile.mkdtemp()
-    genbank = os.path.join(tmp, 'genbank')
-    shutil.copytree('test/resources/.info', os.path.join(genbank, ".info"))
-    shutil.copytree('test/resources/Acinetobacter_baumannii',
-                    os.path.join(genbank, "Acinetobacter_baumannii"))
-    shutil.copytree('test/resources/Buchnera_aphidicola',
-                    os.path.join(genbank, "Buchnera_aphidicola"))
-    yield Genbank(genbank)
-    shutil.rmtree(tmp)
 
 
 @pytest.fixture(scope="module")
