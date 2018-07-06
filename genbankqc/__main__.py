@@ -61,7 +61,7 @@ def species(ctx, max_unknowns, c_deviations,
 
 @cli.command()
 @click.pass_obj
-@click.argument('path', type=click.Path(exists=True))
+@click.argument('path', type=click.Path(exists=True, dir_okay=False))
 @click.option('--metadata', help='Get metadata for genome at PATH',
               is_flag=True)
 def genome(ctx, path, metadata):
@@ -73,8 +73,7 @@ def genome(ctx, path, metadata):
     genome = Genome(path, assembly_summary)
     genome.efetch("biosample")
     genome.parse_biosample()
-    for i in genome.metadata.items():
-        click.echo(i)
+    click.echo(genome.metadata)
 
 
 @cli.command()
