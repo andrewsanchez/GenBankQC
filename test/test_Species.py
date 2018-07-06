@@ -182,3 +182,12 @@ def test_min_genomes(five_genomes):
     five_genomes.qc()
     with pytest.raises(FileNotFoundError):
         os.listdir(five_genomes.qc_dir)
+
+
+def test_metadata(species):
+    species.metadata()
+    assert isinstance(species.metadata_df, pd.DataFrame)
+    assert os.path.isfile(species.metadata_path)
+    print(species.path)
+    import pdb
+    pdb.set_trace()

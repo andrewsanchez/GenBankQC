@@ -25,7 +25,7 @@ class Genome:
         try:
             self.accession_id = re.match('GCA_.*\.\d', self.name).group()
         except AttributeError:
-            self.accession_id = self.name
+            self.accession_id = None
         self.metadata = defaultdict(
             lambda: 'missing',
             accession=self.accession_id,
@@ -37,8 +37,11 @@ class Genome:
         self.qc_dir = os.path.join(self.species_dir, "qc")
         if assembly_summary is not None:
             self.assembly_summary = assembly_summary
-            self.metadata["biosample_id"] = assembly_summary.loc[
-                self.accession_id].biosample
+            try:
+                self.metadata["biosample_id"] = assembly_summary.loc[
+                    self.accession_id].biosample
+            except TypeError:
+                pass
         self.xml = {}
         self.msh = os.path.join(self.qc_dir, self.name + ".msh")
         self.stats_path = os.path.join(self.qc_dir, self.name + '.csv')
@@ -95,6 +98,10 @@ class Genome:
 
     @retry(stop_max_attempt_number=7, stop_max_delay=10000, wait_fixed=2000)
     def efetch(self, db):
+        """
+        Use NCBI's efetch tools to retrieve xml for genome's biosample id
+        or SRA id
+        """
         # TODO: Figure out how to retry if the process doesn't complete
         # after 20 seconds
         if db == "biosample":
@@ -137,15 +144,25 @@ class Genome:
 
     def parse_sra(self):
         # before running, make sure xml exists
-        try:
-            tree = ET.fromstring(self.xml["sra"])
-            elements = tree.iterfind("DocumentSummary/Runs/Run/[@acc]")
-            srs_accessions = []
-            for el in elements:
-                    items = el.items()
-                    acc = [i[1] for i in items if i[0] == 'acc']
-                    acc = acc[0]
-                    srs_accessions.append(acc)
-            self.metadata["srs_accessions"] = ','.join(srs_accessions)
-        except ParseError:
+        if self.xml["sra"]:
+            try:
+                tree = ET.fromstring(self.xml["sra"])
+                elements = tree.iterfind("DocumentSummary/Runs/Run/[@acc]")
+                srs_accessions = []
+                for el in elements:
+                        items = el.items()
+                        acc = [i[1] for i in items if i[0] == 'acc']
+                        acc = acc[0]
+                        srs_accessions.append(acc)
+                self.metadata["srs_accessions"] = ','.join(srs_accessions)
+            except ParseError:
+                self.metadata["srs_accessions"] = "missing"
+        else:
             self.metadata["srs_accessions"] = "missing"
+
+    def get_metadata(self):
+        self.efetch("biosample")
+        self.parse_biosample()
+        if self.metadata["sra_id"] is not "missing":
+            self.efetch("sra")
+        print(self.name)

@@ -25,9 +25,9 @@ def cli(ctx, path):
     Assess the integrity of your genomes through automated analysis of
     species-based statistics and metadata.
     """
-    genbank = Genbank(path)
-    _ctx = namedtuple('ctx', ['genbank'])
-    ctx.obj = _ctx(genbank=genbank)
+    _ctx = namedtuple('ctx', ['genbank', 'assembly_summary'])
+    ctx.obj = _ctx(genbank=Genbank(path),
+                   assembly_summary=genbank.assembly_summary)
     if ctx.invoked_subcommand is None:
         genbank.qc()
 
@@ -51,9 +51,9 @@ def species(ctx, max_unknowns, c_deviations,
     Number of species in PATH
     """
     try:
-        species = Species(path, max_unknowns, c_deviations,
-                          s_deviations, m_deviations)
-        species.qc()
+        species = Species(path, max_unknowns, c_deviations, s_deviations,
+                          m_deviations, ctx.assembly_summary)
+        species.metadata()
     except Exception:
         click.echo('Failed', species.species)
         traceback.print_exc()
@@ -68,12 +68,7 @@ def genome(ctx, path, metadata):
     """
     Get information about a genome or list of genomes.
     """
-    genbank = ctx.genbank
-    assembly_summary = genbank.assembly_summary
-    genome = Genome(path, assembly_summary)
-    genome.efetch("biosample")
-    genome.efetch("sra")
-    genome.parse_biosample()
+    genome = Genome(path, ctx.assembly_summary)
     click.echo(genome.metadata)
 
 

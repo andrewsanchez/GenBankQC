@@ -63,3 +63,6 @@ def test_efetch_sra(ecoli):
 def test_parse_sra(ecoli):
     ecoli.parse_sra()
     assert ecoli.metadata["srs_accessions"] is not None
+
+def test_metadata(species):
+    species.metadata() 

@@ -28,9 +28,9 @@ def genbank():
 @pytest.fixture(scope="module",
                 params=["Buchnera_aphidicola", "Acinetobacter_baumannii"])
 @pytest.fixture()
-def species(request):
+def species(request, genbank):
     species = "test/resources/{}".format(request.param)
-    species = Species(species)
+    species = Species(species, assembly_summary=genbank.assembly_summary)
     yield species
 
 

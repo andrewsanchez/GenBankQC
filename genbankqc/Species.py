@@ -25,6 +25,7 @@ class Species:
         self.contigs = contigs
         self.assembly_size = assembly_size
         self.mash = mash
+        self.assembly_summary = assembly_summary
         self.qc_dir = os.path.join(self.path, "qc")
         self.label = '{}-{}-{}-{}'.format(
             max_unknowns, contigs, assembly_size, mash)
@@ -86,7 +87,7 @@ class Species:
 
     @property
     def total_genomes(self):
-        return len(list(self.genomes()))
+        return len(list(self.genomes))
 
     def assess(f):
         # TODO: This can have a more general application if the pickling
@@ -127,6 +128,7 @@ class Species:
         except AssertionError:
             self.tree_complete = False
 
+    @property
     def genomes(self, ext="fasta"):
         # TODO: Maybe this should return a tuple (genome-path, genome-id)
         """Returns a generator for every file ending with `ext`
@@ -136,24 +138,26 @@ class Species:
         :rtype: generator
         """
         from genbankqc import Genome
-        genomes = (Genome(os.path.join(self.path, f)) for
-                   f in os.listdir(self.path) if f.endswith(ext))
+        genomes = (Genome(os.path.join(self.path, f), self.assembly_summary)
+                   for f in os.listdir(self.path) if f.endswith(ext))
         return genomes
 
     def sketches(self):
-        return (i.msh for i in self.genomes())
+        return (i.msh for i in self.genomes)
 
     def genome_ids(self):
-        ids = [i.name for i in self.genomes()]
+        ids = [i.name for i in self.genomes]
         return pd.Index(ids)
 
+    # may be redundant. see genome_ids attrib
     @property
     def accession_ids(self):
-        ids = [i.accession_id for i in self.genomes()]
+        ids = [i.accession_id for i in self.genomes
+               if i.accession_id is not None]
         return ids
 
     def sketch(self):
-        for genome in self.genomes():
+        for genome in self.genomes:
             genome.sketch()
 
     def mash_paste(self):
@@ -211,9 +215,9 @@ class Species:
         Get stats for all genomes. Concat the results into a DataFrame
         """
         dmx_mean = self.dmx.mean()
-        for genome in self.genomes():
+        for genome in self.genomes:
             genome.get_stats(dmx_mean)
-        species_stats = [genome.stats_df for genome in self.genomes()]
+        species_stats = [genome.stats_df for genome in self.genomes]
         self.stats = pd.concat(species_stats)
         self.stats.to_csv(self.stats_path)
 
@@ -471,3 +475,13 @@ class Species:
         self.link_genomes()
         self.get_tree()
         self.color_tree()
+
+    def metadata(self):
+        metadata = []
+        for genome in self.genomes:
+            genome.get_metadata()
+            metadata.append(genome.metadata)
+        self.metadata_df = pd.DataFrame(metadata)
+        self.metadata_path = os.path.join(
+            self.qc_dir, "{}_metadata.csv".format(self.species))
+        self.metadata_df.to_csv(self.metadata_path)
