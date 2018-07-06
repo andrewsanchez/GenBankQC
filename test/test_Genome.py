@@ -45,13 +45,8 @@ def test_get_stats(genome, aphidicola):
     assert os.path.isfile(genome.stats_path)
 
 
-def test_parse_biosample(aphidicola, metadata):
+def test_parse_biosample(ecoli):
     from collections import defaultdict
-    for genome in aphidicola.genomes():
-        if genome.name == "this_is_a_genome":
-            continue
-        genome = Genome(genome.path,
-                        assembly_summary=metadata.assembly_summary)
-        genome.efetch("biosample")
-        genome.parse_biosample()
-        assert isinstance(genome.metadata, defaultdict)
+    ecoli.efetch("biosample")
+    ecoli.parse_biosample()
+    assert isinstance(ecoli.metadata, defaultdict)
