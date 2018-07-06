@@ -3,7 +3,6 @@ from genbankqc import Genome
 
 
 def test_init(genome):
-    from genbankqc import Genome
     expected_name = ("GCA_000521565.1_Buchnera_aphidicola_G002_"
                      "Myzus_persicae_Complete_Genome")
     expected_path = os.path.join(genome.species_dir, expected_name+".fasta")
@@ -11,8 +10,6 @@ def test_init(genome):
     assert isinstance(genome, Genome)
     assert genome.name == expected_name
     assert genome.name in genome.msh
-    assert genome.path and 'qc' in genome.qc_dir
-    assert os.path.isdir(genome.qc_dir)
 
 
 def test_get_contigs(genome):
