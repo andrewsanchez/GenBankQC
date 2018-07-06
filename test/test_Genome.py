@@ -45,8 +45,21 @@ def test_get_stats(genome, aphidicola):
     assert os.path.isfile(genome.stats_path)
 
 
-def test_parse_biosample(ecoli):
-    from collections import defaultdict
+def test_efetch_biosample(ecoli):
     ecoli.efetch("biosample")
+    assert ecoli.xml["biosample"] is not None
+
+
+def test_parse_biosample(ecoli):
     ecoli.parse_biosample()
-    assert isinstance(ecoli.metadata, defaultdict)
+    assert ecoli.metadata.items() is not None
+
+
+def test_efetch_sra(ecoli):
+    ecoli.efetch("sra")
+    assert ecoli.xml["sra"] is not None
+
+
+# def test_parse_sra(ecoli):
+#     ecoli.parse_sra()
+#     assert ecoli.metadata.items["srs"] == ""
