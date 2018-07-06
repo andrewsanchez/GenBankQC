@@ -17,11 +17,8 @@ class Species:
             The path to the directory of related genomes you wish to analyze.
     """
 
-    def __init__(self, path,
-                 max_unknowns=200,
-                 contigs=3.0,
-                 assembly_size=3.0,
-                 mash=3.0):
+    def __init__(self, path, max_unknowns=200, contigs=3.0, assembly_size=3.0,
+                 mash=3.0, assembly_summary=None):
         self.path = path
         self.species = path
         self.max_unknowns = max_unknowns
