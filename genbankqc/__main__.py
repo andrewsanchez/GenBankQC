@@ -26,8 +26,8 @@ def cli(ctx, path):
     species-based statistics and metadata.
     """
     _ctx = namedtuple('ctx', ['genbank', 'assembly_summary'])
-    ctx.obj = _ctx(genbank=Genbank(path),
-                   assembly_summary=genbank.assembly_summary)
+    genbank = Genbank(path)
+    ctx.obj = _ctx(genbank=genbank, assembly_summary=genbank.assembly_summary)
     if ctx.invoked_subcommand is None:
         genbank.qc()
 
