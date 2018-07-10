@@ -48,12 +48,12 @@ def cli(ctx, path):
 def species(ctx, max_unknowns, c_deviations,
             s_deviations, m_deviations, filter_level, path):
     """
-    Number of species in PATH
+    Run qc command on given species
     """
     try:
         species = Species(path, max_unknowns, c_deviations, s_deviations,
                           m_deviations, ctx.assembly_summary)
-        species.metadata()
+        species.qc()
     except Exception:
         click.echo('Failed', species.species)
         traceback.print_exc()
