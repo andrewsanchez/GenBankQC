@@ -148,21 +148,21 @@ class Genome:
             try:
                 tree = ET.fromstring(self.xml["sra"])
                 elements = tree.iterfind("DocumentSummary/Runs/Run/[@acc]")
-                srs_accessions = []
+                srr_accessions = []
                 for el in elements:
                         items = el.items()
                         acc = [i[1] for i in items if i[0] == 'acc']
                         acc = acc[0]
-                        srs_accessions.append(acc)
-                self.metadata["srs_accessions"] = ','.join(srs_accessions)
+                        srr_accessions.append(acc)
+                self.metadata["srr_accessions"] = ','.join(srr_accessions)
             except ParseError:
-                self.metadata["srs_accessions"] = "missing"
+                self.metadata["srr_accessions"] = "missing"
         else:
-            self.metadata["srs_accessions"] = "missing"
+            self.metadata["srr_accessions"] = "missing"
 
     def get_metadata(self):
         self.efetch("biosample")
         self.parse_biosample()
         if self.metadata["sra_id"] is not "missing":
             self.efetch("sra")
-        print(self.name)
+            self.parse_sra()
