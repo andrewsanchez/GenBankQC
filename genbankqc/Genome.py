@@ -96,14 +96,18 @@ class Genome:
             self.stats = DataFrame(data, index=[self.name])
             self.stats.to_csv(self.stats_path)
 
-    @retry(stop_max_attempt_number=7, stop_max_delay=10000, wait_fixed=2000)
+    one_minute = 60000
+
+    # Retry 3 times over a period of 3 minutes max,
+    # waiting five seconds in between retries
+    @retry(stop_max_attempt_number=3,
+           stop_max_delay=one_minute*3,
+           wait_fixed=5000)
     def efetch(self, db):
         """
         Use NCBI's efetch tools to retrieve xml for genome's biosample id
         or SRA id
         """
-        # TODO: Figure out how to retry if the process doesn't complete
-        # after 20 seconds
         if db == "biosample":
             db_id = db + "_id"
         elif db == "sra":
