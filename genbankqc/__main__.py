@@ -25,6 +25,7 @@ def cli(ctx, path):
     Assess the integrity of your genomes through automated analysis of
     species-based statistics and metadata.
     """
+    # TODO: Option for basic info about PATH
     _ctx = namedtuple('ctx', ['genbank', 'assembly_summary'])
     genbank = Genbank(path)
     ctx.obj = _ctx(genbank=genbank, assembly_summary=genbank.assembly_summary)
