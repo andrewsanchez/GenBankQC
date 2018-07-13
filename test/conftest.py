@@ -26,7 +26,7 @@ def genbank():
 
 
 @pytest.fixture(scope="module",
-                params=["Buchnera_aphidicola", "Acinetobacter_baumannii"])
+                params=["Buchnera_aphidicola"])
 @pytest.fixture()
 def species(request, genbank):
     species = "test/resources/{}".format(request.param)
@@ -85,7 +85,7 @@ def genome(genbank, aphidicola):
 
 
 @pytest.fixture(scope="module")
-def ecoli(genbank):
+def ecoli_genome(genbank):
     genome = ("GCA_002012025.1_Escherichia_coli_"
               "Ecol_542_Complete_Genome.fasta")
     genome = os.path.join(genbank.path, "Escherichia_coli", genome)
