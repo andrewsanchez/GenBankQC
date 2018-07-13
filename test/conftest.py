@@ -96,7 +96,7 @@ def ecoli_genome(genbank):
 @pytest.fixture(scope="module")
 def five_genomes(aphidicola):
     shutil.rmtree(aphidicola.qc_dir)
-    for genome in list(aphidicola.genomes())[:5]:
+    for genome in list(aphidicola.genomes)[:5]:
         os.remove(genome.path)
     yield aphidicola
 
