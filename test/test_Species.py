@@ -188,6 +188,3 @@ def test_metadata(species):
     species.metadata()
     assert isinstance(species.metadata_df, pd.DataFrame)
     assert os.path.isfile(species.metadata_path)
-    print(species.path)
-    import pdb
-    pdb.set_trace()
