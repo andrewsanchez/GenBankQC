@@ -105,8 +105,7 @@ class Genome:
            wait_fixed=5000)
     def efetch(self, db):
         """
-        Use NCBI's efetch tools to retrieve xml for genome's biosample id
-        or SRA id
+        Use NCBI's efetch tools to get xml for genome's biosample id or SRA id
         """
         if db == "biosample":
             db_id = db + "_id"
