@@ -6,7 +6,7 @@ from genbankqc import Genome
 from genbankqc import Species
 
 
-class MyGroup(click.Group):
+class CLIGroup(click.Group):
     def parse_args(self, ctx, args):
         try:
             if args[0] in self.commands:
@@ -14,10 +14,10 @@ class MyGroup(click.Group):
                     args.insert(0, '')
         except IndexError:
             pass
-        super(MyGroup, self).parse_args(ctx, args)
+        super(CLIGroup, self).parse_args(ctx, args)
 
 
-@click.group(invoke_without_command=True, no_args_is_help=True)
+@click.group(invoke_without_command=True, no_args_is_help=True, cls=CLIGroup)
 @click.pass_context
 @click.argument('path', type=click.Path(), required=False)
 def cli(ctx, path):
