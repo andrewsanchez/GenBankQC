@@ -113,11 +113,18 @@ class Genome:
             db_id = db + "_id"
         cmd = ("esearch -db {} -query {} | "
                "efetch -format docsum".format(db, self.metadata[db_id]))
-        p = subprocess.Popen(cmd, shell="True", stdout=subprocess.PIPE,
-                             stderr=subprocess.DEVNULL)
-        xml, err = p.communicate()
+        # Make efetch timeout and retry after 30 seconds
+        time_limit = 30
+        try:
+            p = subprocess.run(cmd, shell="True", stdout=subprocess.PIPE,
+                               stderr=subprocess.DEVNULL, timeout=time_limit)
+            xml, err = p.communicate()
         # Maybe this should return something else of xml is empty
-        # or if err is not 0
+        # or if p returns non-0
+        except subprocess.TimeoutExpired:
+            # log here
+            print("Retrying efetch after timeout")
+            raise subprocess.TimeoutExpired(cmd, time_limit)
         self.xml[db] = xml
 
     def parse_biosample(self):
