@@ -35,16 +35,16 @@ def cli(ctx, path):
 
 @cli.command()
 @click.pass_obj
-@click.option('--max_unknowns', '-n', type=int,
-              default=200, help='Maximum number of unknown bases')
-@click.option('--c-deviations', '-c', type=float,
-              default=3.0, help='Deviations for number of contigs',)
-@click.option('--s-deviations', '-s', type=float,
-              default=3.0, help='Deviations for the assembly size')
-@click.option('--m-deviations', '-m', type=float,
-              default=3.0, help='Deviations for MASH distances')
-@click.option('--filter-level', '-l', type=float,
-              help='Deviations for all metrics')
+@click.option('--unknowns', '-n', type=int, default=200,
+              help='Maximum number of unknown bases (not A, T, C, G)')
+@click.option('--contigs', '-c', type=float, default=3.0,
+              help='Acceptable deviations from median number of contigs')
+@click.option('--assembly-size', '-s', type=float, default=3.0,
+              help='Acceptable deviations from median assembly size')
+@click.option('--distance', '-d', type=float, default=3.0,
+              help='Acceptable deviations from median MASH distances')
+@click.option('--all', type=float,
+              help='Acceptable deviations for all metrics')
 @click.argument('path', type=click.Path(exists=True, file_okay=False))
 def species(ctx, max_unknowns, c_deviations,
             s_deviations, m_deviations, filter_level, path):
