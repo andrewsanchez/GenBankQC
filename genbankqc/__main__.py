@@ -1,5 +1,4 @@
 import click
-import traceback
 from collections import namedtuple
 from genbankqc import Genbank
 from genbankqc import Genome
