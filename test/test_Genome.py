@@ -65,8 +65,6 @@ def test_parse_biosample(ecoli_genome):
 def test_efetch_sra(ecoli_genome, genome):
     ecoli_genome.efetch("sra")
     assert ecoli_genome.xml["sra"] is not None
-    import pdb
-    pdb.set_trace()
     genome.efetch("sra")
     assert genome.xml["sra"] is 'missing'
 
