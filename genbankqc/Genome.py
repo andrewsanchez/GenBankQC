@@ -174,8 +174,5 @@ class Genome:
     def get_metadata(self):
         self.efetch("biosample")
         self.parse_biosample()
-        if self.metadata["sra_id"] is not "missing":
-            self.efetch("sra")
-            self.parse_sra()
-        from pprint import pprint
-        pprint(self.metadata)
+        self.efetch("sra")
+        self.parse_sra()
