@@ -78,10 +78,11 @@ class Species:
 
     def __str__(self):
         self.message = [
-            "Species: {}".format(self.species), "Tolerance Levels:",
-            "Unknown bases:  {}".format(self.max_unknowns),
-            "Contigs: {}".format(self.contigs),
-            "Assembly Size: {}".format(self.assembly_size),
+            "Species: {}".format(self.species),
+            "Maximum Unknown Bases:  {}".format(self.max_unknowns),
+            "Acceptable Deviations,",
+            "Contigs, {}".format(self.contigs),
+            "Assembly Size, {}".format(self.assembly_size),
             "MASH: {}".format(self.mash)]
         return '\n'.join(self.message)
 
