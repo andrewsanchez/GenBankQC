@@ -36,7 +36,7 @@ def test_init(aphidicola_multi):
 
 
 def test_genomes(aphidicola):
-    assert len(list(aphidicola.genomes())) == 10
+    assert len(list(aphidicola.genomes)) == 10
     assert isinstance(next(aphidicola.genomes()), Genome)
 
 
