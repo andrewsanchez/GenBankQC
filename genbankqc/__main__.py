@@ -53,16 +53,20 @@ def cli(ctx, path):
               help='Acceptable deviations for all metrics')
 @click.option('--metadata', is_flag=True,
               help='Get metadata for genome at PATH',)
+def species(ctx, path, unknowns, contigs, assembly_size, distance, all,
+            metadata):
     """
-    Run qc command on given species
+    Run commands on a single species.
     """
-    try:
-        species = Species(path, max_unknowns, c_deviations, s_deviations,
-                          m_deviations, ctx.assembly_summary)
-        species.qc()
-    except Exception:
-        click.echo('Failed', species.species)
-        traceback.print_exc()
+    kwargs = {"max_unknowns": unknowns,
+              "contigs": contigs,
+              "assembly_size": assembly_size,
+              "mash": distance,
+              "assembly_summary": ctx.assembly_summary}
+    species = Species(path, **kwargs)
+    species.qc()
+    if metadata:
+        species.metadata()
 
 
 @cli.command()
