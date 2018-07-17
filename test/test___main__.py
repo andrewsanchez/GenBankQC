@@ -12,5 +12,28 @@ def test_cli(aphidicola_bare):
 def test_help():
     runner = CliRunner()
     result = runner.invoke(cli, ['--help'])
-    print(result.output)
+    assert result.exit_code == 0
+
+
+def test_species(genbank, aphidicola):
+    runner = CliRunner()
+    result = runner.invoke(
+        cli, [
+            genbank.path,
+            'species',
+            aphidicola.path,
+            ]
+    )
+    assert result.exit_code == 0
+
+
+def test_genome(genbank, genome):
+    runner = CliRunner()
+    result = runner.invoke(
+        cli, [
+            genbank.path,
+            'genome',
+            genome.path,
+            ]
+    )
     assert result.exit_code == 0
