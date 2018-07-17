@@ -72,19 +72,12 @@ def species(ctx, path, unknowns, contigs, assembly_size, distance, all,
 @cli.command()
 @click.pass_obj
 @click.argument('path', type=click.Path(exists=True, dir_okay=False))
-@click.option('--metadata', help='Get metadata for genome at PATH',
-              is_flag=True)
+@click.option('--metadata', is_flag=True,
+              help='Get metadata for genome at PATH')
 def genome(ctx, path, metadata):
     """
-    Get information about a genome or list of genomes.
+    Get information about a single genome.
     """
     genome = Genome(path, ctx.assembly_summary)
-    click.echo(genome.metadata)
-
-
-@cli.command()
-def metadata():
-    """
-    Generate Metadata
-    """
-    pass
+    if metadata:
+        click.echo(genome.metadata)
