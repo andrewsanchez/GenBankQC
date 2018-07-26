@@ -28,10 +28,10 @@ def cli(ctx, path):
     species-based statistics and metadata.
     """
 
-    log_dir = os.path.join(path, "logs")
+    log_dir = os.path.join(path, ".logs")
     if not os.path.isdir(log_dir):
         os.mkdir(log_dir)
-    log_file = os.path.join(log_dir, ".log")
+    log_file = os.path.join(log_dir, "genbankqc.log")
 
     genbank = Genbank(path)
     _ctx = namedtuple('ctx', ['genbank', 'assembly_summary', 'log_file'])
