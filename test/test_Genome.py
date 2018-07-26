@@ -3,6 +3,7 @@ from genbankqc import Genome
 
 
 def test_init(genome):
+    genome, handler = genome
     expected_name = ("GCA_000521565.1_Buchnera_aphidicola_G002_"
                      "Myzus_persicae_Complete_Genome")
     expected_path = os.path.join(genome.species_dir, expected_name+".fasta")
@@ -10,9 +11,11 @@ def test_init(genome):
     assert isinstance(genome, Genome)
     assert genome.name == expected_name
     assert genome.name in genome.msh
+    assert handler.has_info(expected_name)
 
 
 def test_get_contigs(genome):
+    genome, handler = genome
     from Bio.Seq import Seq
     assert type(genome.contigs) is list
     assert type(genome.contigs[0]) is Seq
@@ -20,24 +23,29 @@ def test_get_contigs(genome):
 
 
 def test_assembly_size(genome):
+    genome, handler = genome
     assert type(genome.assembly_size) is int
 
 
 def test_unknowns(genome):
+    genome, handler = genome
     assert type(genome.unknowns) is int
 
 
 def test_get_distance(aphidicola, genome):
+    genome, handler = genome
     genome.get_distance(aphidicola.dmx.mean())
     assert isinstance(genome.distance, float)
 
 
 def test_sketch(genome):
+    genome, handler = genome
     genome.sketch()
     assert os.path.isfile(genome.msh)
 
 
 def test_get_stats(genome, aphidicola):
+    genome, handler = genome
     from pandas import DataFrame
     dmx_mean = aphidicola.dmx.mean()
     genome.get_stats(dmx_mean)
@@ -51,6 +59,7 @@ def test_parse_empty_biosample(ecoli_genome):
 
 
 def test_efetch_biosample(ecoli_genome, genome):
+    genome, handler = genome
     ecoli_genome.efetch("biosample")
     assert ecoli_genome.xml["biosample"] is not None
     genome.efetch("biosample")
@@ -63,6 +72,7 @@ def test_parse_biosample(ecoli_genome):
 
 
 def test_efetch_sra(ecoli_genome, genome):
+    genome, handler = genome
     ecoli_genome.efetch("sra")
     assert ecoli_genome.xml["sra"] is not None
     genome.efetch("sra")
@@ -71,6 +81,7 @@ def test_efetch_sra(ecoli_genome, genome):
 
 # Test for genome that doesn't have SRA info
 def test_efetch_fail(genome):
+    genome, handler = genome
     pass
 
 
@@ -80,5 +91,6 @@ def test_parse_sra(ecoli_genome):
 
 
 def test_get_metadata(ecoli_genome, genome):
+    genome, handler = genome
     ecoli_genome.get_metadata()
     genome.get_metadata()
