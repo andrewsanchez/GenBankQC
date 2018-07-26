@@ -2,8 +2,8 @@ import os.path
 import re
 import subprocess
 
+from logbook import Logger
 from retrying import retry
-from logbook import Logger, TimedRotatingFileHandler
 import xml.etree.cElementTree as ET
 from xml.etree.ElementTree import ParseError
 from collections import defaultdict
