@@ -1,4 +1,6 @@
+import os
 import click
+from logbook import TimedRotatingFileHandler
 from collections import namedtuple
 from genbankqc import Genbank
 from genbankqc import Genome
@@ -20,14 +22,21 @@ class CLIGroup(click.Group):
 @click.pass_context
 @click.argument('path', type=click.Path(), required=False)
 def cli(ctx, path):
+    # TODO: Option for basic info about PATH
     """
     Assess the integrity of your genomes through automated analysis of
     species-based statistics and metadata.
     """
-    # TODO: Option for basic info about PATH
-    _ctx = namedtuple('ctx', ['genbank', 'assembly_summary'])
+
+    log_dir = os.path.join(path, "logs")
+    if not os.path.isdir(log_dir):
+        os.mkdir(log_dir)
+    log_file = os.path.join(log_dir, ".log")
+
     genbank = Genbank(path)
-    ctx.obj = _ctx(genbank=genbank, assembly_summary=genbank.assembly_summary)
+    _ctx = namedtuple('ctx', ['genbank', 'assembly_summary', 'log_file'])
+    ctx.obj = _ctx(genbank=genbank, assembly_summary=genbank.assembly_summary,
+                   log_file=log_file)
     if ctx.invoked_subcommand is None:
         genbank.qc()
 
@@ -57,6 +66,10 @@ def species(ctx, path, unknowns, contigs, assembly_size, distance, all,
     """
     Run commands on a single species.
     """
+
+    handler = TimedRotatingFileHandler(ctx.log_file, backup_count=10)
+    handler.push_application()
+
     kwargs = {"max_unknowns": unknowns,
               "contigs": contigs,
               "assembly_size": assembly_size,
@@ -77,6 +90,7 @@ def genome(ctx, path, metadata):
     """
     Get information about a single genome.
     """
+
     genome = Genome(path, ctx.assembly_summary)
     if metadata:
         click.echo(genome.metadata)

@@ -51,8 +51,6 @@ class Genome:
         else:
             self.stats_df = None
         # TODO: Maybe include the species_mean_distance here
-        log_file = os.path.join(self.species_dir, ".{}.log".format(self.name))
-        TimedRotatingFileHandler(log_file, backup_count=10).push_application()
         log = Logger("init")
         log.info(self.name)
 
