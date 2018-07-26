@@ -3,6 +3,7 @@ import re
 import subprocess
 
 from retrying import retry
+from logbook import Logger, TimedRotatingFileHandler
 import xml.etree.cElementTree as ET
 from xml.etree.ElementTree import ParseError
 from collections import defaultdict
@@ -50,6 +51,10 @@ class Genome:
         else:
             self.stats_df = None
         # TODO: Maybe include the species_mean_distance here
+        log_file = os.path.join(self.species_dir, ".{}.log".format(self.name))
+        TimedRotatingFileHandler(log_file, backup_count=10).push_application()
+        log = Logger("init")
+        log.info(self.name)
 
     def get_contigs(self):
         """Return a list of of Bio.Seq.Seq objects for fasta and calculate
@@ -58,6 +63,8 @@ class Genome:
         try:
             self.contigs = [seq.seq for seq in SeqIO.parse(self.path, "fasta")]
             self.count_contigs = len(self.contigs)
+            log = Logger("contigs")
+            log.info(self.count_contigs)
         except UnicodeDecodeError:
             self.contigs = UnicodeDecodeError
 
