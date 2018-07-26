@@ -13,6 +13,7 @@ setup(name='GenBankQC',
           'pytest',
           'biopython',
           'retrying',
+          'logbook',
       ],
       entry_points='''
       [console_scripts]
