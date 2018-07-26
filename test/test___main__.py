@@ -28,6 +28,7 @@ def test_species(genbank, aphidicola):
 
 
 def test_genome(genbank, genome):
+    genome, handler = genome
     runner = CliRunner()
     result = runner.invoke(
         cli, [
