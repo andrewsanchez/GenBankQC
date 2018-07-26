@@ -3,6 +3,7 @@ import shutil
 import tempfile
 
 import pytest
+from logbook import TestHandler
 
 from genbankqc import Genbank
 from genbankqc import Species
@@ -72,15 +73,17 @@ def aphidicola_bare():
 
 @pytest.fixture(scope="module")
 def genome(genbank, aphidicola):
+    handler = TestHandler()
     genome = ("GCA_000521565.1_Buchnera_aphidicola_G002_"
               "Myzus_persicae_Complete_Genome.fasta")
     genome = os.path.join(aphidicola.path, genome)
-    genome = Genome(genome, genbank.assembly_summary)
-    genome.sketch()
-    genome.get_contigs()
-    genome.get_assembly_size()
-    genome.get_unknowns()
-    yield genome
+    with handler:
+        genome = Genome(genome, genbank.assembly_summary)
+        genome.sketch()
+        genome.get_contigs()
+        genome.get_assembly_size()
+        genome.get_unknowns()
+        yield genome, handler
 
 
 @pytest.fixture(scope="module")
