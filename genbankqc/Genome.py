@@ -23,10 +23,12 @@ class Genome:
         self.path = genome
         self.basename = os.path.splitext(self.path)[0]
         self.name = self.basename.split('/')[-1]
+        self.log = Logger(self.name)
         try:
             self.accession_id = re.match('GCA_.*\.\d', self.name).group()
         except AttributeError:
             self.accession_id = None
+            self.log.exception()
         self.metadata = defaultdict(
             lambda: 'missing',
             accession=self.accession_id,
@@ -36,40 +38,37 @@ class Genome:
         else:
             self.species_dir = os.path.split(self.path)[0]
         self.qc_dir = os.path.join(self.species_dir, "qc")
-        if assembly_summary is not None:
-            self.assembly_summary = assembly_summary
-            try:
-                self.metadata["biosample_id"] = assembly_summary.loc[
-                    self.accession_id].biosample
-            except TypeError:
-                pass
+        self.assembly_summary = assembly_summary
+        try:
+            self.metadata["biosample_id"] = assembly_summary.loc[
+                self.accession_id].biosample
+        except TypeError:
+            pass
         self.xml = defaultdict(lambda: 'missing')
         self.msh = os.path.join(self.qc_dir, self.name + ".msh")
         self.stats_path = os.path.join(self.qc_dir, self.name + '.csv')
         if os.path.isfile(self.stats_path):
             self.stats_df = pd.read_csv(self.stats_path, index_col=0)
-        else:
-            self.stats_df = None
         # TODO: Maybe include the species_mean_distance here
-        self.log = Logger("init.genome")
-        self.log.info(self.name)
+        self.log.info("Instantiated", (self.name))
 
     def get_contigs(self):
-        """Return a list of of Bio.Seq.Seq objects for fasta and calculate
+        """
+        Return a list of of Bio.Seq.Seq objects for fasta and calculate
         the total the number of contigs.
         """
         try:
             self.contigs = [seq.seq for seq in SeqIO.parse(self.path, "fasta")]
             self.count_contigs = len(self.contigs)
-            self.log = Logger("contigs")
             self.log.info(self.count_contigs)
         except UnicodeDecodeError:
-            self.contigs = UnicodeDecodeError
+            self.log.exception()
 
     def get_assembly_size(self):
         """Calculate the sum of all contig lengths"""
         # TODO: map or reduce might be more elegant here
         self.assembly_size = sum((len(str(seq)) for seq in self.contigs))
+        self.log.info(self.assembly_size)
 
     def get_unknowns(self):
         """Count the number of unknown bases, i.e. not [ATCG]"""
@@ -77,18 +76,22 @@ class Genome:
         p = re.compile("[^ATCG]")
         self.unknowns = sum((len(re.findall(p, str(seq)))
                              for seq in self.contigs))
+        self.log.info(self.assembly_size)
 
     def get_distance(self, dmx_mean):
         self.distance = dmx_mean.loc[self.name]
+        self.log.info(self.distance)
 
     def sketch(self):
         cmd = "mash sketch '{}' -o '{}'".format(self.path, self.msh)
-        if not os.path.isfile(self.msh):
-            subprocess.Popen(
-                cmd, shell="True", stderr=subprocess.DEVNULL).wait()
+        if os.path.isfile(self.msh):
+            self.log.info("Sketch file already exists")
+        else:
+            subprocess.Popen(cmd, shell="True",
+                             stderr=subprocess.DEVNULL).wait()
+            self.log.info("Sketch file created")
 
     def get_stats(self, dmx_mean):
-        from pandas import DataFrame
         if not os.path.isfile(self.stats_path):
             self.get_contigs()
             self.get_assembly_size()
@@ -98,16 +101,14 @@ class Genome:
                     "assembly_size": self.assembly_size,
                     "unknowns": self.unknowns,
                     "distance": self.distance}
-            self.stats = DataFrame(data, index=[self.name])
+            self.stats = pd.DataFrame(data, index=[self.name])
             self.stats.to_csv(self.stats_path)
+            self.log.info("Generated stats and wrote to disk")
 
     one_minute = 60000
 
     # Retry 3 times over a period of 3 minutes max,
     # waiting five seconds in between retries
-    # @retry(stop_max_attempt_number=3,
-    #        stop_max_delay=one_minute*3,
-    #        wait_fixed=5000)
     @retry(stop_max_attempt_number=3,
            stop_max_delay=10000,
            wait_fixed=100)
@@ -131,10 +132,13 @@ class Genome:
                                    timeout=time_limit)
                 xml = p.stdout
                 self.xml[db] = xml
+                self.log.info("{} XML downloaded".format(db))
             except subprocess.TimeoutExpired:
-                # log here
-                print("Retrying efetch after timeout")
+                self.log.error("Retrying efetch after timeout")
                 raise subprocess.TimeoutExpired(cmd, time_limit)
+            except Exception:
+                self.log.error(db)
+                self.log.exception()
 
     def parse_biosample(self):
         """
@@ -146,10 +150,13 @@ class Genome:
             tree = ET.fromstring(self.xml["biosample"])
             sra = tree.find('DocumentSummary/SampleData/'
                             'BioSample/Ids/Id/[@db="SRA"]')
+            self.log.info("Parsed biosample XML")
+
             try:
                 self.metadata["sra_id"] = sra.text
             except AttributeError:
                 self.metadata["sra_id"] = "missing"
+
             for name in Metadata.Metadata.biosample_fields:
                 xp = ('DocumentSummary/SampleData/BioSample/Attributes/'
                       'Attribute/[@harmonized_name="{}"]'.format(name))
@@ -158,14 +165,15 @@ class Genome:
                     self.metadata[name] = attrib.text
                 except AttributeError:
                     self.metadata[name] = "missing"
+
         except ParseError:
-            pass
+            self.log.error("Parse error for biosample XML")
 
     def parse_sra(self):
-        # before running, make sure xml exists
         try:
             tree = ET.fromstring(self.xml["sra"])
             elements = tree.iterfind("DocumentSummary/Runs/Run/[@acc]")
+            self.log.info("Parsed SRA XML")
             srr_accessions = []
             for el in elements:
                     items = el.items()
@@ -174,7 +182,7 @@ class Genome:
                     srr_accessions.append(acc)
             self.metadata["srr_accessions"] = ','.join(srr_accessions)
         except ParseError:
-            pass
+            self.log.error("Parse error for SRA XML")
 
     def get_metadata(self):
         self.efetch("biosample")
