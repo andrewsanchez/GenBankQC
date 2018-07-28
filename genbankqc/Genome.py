@@ -52,7 +52,7 @@ class Genome:
         try:
             self.contigs = [seq.seq for seq in SeqIO.parse(self.path, "fasta")]
             self.count_contigs = len(self.contigs)
-            self.log.info(self.count_contigs)
+            self.log.info("Contigs: {}".format(self.count_contigs))
         except UnicodeDecodeError:
             self.log.exception()
 
@@ -60,7 +60,7 @@ class Genome:
         """Calculate the sum of all contig lengths"""
         # TODO: map or reduce might be more elegant here
         self.assembly_size = sum((len(str(seq)) for seq in self.contigs))
-        self.log.info(self.assembly_size)
+        self.log.info("Assembly Size: {}".format(self.assembly_size))
 
     def get_unknowns(self):
         """Count the number of unknown bases, i.e. not [ATCG]"""
@@ -68,11 +68,11 @@ class Genome:
         p = re.compile("[^ATCG]")
         self.unknowns = sum((len(re.findall(p, str(seq)))
                              for seq in self.contigs))
-        self.log.info(self.assembly_size)
+        self.log.info("Unknowns: {}".format(self.unknowns))
 
     def get_distance(self, dmx_mean):
         self.distance = dmx_mean.loc[self.name]
-        self.log.info(self.distance)
+        self.log.info("Distance: {}".format(self.distance))
 
     def sketch(self):
         cmd = "mash sketch '{}' -o '{}'".format(self.path, self.msh)
