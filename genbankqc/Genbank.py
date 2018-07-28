@@ -1,6 +1,7 @@
 import os
-import pandas as pd
 import traceback
+import pandas as pd
+from logbook import Logger
 
 from genbankqc import Species
 
@@ -24,6 +25,9 @@ class Genbank:
             )
         except FileNotFoundError:
             pass
+        log = Logger("init.genbank")
+        log.info(self.genbank)
+
 
     @property
     def species(self):

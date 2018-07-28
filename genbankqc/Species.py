@@ -1,5 +1,6 @@
 import os
 import re
+from logbook import Logger
 from functools import wraps
 from subprocess import DEVNULL, Popen
 
@@ -75,6 +76,8 @@ class Species:
                        "distance": "purple",
                        "assembly_size": "orange"}
         self.assess_tree()
+        log = Logger("init.species")
+        log.info(self.species)
 
     def __str__(self):
         self.message = [

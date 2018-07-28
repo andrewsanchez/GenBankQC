@@ -51,7 +51,7 @@ class Genome:
         else:
             self.stats_df = None
         # TODO: Maybe include the species_mean_distance here
-        log = Logger("init")
+        log = Logger("init.genome")
         log.info(self.name)
 
     def get_contigs(self):
