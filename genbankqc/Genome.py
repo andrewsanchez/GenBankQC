@@ -32,16 +32,16 @@ class Genome:
         self.assembly_summary = assembly_summary
         try:
             self.accession_id = re.match('GCA_.*\.\d', self.name).group()
+            self.metadata["accession"] = self.accession_id
+            if isinstance(self.assembly_summary, pd.DataFrame):
+                biosample = assembly_summary.loc[self.accession_id].biosample
+                self.metadata["biosample_id"] = biosample
         except AttributeError:
             # Raise custom exception
+            self.log.error("Invalid accession ID")
             self.log.exception()
         self.metadata = defaultdict(lambda: 'missing')
         self.xml = defaultdict(lambda: 'missing')
-        self.metadata["accession"] = self.accession_id
-        if isinstance(self.assembly_summary, pd.DataFrame):
-            # Might need to catch exception here if accession id is not found
-            biosample_id = assembly_summary.loc[self.accession_id].biosample
-            self.metadata["biosample_id"] = biosample_id
         self.log.info("Instantiated", (self.name))
 
     def get_contigs(self):
