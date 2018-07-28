@@ -20,14 +20,10 @@ class Genome:
         :returns: Path to genome and name of the genome
         :rtype:
         """
-        self.path = genome
-        self.basename = os.path.splitext(self.path)[0]
-        self.name = self.basename.split('/')[-1]
+        self.path = os.path.abspath(genome)
+        self.species_dir, self.fasta = os.path.split(self.path)
+        self.name = os.path.splitext(self.fasta)[0]
         self.log = Logger(self.name)
-        if '/' not in self.path:
-            self.species_dir = '.'
-        else:
-            self.species_dir = os.path.split(self.path)[0]
         self.qc_dir = os.path.join(self.species_dir, "qc")
         self.msh = os.path.join(self.qc_dir, self.name + ".msh")
         self.stats_path = os.path.join(self.qc_dir, self.name + '.csv')
