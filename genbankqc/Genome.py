@@ -30,19 +30,25 @@ class Genome:
         if os.path.isfile(self.stats_path):
             self.stats_df = pd.read_csv(self.stats_path, index_col=0)
         self.assembly_summary = assembly_summary
+        self.metadata = defaultdict(lambda: 'missing')
+        self.xml = defaultdict(lambda: 'missing')
         try:
             self.accession_id = re.match('GCA_.*\.\d', self.name).group()
             self.metadata["accession"] = self.accession_id
-            if isinstance(self.assembly_summary, pd.DataFrame):
-                biosample = assembly_summary.loc[self.accession_id].biosample
-                self.metadata["biosample_id"] = biosample
         except AttributeError:
             # Raise custom exception
             self.log.error("Invalid accession ID")
             self.log.exception()
-        self.metadata = defaultdict(lambda: 'missing')
-        self.xml = defaultdict(lambda: 'missing')
-        self.log.info("Instantiated", (self.name))
+        if isinstance(self.assembly_summary, pd.DataFrame):
+            try:
+                biosample = assembly_summary.loc[self.accession_id].biosample
+                self.metadata["biosample_id"] = biosample
+            except AttributeError:
+                self.log.info("Unable to get biosample ID")
+        else:
+            self.log.info("Unable to read assembly_summary")
+        # Do this in Species object or in __main__
+        self.log.info("Instantiated {}".format(self.name))
 
     def get_contigs(self):
         """
