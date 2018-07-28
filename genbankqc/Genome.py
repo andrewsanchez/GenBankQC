@@ -24,32 +24,24 @@ class Genome:
         self.basename = os.path.splitext(self.path)[0]
         self.name = self.basename.split('/')[-1]
         self.log = Logger(self.name)
-        try:
-            self.accession_id = re.match('GCA_.*\.\d', self.name).group()
-        except AttributeError:
-            self.accession_id = None
-            self.log.exception()
-        self.metadata = defaultdict(
-            lambda: 'missing',
-            accession=self.accession_id,
-        )
         if '/' not in self.path:
             self.species_dir = '.'
         else:
             self.species_dir = os.path.split(self.path)[0]
         self.qc_dir = os.path.join(self.species_dir, "qc")
-        self.assembly_summary = assembly_summary
-        try:
-            self.metadata["biosample_id"] = assembly_summary.loc[
-                self.accession_id].biosample
-        except TypeError:
-            pass
-        self.xml = defaultdict(lambda: 'missing')
         self.msh = os.path.join(self.qc_dir, self.name + ".msh")
         self.stats_path = os.path.join(self.qc_dir, self.name + '.csv')
         if os.path.isfile(self.stats_path):
             self.stats_df = pd.read_csv(self.stats_path, index_col=0)
-        # TODO: Maybe include the species_mean_distance here
+        self.assembly_summary = assembly_summary
+        try:
+            self.accession_id = re.match('GCA_.*\.\d', self.name).group()
+        except AttributeError:
+            # Raise custom exception
+            self.log.exception()
+        self.metadata = defaultdict(lambda: 'missing')
+        self.xml = defaultdict(lambda: 'missing')
+        self.metadata["accession"] = self.accession_id
         if isinstance(self.assembly_summary, pd.DataFrame):
             # Might need to catch exception here if accession id is not found
             biosample_id = assembly_summary.loc[self.accession_id].biosample
