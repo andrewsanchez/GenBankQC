@@ -25,8 +25,8 @@ class Genbank:
             )
         except FileNotFoundError:
             pass
-        log = Logger("init.genbank")
-        log.info(self.genbank)
+        self.log = Logger("init.genbank")
+        self.log.info(self.genbank)
 
 
     @property

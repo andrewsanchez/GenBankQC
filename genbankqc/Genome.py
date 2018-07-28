@@ -51,8 +51,8 @@ class Genome:
         else:
             self.stats_df = None
         # TODO: Maybe include the species_mean_distance here
-        log = Logger("init.genome")
-        log.info(self.name)
+        self.log = Logger("init.genome")
+        self.log.info(self.name)
 
     def get_contigs(self):
         """Return a list of of Bio.Seq.Seq objects for fasta and calculate
@@ -61,8 +61,8 @@ class Genome:
         try:
             self.contigs = [seq.seq for seq in SeqIO.parse(self.path, "fasta")]
             self.count_contigs = len(self.contigs)
-            log = Logger("contigs")
-            log.info(self.count_contigs)
+            self.log = Logger("contigs")
+            self.log.info(self.count_contigs)
         except UnicodeDecodeError:
             self.contigs = UnicodeDecodeError
 

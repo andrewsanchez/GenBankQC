@@ -76,8 +76,8 @@ class Species:
                        "distance": "purple",
                        "assembly_size": "orange"}
         self.assess_tree()
-        log = Logger("init.species")
-        log.info(self.species)
+        self.log = Logger("init.species")
+        self.log.info(self.species)
 
     def __str__(self):
         self.message = [
