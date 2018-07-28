@@ -50,6 +50,10 @@ class Genome:
         if os.path.isfile(self.stats_path):
             self.stats_df = pd.read_csv(self.stats_path, index_col=0)
         # TODO: Maybe include the species_mean_distance here
+        if isinstance(self.assembly_summary, pd.DataFrame):
+            # Might need to catch exception here if accession id is not found
+            biosample_id = assembly_summary.loc[self.accession_id].biosample
+            self.metadata["biosample_id"] = biosample_id
         self.log.info("Instantiated", (self.name))
 
     def get_contigs(self):
