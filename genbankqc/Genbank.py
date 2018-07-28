@@ -28,7 +28,6 @@ class Genbank:
         self.log = Logger("init.genbank")
         self.log.info(self.genbank)
 
-
     @property
     def species(self):
         dirs = (
