@@ -1,7 +1,9 @@
 import os
 import click
-from logbook import TimedRotatingFileHandler
+
 from collections import namedtuple
+from logbook import TimedRotatingFileHandler
+
 from genbankqc import Genbank
 from genbankqc import Genome
 from genbankqc import Species
@@ -32,6 +34,9 @@ def cli(ctx, path):
     if not os.path.isdir(log_dir):
         os.mkdir(log_dir)
     log_file = os.path.join(log_dir, "genbankqc.log")
+
+    handler = TimedRotatingFileHandler(log_file, backup_count=10)
+    handler.push_application()
 
     genbank = Genbank(path)
     _ctx = namedtuple('ctx', ['genbank', 'assembly_summary', 'log_file'])
@@ -66,9 +71,6 @@ def species(ctx, path, unknowns, contigs, assembly_size, distance, all,
     """
     Run commands on a single species.
     """
-
-    handler = TimedRotatingFileHandler(ctx.log_file, backup_count=10)
-    handler.push_application()
 
     kwargs = {"max_unknowns": unknowns,
               "contigs": contigs,
