@@ -28,6 +28,7 @@ class Species:
         self.assembly_summary = assembly_summary
         self.path = os.path.abspath(path)
         self.name = os.path.basename(os.path.normpath(path))
+        self.log = Logger(self.name)
         self.qc_dir = os.path.join(self.path, "qc")
         self.label = '-'.join([max_unknowns, contigs, assembly_size, mash])
         self.qc_results_dir = os.path.join(self.qc_dir, self.label)
@@ -48,30 +49,25 @@ class Species:
             self.stats = pd.read_csv(self.stats_path, index_col=0)
         if os.path.isfile(self.nw_path):
             self.tree = Tree(self.nw_path, 1)
+        if os.path.isfile(self.failed_path):
+            self.failed_report = pd.read_csv(self.failed_path, index_col=0)
         if os.path.isfile(self.dmx_path):
             try:
                 self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
             except pd.errors.EmptyDataError:
-                print(self.name)
-        if os.path.isfile(self.failed_path):
-            self.failed_report = pd.read_csv(self.failed_path, index_col=0)
+                self.log.exception()
         self.criteria = ["unknowns", "contigs", "assembly_size", "distance"]
-        self.tolerance = {"unknowns": max_unknowns,
-                          "contigs": contigs,
-                          "assembly_size": assembly_size,
-                          "distance": mash}
+        self.tolerance = {"unknowns": max_unknowns, "contigs": contigs,
+                          "assembly_size": assembly_size, "distance": mash}
         self.passed = self.stats
         self.failed = {}
         self.med_abs_devs = {}
         self.dev_refs = {}
         self.allowed = {"unknowns": max_unknowns}
         # Enable user defined colors
-        self.colors = {"unknowns": "red",
-                       "contigs": "green",
-                       "distance": "purple",
-                       "assembly_size": "orange"}
+        self.colors = {"unknowns": "red", "contigs": "green",
+                       "distance": "purple", "assembly_size": "orange"}
         self.assess_tree()
-        self.log = Logger("init.species")
         self.log.info(self.name)
 
     def __str__(self):
