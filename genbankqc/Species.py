@@ -40,13 +40,10 @@ class Species:
         self.summary_path = os.path.join(self.qc_results_dir, "summary.txt")
         self.allowed_path = os.path.join(self.qc_results_dir, "allowed.p")
         self.paste_file = os.path.join(self.qc_dir, 'all.msh')
+        # Figure out if defining these as None is necessary
         self.tree = None
         self.stats = None
         self.dmx = None
-        if not os.path.isdir(self.qc_dir):
-            os.mkdir(self.qc_dir)
-        if not os.path.isdir(self.qc_results_dir):
-            os.mkdir(self.qc_results_dir)
         if os.path.isfile(self.stats_path):
             self.stats = pd.read_csv(self.stats_path, index_col=0)
         if os.path.isfile(self.nw_path):
@@ -139,7 +136,6 @@ class Species:
         :returns: Generator of Genome objects for all genomes in species dir
         :rtype: generator
         """
-        from genbankqc import Genome
         genomes = (Genome(os.path.join(self.path, f), self.assembly_summary)
                    for f in os.listdir(self.path) if f.endswith(ext))
         return genomes
@@ -465,8 +461,12 @@ class Species:
         def wrapper(self):
             if self.total_genomes > 5:
                 f(self)
+                if not os.path.isdir(self.qc_dir):
+                    os.mkdir(self.qc_dir)
+                if not os.path.isdir(self.qc_results_dir):
+                    os.mkdir(self.qc_results_dir)
             else:
-                pass
+                self.log.info("Not enough genomes")
         return wrapper
 
     @assess_total_genomes
