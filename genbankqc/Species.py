@@ -54,7 +54,7 @@ class Species:
             try:
                 self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
             except pd.errors.EmptyDataError:
-                print(self.species)
+                print(self.name)
         if os.path.isfile(self.failed_path):
             self.failed_report = pd.read_csv(self.failed_path, index_col=0)
         self.criteria = ["unknowns", "contigs", "assembly_size", "distance"]
@@ -74,11 +74,11 @@ class Species:
                        "assembly_size": "orange"}
         self.assess_tree()
         self.log = Logger("init.species")
-        self.log.info(self.species)
+        self.log.info(self.name)
 
     def __str__(self):
         self.message = [
-            "Species: {}".format(self.species),
+            "Species: {}".format(self.name),
             "Maximum Unknown Bases:  {}".format(self.max_unknowns),
             "Acceptable Deviations,",
             "Contigs, {}".format(self.contigs),
@@ -105,7 +105,7 @@ class Species:
                 self.complete = True
                 with open(self.allowed_path, 'rb') as p:
                     self.allowed = pickle.load(p)
-                print(self.species, ' already complete.')
+                print(self.name, ' already complete.')
             except AssertionError:
                 self.complete = False
                 f(self)
@@ -207,7 +207,7 @@ class Species:
             try:
                 self.tree.set_outgroup(self.tree.get_midpoint_outgroup())
             except TreeError as e:
-                print(self.species)
+                print(self.name)
                 print(e)
             self.tree.write(outfile=self.nw_path)
 
@@ -342,7 +342,7 @@ class Species:
     def style_and_render_tree(self, file_types=["svg"]):
         from ete3 import TreeStyle, TextFace, CircleFace
         ts = TreeStyle()
-        title_face = TextFace(self.species.replace('_', ' '), fsize=20)
+        title_face = TextFace(self.name.replace('_', ' '), fsize=20)
         title_face.margin_bottom = 10
         ts.title.add_face(title_face, column=0)
         ts.branch_vertical_margin = 10
@@ -378,7 +378,7 @@ class Species:
         for f in file_types:
             out_tree = os.path.join(self.qc_results_dir, 'tree.{}'.format(f))
             self.tree.render(out_tree, tree_style=ts)
-        print(self.species, "trees created.")
+        print(self.name, "trees created.")
 
     def color_tree(self):
         from ete3 import NodeStyle
@@ -413,7 +413,7 @@ class Species:
 
     def summary(self):
         summary = [
-            self.species,
+            self.name,
             "Unknown Bases",
             "Allowed: {}".format(self.allowed["unknowns"]),
             "Tolerance: {}".format(self.tolerance["unknowns"]),
@@ -484,5 +484,5 @@ class Species:
             metadata.append(genome.metadata)
         self.metadata_df = pd.DataFrame(metadata)
         self.metadata_path = os.path.join(
-            self.qc_dir, "{}_metadata.csv".format(self.species))
+            self.qc_dir, "{}_metadata.csv".format(self.name))
         self.metadata_df.to_csv(self.metadata_path)
