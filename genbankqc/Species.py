@@ -1,7 +1,9 @@
 import os
 import re
+
 from logbook import Logger
 from functools import wraps
+from genbankqc import Genome
 from subprocess import DEVNULL, Popen
 
 import pandas as pd
