@@ -26,11 +26,12 @@ class Species:
         self.assembly_size = assembly_size
         self.mash = mash
         self.assembly_summary = assembly_summary
+        self.deviation_values = [max_unknowns, contigs, assembly_size, mash]
         self.path = os.path.abspath(path)
         self.name = os.path.basename(os.path.normpath(path))
         self.log = Logger(self.name)
         self.qc_dir = os.path.join(self.path, "qc")
-        self.label = '-'.join([max_unknowns, contigs, assembly_size, mash])
+        self.label = '-'.join(map(str, self.deviation_values))
         self.qc_results_dir = os.path.join(self.qc_dir, self.label)
         self.passed_dir = os.path.join(self.qc_results_dir, "passed")
         self.stats_path = os.path.join(self.qc_dir, 'stats.csv')
