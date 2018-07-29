@@ -17,16 +17,15 @@ class Species:
         path : str
             The path to the directory of related genomes you wish to analyze.
     """
-
     def __init__(self, path, max_unknowns=200, contigs=3.0, assembly_size=3.0,
                  mash=3.0, assembly_summary=None):
-        self.path = path
-        self.species = path
         self.max_unknowns = max_unknowns
         self.contigs = contigs
         self.assembly_size = assembly_size
         self.mash = mash
         self.assembly_summary = assembly_summary
+        self.path = os.path.abspath(path)
+        self.name = os.path.basename(os.path.normpath(path))
         self.qc_dir = os.path.join(self.path, "qc")
         self.label = '{}-{}-{}-{}'.format(
             max_unknowns, contigs, assembly_size, mash)
@@ -43,8 +42,6 @@ class Species:
         self.tree = None
         self.stats = None
         self.dmx = None
-        if '/' in self.species:
-            self.species = path.strip('/').split('/')[-1]
         if not os.path.isdir(self.qc_dir):
             os.mkdir(self.qc_dir)
         if not os.path.isdir(self.qc_results_dir):
