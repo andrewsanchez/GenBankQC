@@ -459,16 +459,15 @@ class Species:
         def wrapper(self):
             if self.total_genomes > 5:
                 f(self)
-                if not os.path.isdir(self.qc_dir):
-                    os.mkdir(self.qc_dir)
-                if not os.path.isdir(self.qc_results_dir):
-                    os.mkdir(self.qc_results_dir)
             else:
                 self.log.info("Not enough genomes")
         return wrapper
 
     @assess_total_genomes
     def qc(self):
+        if not os.path.isdir(self.qc_dir):
+            os.mkdir(self.qc_dir)
+            os.mkdir(self.qc_results_dir)
         self.run_mash()
         self.get_stats()
         self.filter()
