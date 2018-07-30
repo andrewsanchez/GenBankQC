@@ -59,6 +59,7 @@ class Species:
         if os.path.isfile(self.dmx_path):
             try:
                 self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
+                self.log.info("Distance matrix read succesfully")
             except pd.errors.EmptyDataError:
                 self.log.exception()
         self.criteria = ["unknowns", "contigs", "assembly_size", "distance"]
@@ -118,14 +119,14 @@ class Species:
                     sorted(self.stats.index.tolist()) ==
                     sorted(self.genome_ids().tolist()))
             self.tree_complete = True
+            self.log.info("Tree already complete")
         except AssertionError:
             self.tree_complete = False
 
     @property
     def genomes(self, ext="fasta"):
-        # Why doesn't this work when importing at top of file?
         from genbankqc import Genome
-        # TODO: Maybe this should return a tuple (genome-path, genome-id)
+        # Why doesn't this work when importing at top of file?
         """Returns a generator for every file ending with `ext`
 
         :param ext: File extension of genomes in species directory
@@ -214,6 +215,7 @@ class Species:
         species_stats = [genome.stats_df for genome in self.genomes]
         self.stats = pd.concat(species_stats)
         self.stats.to_csv(self.stats_path)
+        self.log.info("Generated stats and wrote to disk")
 
     def MAD(self, df, col):
         """Get the median absolute deviation for col
@@ -237,6 +239,7 @@ class Species:
         self.failed["unknowns"] = self.stats.index[
             self.stats["unknowns"] > self.tolerance["unknowns"]]
         self.passed = self.stats.drop(self.failed["unknowns"])
+        self.log.info("Analyzed unknowns")
 
     def check_passed_count(f):
         """
@@ -250,6 +253,7 @@ class Species:
             else:
                 self.allowed[args[0]] = ''
                 self.failed[args[0]] = ''
+                self.log.info("Stopped filtering after {}".format(f.__name__))
         return wrapper
 
     @check_passed_count
@@ -279,11 +283,14 @@ class Species:
         eligible_contigs = pd.concat([eligible_contigs, not_enough_contigs])
         eligible_contigs = eligible_contigs.index
         self.passed = self.passed.loc[eligible_contigs]
+        self.log.info("Analyzed contigs")
 
     @check_passed_count
     def filter_MAD_range(self, criteria):
-        """Filter based on median absolute deviation.
-        Passing values fall within a lower and upper bound."""
+        """
+        Filter based on median absolute deviation.
+        Passing values fall within a lower and upper bound.
+        """
         # Get the median absolute deviation
         med_abs_dev = abs(self.passed[criteria] -
                           self.passed[criteria].median()).mean()
@@ -299,11 +306,14 @@ class Species:
         self.passed = self.passed[
             abs(self.passed[criteria] -
                 self.passed[criteria].median()) <= dev_ref]
+        self.log.info("Filtered based on median absolute deviation range")
 
     @check_passed_count
     def filter_MAD_upper(self, criteria):
-        """Filter based on median absolute deviation.
-        Passing values fall under the upper bound."""
+        """
+        Filter based on median absolute deviation.
+        Passing values fall under the upper bound.
+        """
         # Get the median absolute deviation
         med_abs_dev = abs(self.passed[criteria] -
                           self.passed[criteria].median()).mean()
@@ -315,6 +325,7 @@ class Species:
             self.passed[criteria] <= upper]
         upper = "{:.4f}".format(upper)
         self.allowed[criteria] = upper
+        self.log.info("Filtered based on MAD upper bound")
 
     def base_node_style(self):
         from ete3 import NodeStyle, AttrFace
@@ -329,6 +340,7 @@ class Species:
                 nf.margin_right = 150
                 nf.margin_left = 3
                 n.add_face(nf, column=0)
+        self.log.info("Applied base node style")
 
     # Might be better in a layout function
     def style_and_render_tree(self, file_types=["svg"]):
@@ -370,7 +382,7 @@ class Species:
         for f in file_types:
             out_tree = os.path.join(self.qc_results_dir, 'tree.{}'.format(f))
             self.tree.render(out_tree, tree_style=ts)
-        print(self.name, "trees created.")
+            self.log.info("tree.{} generated".format(f))
 
     def color_tree(self):
         from ete3 import NodeStyle
@@ -392,6 +404,7 @@ class Species:
         self.filter_MAD_upper("distance")
         with open(self.allowed_path, 'wb') as p:
             pickle.dump(self.allowed, p)
+            self.log.info("Pickled results of filtering")
         self.summary()
         self.write_failed_report()
 
@@ -406,6 +419,7 @@ class Species:
                 self.failed_report.loc[self.failed[criteria],
                                        'criteria'] = criteria
         self.failed_report.to_csv(self.failed_path)
+        self.log.info("Wrote failed report")
 
     def summary(self):
         summary = [
@@ -433,13 +447,12 @@ class Species:
         summary = '\n'.join(summary)
         with open(os.path.join(self.summary_path), "w") as f:
             f.write(summary)
+            self.log.info("Wrote QC summary")
         return summary
 
     def link_genomes(self):
-        try:
+        if not os.path.exists(self.passed_dir):
             os.mkdir(self.passed_dir)
-        except FileExistsError:
-            pass
         for genome in self.passed.index:
             fname = "{}.fasta".format(genome)
             src = os.path.join(self.path, fname)
@@ -448,13 +461,12 @@ class Species:
                 os.link(src, dst)
             except FileExistsError:
                 pass
+        self.log.info("Links created for genomes that passed QC")
 
-    # TODO: This check should be performed before instantiation of a Species
-    # object, or instantiation should not do anything, i.e. create directories
     def assess_total_genomes(f):
         """
-        Count the number of total genomes in species_dir.
-        Do nothing if less than five genomes.
+        Count the number of total genomes in species_dir
+        Don't attempt QC if less than five genomes.
         """
         @wraps(f)
         def wrapper(self):
@@ -472,6 +484,7 @@ class Species:
         self.link_genomes()
         self.get_tree()
         self.color_tree()
+        self.log.info("qc command completed")
 
     def metadata(self):
         metadata = []
@@ -482,3 +495,4 @@ class Species:
         self.metadata_path = os.path.join(
             self.qc_dir, "{}_metadata.csv".format(self.name))
         self.metadata_df.to_csv(self.metadata_path)
+        self.log.info("Completed metadata command")
