@@ -1,5 +1,6 @@
 import os
 import re
+import pickle
 
 from logbook import Logger
 from functools import wraps
@@ -87,7 +88,6 @@ class Species:
     def assess(f):
         # TODO: This can have a more general application if the pickling
         # functionality is implemented elsewhere
-        import pickle
 
         @wraps(f)
         def wrapper(self):
@@ -103,11 +103,6 @@ class Species:
             except AssertionError:
                 self.complete = False
                 f(self)
-                # TODO: move to filter
-                with open(self.allowed_path, 'wb') as p:
-                    pickle.dump(self.allowed, p)
-                self.summary()
-                self.write_failed_report()
         return wrapper
 
     def assess_tree(self):
@@ -393,6 +388,10 @@ class Species:
         self.filter_contigs("contigs")
         self.filter_MAD_range("assembly_size")
         self.filter_MAD_upper("distance")
+        with open(self.allowed_path, 'wb') as p:
+            pickle.dump(self.allowed, p)
+        self.summary()
+        self.write_failed_report()
 
     def write_failed_report(self):
         from itertools import chain
