@@ -253,29 +253,28 @@ class Species:
 
     @check_passed_count
     def filter_contigs(self, criteria):
-        # Only look at genomes with > 10 contigs to avoid throwing off the
-        # median absolute deviation
-        # Extract genomes with < 10 contigs to add them back in later.
+        """
+        Only look at genomes with > 10 contigs to avoid throwing off the
+        median absolute deviation.
+        Median absolute deviation - Average absolute difference between
+        number of contigs and the median for all genomes
+        Extract genomes with < 10 contigs to add them back in later.
+        Add genomes with < 10 contigs back in
+        """
         eligible_contigs = self.passed.contigs[self.passed.contigs > 10]
         not_enough_contigs = self.passed.contigs[self.passed.contigs <= 10]
-        # Median absolute deviation - Average absolute difference between
-        # number of contigs and the median for all genomes
         # TODO Define separate function for this
         med_abs_dev = abs(eligible_contigs - eligible_contigs.median()).mean()
         self.med_abs_devs["contigs"] = med_abs_dev
         # Define separate function for this
         # The "deviation reference"
-        # Multiply
         dev_ref = med_abs_dev * self.contigs
         self.dev_refs["contigs"] = dev_ref
         self.allowed["contigs"] = eligible_contigs.median() + dev_ref
-        # self.passed["contigs"] = eligible_contigs[
-        #     abs(eligible_contigs - eligible_contigs.median()) <= dev_ref]
         self.failed["contigs"] = eligible_contigs[
             abs(eligible_contigs - eligible_contigs.median()) > dev_ref].index
         eligible_contigs = eligible_contigs[
             abs(eligible_contigs - eligible_contigs.median()) <= dev_ref]
-        # Add genomes with < 10 contigs back in
         eligible_contigs = pd.concat([eligible_contigs, not_enough_contigs])
         eligible_contigs = eligible_contigs.index
         self.passed = self.passed.loc[eligible_contigs]
