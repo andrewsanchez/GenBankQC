@@ -20,8 +20,6 @@ def test_init(aphidicola_multi):
             sorted(aphidicola.stats.index.tolist()))
     assert (sorted(aphidicola.dmx.mean().index.tolist()) ==
             sorted(aphidicola.stats.index.tolist()))
-    assert os.path.isdir(aphidicola.qc_dir)
-    assert os.path.isdir(aphidicola.qc_results_dir)
     assert aphidicola.max_unknowns == a
     assert aphidicola.contigs == b
     assert aphidicola.assembly_size == c
