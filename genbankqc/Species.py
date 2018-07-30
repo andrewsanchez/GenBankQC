@@ -36,6 +36,7 @@ class Species:
         self.passed_dir = os.path.join(self.qc_results_dir, "passed")
         if not os.path.isdir(self.qc_dir):
             os.mkdir(self.qc_dir)
+        if not os.path.isdir(self.qc_results_dir):
             os.mkdir(self.qc_results_dir)
         self.stats_path = os.path.join(self.qc_dir, 'stats.csv')
         self.nw_path = os.path.join(self.qc_dir, 'tree.nw')
