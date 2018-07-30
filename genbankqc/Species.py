@@ -3,7 +3,6 @@ import re
 
 from logbook import Logger
 from functools import wraps
-from genbankqc import Genome
 from subprocess import DEVNULL, Popen
 
 import pandas as pd
@@ -69,7 +68,7 @@ class Species:
         self.colors = {"unknowns": "red", "contigs": "green",
                        "distance": "purple", "assembly_size": "orange"}
         self.assess_tree()
-        self.log.info(self.name)
+        self.log.info("Instantiated {}".format(self.name))
 
     def __str__(self):
         self.message = [
@@ -126,6 +125,8 @@ class Species:
 
     @property
     def genomes(self, ext="fasta"):
+        # Why doesn't this work when importing at top of file?
+        from genbankqc import Genome
         # TODO: Maybe this should return a tuple (genome-path, genome-id)
         """Returns a generator for every file ending with `ext`
 
