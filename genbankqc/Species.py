@@ -34,6 +34,9 @@ class Species:
         self.label = '-'.join(map(str, self.deviation_values))
         self.qc_results_dir = os.path.join(self.qc_dir, self.label)
         self.passed_dir = os.path.join(self.qc_results_dir, "passed")
+        if not os.path.isdir(self.qc_dir):
+            os.mkdir(self.qc_dir)
+            os.mkdir(self.qc_results_dir)
         self.stats_path = os.path.join(self.qc_dir, 'stats.csv')
         self.nw_path = os.path.join(self.qc_dir, 'tree.nw')
         self.dmx_path = os.path.join(self.qc_dir, 'dmx.csv')
@@ -88,7 +91,6 @@ class Species:
     def assess(f):
         # TODO: This can have a more general application if the pickling
         # functionality is implemented elsewhere
-
         @wraps(f)
         def wrapper(self):
             try:
@@ -99,7 +101,7 @@ class Species:
                 self.complete = True
                 with open(self.allowed_path, 'rb') as p:
                     self.allowed = pickle.load(p)
-                print(self.name, ' already complete.')
+                self.log.info('Already complete')
             except AssertionError:
                 self.complete = False
                 f(self)
@@ -464,9 +466,6 @@ class Species:
 
     @assess_total_genomes
     def qc(self):
-        if not os.path.isdir(self.qc_dir):
-            os.mkdir(self.qc_dir)
-            os.mkdir(self.qc_results_dir)
         self.run_mash()
         self.get_stats()
         self.filter()
