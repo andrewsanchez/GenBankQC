@@ -87,10 +87,6 @@ class Species:
             "MASH: {}".format(self.mash)]
         return '\n'.join(self.message)
 
-    @property
-    def total_genomes(self):
-        return len(list(self.genomes))
-
     def assess(f):
         # TODO: This can have a more general application if the pickling
         # functionality is implemented elsewhere
@@ -136,6 +132,18 @@ class Species:
         genomes = [Genome(os.path.join(self.path, f), self.assembly_summary)
                    for f in os.listdir(self.path) if f.endswith(ext)]
         return genomes
+
+    def genome_data(self):
+        Data = namedtuple("genome_data",
+                          "sketch id")
+        self.total_genomes = len(list(self.genomes))
+        for genome in self.genomes:
+            data = Data(genome.msh, genome.name)
+            yield data
+
+    @property
+    def total_genomes(self):
+        return len(list(self.genomes))
 
     def sketches(self):
         return (i.msh for i in self.genomes)
@@ -209,7 +217,7 @@ class Species:
         dmx_mean = self.dmx.mean()
         for genome in self.genomes:
             genome.get_stats(dmx_mean)
-        species_stats = [genome.stats_df for genome in self.genomes]
+        species_stats = [genome.stats for genome in self.genomes]
         self.stats = pd.concat(species_stats)
         self.stats.to_csv(self.stats_path)
         self.log.info("Generated stats and wrote to disk")

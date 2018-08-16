@@ -28,7 +28,7 @@ class Genome:
         self.msh = os.path.join(self.qc_dir, self.name + ".msh")
         self.stats_path = os.path.join(self.qc_dir, self.name + '.csv')
         if os.path.isfile(self.stats_path):
-            self.stats_df = pd.read_csv(self.stats_path, index_col=0)
+            self.stats = pd.read_csv(self.stats_path, index_col=0)
         self.assembly_summary = assembly_summary
         self.metadata = defaultdict(lambda: 'missing')
         self.xml = defaultdict(lambda: 'missing')
