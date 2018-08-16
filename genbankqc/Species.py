@@ -74,7 +74,8 @@ class Species:
         self.colors = {"unknowns": "red", "contigs": "green",
                        "distance": "purple", "assembly_size": "orange"}
         self.assess_tree()
-        self.log.info("Instantiated {}".format(self.name))
+        self.genomes = self.genomes()
+        self.log.info("Instantiated")
 
     def __str__(self):
         self.message = [
