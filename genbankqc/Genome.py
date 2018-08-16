@@ -48,7 +48,7 @@ class Genome:
         else:
             self.log.info("Unable to read assembly_summary")
         # Do this in Species object or in __main__
-        self.log.info("Instantiated {}".format(self.name))
+        self.log.info("Instantiated")
 
     def get_contigs(self):
         """

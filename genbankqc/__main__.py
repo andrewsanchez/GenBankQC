@@ -36,9 +36,9 @@ def cli(ctx, path):
     log_file = os.path.join(log_dir, "genbankqc.log")
 
     handler = TimedRotatingFileHandler(log_file, backup_count=10)
-    handler.format_string = ('[{record.time:%Y-%m-%d %H:%M:%S}]'
-                             '{record.level_name}:{record.channel}:\n'
-                             '{record.message}')
+    # handler.format_string = ('[{record.time:%Y-%m-%d %H:%M:%S}] '
+    #                          '{record.level_name}: {record.channel}:\n'
+    #                          '{record.message}')
     handler.push_application()
 
     genbank = Genbank(path)
