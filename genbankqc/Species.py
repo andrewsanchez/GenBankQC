@@ -152,10 +152,6 @@ class Species:
                if i.accession_id is not None]
         return ids
 
-    def sketch(self):
-        for genome in self.genomes:
-            genome.sketch()
-
     def mash_paste(self):
         if os.path.isfile(self.paste_file):
             os.remove(self.paste_file)
@@ -180,7 +176,8 @@ class Species:
 
     def run_mash(self):
         """Run all mash related functions."""
-        self.sketch()
+        for genome in self.genomes:
+            genome.sketch()
         self.mash_paste()
         self.mash_dist()
 
