@@ -133,13 +133,13 @@ class Species:
                    for f in os.listdir(self.path) if f.endswith(ext)]
         return genomes
 
-    def genome_data(self):
-        Data = namedtuple("genome_data",
-                          "sketch id")
-        self.total_genomes = len(list(self.genomes))
-        for genome in self.genomes:
-            data = Data(genome.msh, genome.name)
-            yield data
+    # def genome_data(self):
+    #     Data = namedtuple("genome_data",
+    #                       "sketch id")
+    #     self.total_genomes = len(list(self.genomes))
+    #     for genome in self.genomes:
+    #         data = Data(genome.msh, genome.name)
+    #         yield data
 
     @property
     def total_genomes(self):
