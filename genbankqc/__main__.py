@@ -104,9 +104,11 @@ def genome(ctx, path, metadata):
 
 @cli.command()
 @click.pass_obj
-@click.argument('path', type=click.Path(exists=True, dir_okay=False),
-                help='Summarize basic stats of given log file')
+@click.argument('path', type=click.Path(exists=True, dir_okay=False))
 def log_stats(ctx, path):
+    """
+    Summarize basic stats of given log file
+    """
     log_file = os.path.join(ctx.genbank, path)
     not_enough_genomes = (0, "Not enough genomes")
     completed_metadata_command = (0, "Completed metadata command")
