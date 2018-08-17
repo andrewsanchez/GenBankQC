@@ -12,7 +12,7 @@ def test_init(genome):
     assert isinstance(genome, Genome)
     assert genome.name == expected_name
     assert genome.name in genome.msh
-    assert handler.has_info(re.compile(expected_name))
+    assert handler.has_info(re.compile('Instantiated'))
 
 
 def test_get_contigs(genome):
