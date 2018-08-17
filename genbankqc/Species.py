@@ -401,7 +401,6 @@ class Species:
             n.set_style(nstyle)
         self.style_and_render_tree()
 
-    @assess
     def filter(self):
         self.filter_unknown_bases()
         self.filter_contigs("contigs")
@@ -481,6 +480,7 @@ class Species:
                 self.log.info("Not enough genomes")
         return wrapper
 
+    @assess
     @assess_total_genomes
     def qc(self):
         self.run_mash()
