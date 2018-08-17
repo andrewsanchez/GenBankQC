@@ -1,4 +1,5 @@
 import os
+import re
 import click
 
 from collections import namedtuple
@@ -99,3 +100,40 @@ def genome(ctx, path, metadata):
     genome = Genome(path, ctx.assembly_summary)
     if metadata:
         click.echo(genome.metadata)
+
+
+@cli.command()
+@click.pass_obj
+@click.argument('path', type=click.Path(exists=True, dir_okay=False),
+                help='Summarize basic stats of given log file')
+def log_stats(ctx, path):
+    log_file = os.path.join(ctx.genbank, path)
+    not_enough_genomes = (0, "Not enough genomes")
+    completed_metadata_command = (0, "Completed metadata command")
+    already_complete = (0, "Already complete")
+    tree_already_complete = (0, "Tree already complete")
+    generated_stats = (0, "Generated stats")
+    qc_completed = (0, "qc command completed")
+    stats = [log_file, not_enough_genomes,
+             completed_metadata_command,
+             already_complete,
+             tree_already_complete,
+             generated_stats,
+             qc_completed]
+    with open(log_file) as f:
+        for line in f.readlines():
+            if re.match(not_enough_genomes[1], line):
+                not_enough_genomes += 1
+            elif re.match(completed_metadata_command[1], line):
+                completed_metadata_command[0] += 1
+            elif re.match(already_complete[1], line):
+                already_complete[0] += 1
+            elif re.match(tree_already_complete[1], line):
+                tree_already_complete[0] += 1
+            elif re.match(generated_stats[1], line):
+                generated_stats[0] += 1
+            elif re.match(qc_completed[1], line):
+                qc_completed[0] += 1
+    for i in stats:
+        click.echo(i[1])
+        click.echo(i[0])
