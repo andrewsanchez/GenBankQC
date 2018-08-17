@@ -110,12 +110,12 @@ def log_stats(ctx, path):
     Summarize basic stats of given log file
     """
     log_file = os.path.join(ctx.genbank.path, '.logs', path)
-    not_enough_genomes = (0, "Not enough genomes")
-    completed_metadata_command = (0, "Completed metadata command")
-    already_complete = (0, "Already complete")
-    tree_already_complete = (0, "Tree already complete")
-    generated_stats = (0, "Generated stats")
-    qc_completed = (0, "qc command completed")
+    not_enough_genomes = [0, "Not enough genomes"]
+    completed_metadata_command = [0, "Completed metadata command"]
+    already_complete = [0, "Already complete"]
+    tree_already_complete = [0, "Tree already complete"]
+    generated_stats = [0, "Generated stats"]
+    qc_completed = [0, "qc command completed"]
     stats = [log_file, not_enough_genomes,
              completed_metadata_command,
              already_complete,
@@ -123,18 +123,18 @@ def log_stats(ctx, path):
              generated_stats,
              qc_completed]
     with open(log_file) as f:
-        for line in f.readlines():
-            if re.match(not_enough_genomes[1], line):
-                not_enough_genomes += 1
-            elif re.match(completed_metadata_command[1], line):
+        for line in f:
+            if re.search(not_enough_genomes[1], line):
+                not_enough_genomes[0] += 1
+            elif re.search(completed_metadata_command[1], line):
                 completed_metadata_command[0] += 1
-            elif re.match(already_complete[1], line):
+            elif re.search(already_complete[1], line):
                 already_complete[0] += 1
-            elif re.match(tree_already_complete[1], line):
+            elif re.search(tree_already_complete[1], line):
                 tree_already_complete[0] += 1
-            elif re.match(generated_stats[1], line):
+            elif re.search(generated_stats[1], line):
                 generated_stats[0] += 1
-            elif re.match(qc_completed[1], line):
+            elif re.search(qc_completed[1], line):
                 qc_completed[0] += 1
     for i in stats:
         click.echo(i[1])
