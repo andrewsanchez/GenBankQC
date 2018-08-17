@@ -73,8 +73,8 @@ class Species:
         # Enable user defined colors
         self.colors = {"unknowns": "red", "contigs": "green",
                        "distance": "purple", "assembly_size": "orange"}
-        self.assess_tree()
         self.genomes = self.genomes()
+        self.assess_tree()
         self.log.info("Instantiated")
 
     def __str__(self):
