@@ -109,7 +109,7 @@ def log_stats(ctx, path):
     """
     Summarize basic stats of given log file
     """
-    log_file = os.path.join(ctx.genbank, path)
+    log_file = os.path.join(ctx.genbank.path, path)
     not_enough_genomes = (0, "Not enough genomes")
     completed_metadata_command = (0, "Completed metadata command")
     already_complete = (0, "Already complete")
