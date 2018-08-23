@@ -62,6 +62,11 @@ class Species:
                 self.log.info("Distance matrix read succesfully")
             except pd.errors.EmptyDataError:
                 self.log.exception()
+        self.metadata_path = os.path.join(self.qc_dir, "{}_metadata.csv".format(self.name))
+        try:
+            self.metadata_df = pd.read_csv(self.metadata_path, index_col=0)
+        except FileNotFoundError:
+            self.metadata_df = pd.DataFrame()
         self.criteria = ["unknowns", "contigs", "assembly_size", "distance"]
         self.tolerance = {"unknowns": max_unknowns, "contigs": contigs,
                           "assembly_size": assembly_size, "distance": mash}
@@ -470,7 +475,7 @@ class Species:
     def assess_total_genomes(f):
         """
         Count the number of total genomes in species_dir
-        Don't attempt QC if less than five genomes.
+        Don't run if less than five genomes.
         """
         @wraps(f)
         def wrapper(self):
@@ -491,13 +496,14 @@ class Species:
         self.color_tree()
         self.log.info("qc command completed")
 
+    @assess_total_genomes
     def metadata(self):
         metadata = []
         for genome in self.genomes:
+            if genome.accession_id in self.metadata_df.index:
+                continue
             genome.get_metadata()
             metadata.append(genome.metadata)
-        self.metadata_df = pd.DataFrame(metadata)
-        self.metadata_path = os.path.join(
-            self.qc_dir, "{}_metadata.csv".format(self.name))
+        self.metadata_df = pd.concat([self.metadata_df, pd.DataFrame(metadata)])
         self.metadata_df.to_csv(self.metadata_path)
         self.log.info("Completed metadata command")
