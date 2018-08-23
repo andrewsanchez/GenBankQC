@@ -3,7 +3,7 @@ import re
 import click
 
 from collections import namedtuple
-from logbook import TimedRotatingFileHandler
+import logbook
 
 from genbankqc import Genbank
 from genbankqc import Genome
@@ -36,7 +36,8 @@ def cli(ctx, path):
         os.mkdir(log_dir)
     log_file = os.path.join(log_dir, "genbankqc.log")
 
-    handler = TimedRotatingFileHandler(log_file, backup_count=10)
+    logbook.set_datetime_format("local")
+    handler = logbook.TimedRotatingFileHandler(log_file, backup_count=10)
     # handler.format_string = ('[{record.time:%Y-%m-%d %H:%M:%S}] '
     #                          '{record.level_name}: {record.channel}:\n'
     #                          '{record.message}')
