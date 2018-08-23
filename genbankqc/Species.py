@@ -66,7 +66,7 @@ class Species:
         try:
             self.metadata_df = pd.read_csv(self.metadata_path, index_col="accession")
         except FileNotFoundError:
-            self.metadata_df = pd.DataFrame()
+            self.metadata_df = pd.DataFrame(index=None)
         self.criteria = ["unknowns", "contigs", "assembly_size", "distance"]
         self.tolerance = {"unknowns": max_unknowns, "contigs": contigs,
                           "assembly_size": assembly_size, "distance": mash}
@@ -504,6 +504,6 @@ class Species:
                 continue
             genome.get_metadata()
             metadata.append(genome.metadata)
-        self.metadata_df = pd.concat([self.metadata_df, pd.DataFrame(metadata)])
+        self.metadata_df = pd.concat([self.metadata_df, pd.DataFrame(metadata, index=None)])
         self.metadata_df.to_csv(self.metadata_path)
         self.log.info("Completed metadata command")
