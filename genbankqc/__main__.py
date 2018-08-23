@@ -38,11 +38,7 @@ def cli(ctx, path):
 
     logbook.set_datetime_format("local")
     handler = logbook.TimedRotatingFileHandler(log_file, backup_count=10)
-    # handler.format_string = ('[{record.time:%Y-%m-%d %H:%M:%S}] '
-    #                          '{record.level_name}: {record.channel}:\n'
-    #                          '{record.message}')
     handler.push_application()
-
     genbank = Genbank(path)
     _ctx = namedtuple('ctx', ['genbank', 'assembly_summary', 'log_file'])
     ctx.obj = _ctx(genbank=genbank, assembly_summary=genbank.assembly_summary,
@@ -108,7 +104,7 @@ def genome(ctx, path, metadata):
 @click.argument('path', type=click.Path(exists=True, dir_okay=False))
 def log_stats(ctx, path):
     """
-    Summarize basic stats of given log file
+    Summarize basic stats for a given log file.
     """
     log_file = os.path.join(ctx.genbank.path, '.logs', path)
     not_enough_genomes = [0, "Not enough genomes"]
