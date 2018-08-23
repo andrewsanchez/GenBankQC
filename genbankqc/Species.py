@@ -189,6 +189,7 @@ class Species:
         self.mash_dist()
 
     def get_tree(self):
+        # Use decorator instead of if statement
         if self.tree_complete is False:
             from ete3.coretype.tree import TreeError
             import numpy as np
