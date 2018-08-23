@@ -22,4 +22,4 @@ install:
   - pip install -r ci/requirements.txt
 script:
   - pytest -v
-  - flake8 --exclude=docs/conf.py
+  - flake8
