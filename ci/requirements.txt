@@ -1,2 +1,2 @@
-retrying
+retrying==1.3.3
 logbook
