@@ -25,7 +25,7 @@ class Genbank:
 
     @property
     def species(self):
-        for d in os.path.listdir(self.genbank):
+        for d in os.listdir(self.genbank):
             if d.startswith('.'):
                 continue
             path = os.path.join(self.genbank, d)
