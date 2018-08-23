@@ -64,7 +64,7 @@ class Species:
                 self.log.exception()
         self.metadata_path = os.path.join(self.qc_dir, "{}_metadata.csv".format(self.name))
         try:
-            self.metadata_df = pd.read_csv(self.metadata_path, index_col=0)
+            self.metadata_df = pd.read_csv(self.metadata_path, index_col="accession")
         except FileNotFoundError:
             self.metadata_df = pd.DataFrame()
         self.criteria = ["unknowns", "contigs", "assembly_size", "distance"]
