@@ -28,7 +28,8 @@ class Genbank:
                 continue
             path = os.path.join(self.path, d)
             if os.path.isdir(path):
-                yield Species.Species(path, self.assembly_summary)
+                yield Species.Species(path,
+                                      assembly_summary=self.assembly_summary)
 
     def qc(self):
         for i in self.species:
