@@ -32,6 +32,14 @@ class Genbank:
             if os.path.isdir(path):
                 yield Species.Species(path, assembly_summary=self.assembly_summary)
 
+    def init(self):
+        """
+        Create GenBank skeleton and get resources
+        """
+        if not os.path.isdir(self.path):
+           os.mkdir(self.path)
+            os.mkdir(os.path.join(self.path), '.info')
+
     def qc(self):
         for i in self.species:
             i.qc()
