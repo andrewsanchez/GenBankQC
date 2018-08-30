@@ -505,6 +505,6 @@ class Species:
             genome.get_metadata()
             metadata.append(genome.metadata)
         self.metadata_df = pd.concat([self.metadata_df,
-            pd.DataFrame(metadata).set_index("accession")])
+                                      pd.DataFrame(metadata).set_index("accession")])
         self.metadata_df.to_csv(self.metadata_path)
         self.log.info("Completed metadata command")

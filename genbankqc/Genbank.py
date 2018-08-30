@@ -18,7 +18,8 @@ class Genbank:
         try:
             self.assembly_summary = pd.read_csv(self.assembly_summary, sep="\t", index_col=0)
         except FileNotFoundError:
-            self.assembly_summary = pd.read_csv(assembly_summary_url, sep="\t", index_col=0, skiprows=1)
+            self.assembly_summary = pd.read_csv(assembly_summary_url,
+                                                sep="\t", index_col=0, skiprows=1)
             self.assembly_summary.to_csv(self.assembly_summary_path, sep="\t")
         self.log = Logger("GenBank")
         self.log.info("Instantiated")
@@ -37,7 +38,7 @@ class Genbank:
         Create GenBank skeleton and get resources
         """
         if not os.path.isdir(self.path):
-           os.mkdir(self.path)
+            os.mkdir(self.path)
             os.mkdir(os.path.join(self.path), '.info')
 
     def qc(self):
