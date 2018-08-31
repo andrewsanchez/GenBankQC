@@ -16,7 +16,7 @@ class Genbank:
         self.path = path
         self.assembly_summary_path = os.path.join(self.path, ".info/assembly_summary.txt")
         try:
-            self.assembly_summary = pd.read_csv(self.assembly_summary, sep="\t", index_col=0)
+            self.assembly_summary = pd.read_csv(self.assembly_summary_path, sep="\t", index_col=0)
         except FileNotFoundError:
             self.assembly_summary = pd.read_csv(assembly_summary_url,
                                                 sep="\t", index_col=0, skiprows=1)
