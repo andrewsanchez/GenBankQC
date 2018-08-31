@@ -37,6 +37,7 @@ class Genome:
             self.metadata["accession"] = self.accession_id
         except AttributeError:
             # Raise custom exception
+            self.accession_id = "missing"
             self.log.error("Invalid accession ID")
             self.log.exception()
         if isinstance(self.assembly_summary, pd.DataFrame):
