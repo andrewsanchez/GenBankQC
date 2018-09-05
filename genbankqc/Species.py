@@ -4,6 +4,7 @@ import pickle
 
 from logbook import Logger
 from functools import wraps
+from multiprocessing import Pool
 from subprocess import DEVNULL, Popen
 
 import pandas as pd
@@ -188,8 +189,9 @@ class Species:
 
     def run_mash(self):
         """Run all mash related functions."""
-        for genome in self.genomes:
-            genome.sketch()
+        with Pool(15) as pool:
+            pool.map_async(lambda x: x.sketch(), self.genomes)
+            pool.close()
         self.mash_paste()
         self.mash_dist()
 
