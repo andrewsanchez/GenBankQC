@@ -168,9 +168,7 @@ class Species:
         Popen(cmd, shell="True", stderr=DEVNULL).wait()
         self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
         # Make distance matrix more readable
-        names = [
-            os.path.splitext(i)[0].split('/')[-1] for i
-            in self.dmx.index]
+        names = [os.path.splitext(i)[0].split('/')[-1] for i in self.dmx.index]
         self.dmx.index = names
         self.dmx.columns = names
         self.dmx.to_csv(self.dmx_path, sep="\t")
