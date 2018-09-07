@@ -1,9 +1,9 @@
 import os
 import re
 import pickle
+import functools
 
 from logbook import Logger
-from functools import wraps
 from multiprocessing import Pool
 from subprocess import DEVNULL, Popen
 
@@ -96,7 +96,7 @@ class Species:
     def assess(f):
         # TODO: This can have a more general application if the pickling
         # functionality is implemented elsewhere
-        @wraps(f)
+        @functools.wraps(f)
         def wrapper(self):
             try:
                 assert self.stats is not None
@@ -258,7 +258,7 @@ class Species:
         Count the number of genomes in self.passed.
         Commence with filtering only if self.passed has more than five genomes.
         """
-        @wraps(f)
+        @functools.wraps(f)
         def wrapper(self, *args):
             if len(self.passed) > 5:
                 f(self, *args)
@@ -479,7 +479,7 @@ class Species:
         Count the number of total genomes in species_dir
         Don't run if less than five genomes.
         """
-        @wraps(f)
+        @functools.wraps(f)
         def wrapper(self):
             if self.total_genomes > 5:
                 f(self)
