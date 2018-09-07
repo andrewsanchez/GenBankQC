@@ -185,9 +185,9 @@ class Species:
 
     def run_mash(self):
         """Run all mash related functions."""
-        with Pool(15) as pool:
-            pool.map_async(lambda x: x.sketch(), self.genomes)
-            pool.close()
+        with Pool() as pool:
+            pool = Pool(10)
+            pool.map(Genome.sketch_genome, self.genome_paths)
         self.mash_paste()
         self.mash_dist()
 

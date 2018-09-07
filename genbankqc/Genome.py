@@ -188,3 +188,17 @@ class Genome:
         self.parse_biosample()
         self.efetch("sra")
         self.parse_sra()
+
+"""
+Top Level Functions which are multiprocessing compatable 
+Until I can figure out how to get class methods to work
+"""
+def sketch_genome(path):
+    species_dir, fasta = os.path.split(path)
+    name = os.path.splitext(fasta)[0]
+    qc_dir = os.path.join(species_dir, "qc")
+    out = os.path.join(qc_dir, name + ".msh")
+    cmd = "mash sketch '{}' -o '{}'".format(path, out)
+    subprocess.Popen(cmd, shell="True", stderr=subprocess.DEVNULL).wait()
+
+
