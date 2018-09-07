@@ -4,12 +4,14 @@ import pickle
 import functools
 
 from logbook import Logger
-from multiprocessing import Pool
+
 from subprocess import DEVNULL, Popen
+from pathos.multiprocessing import ProcessingPool as Pool
 
 import pandas as pd
 
 from ete3 import Tree
+from genbankqc import Genome
 # Figure out how to supress error output from this
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
