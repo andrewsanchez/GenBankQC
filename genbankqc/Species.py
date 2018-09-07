@@ -124,6 +124,19 @@ class Species:
         except AssertionError:
             self.tree_complete = False
 
+    @property
+    def genome_paths(self, ext="fasta"):
+        # Why doesn't this work when importing at top of file?
+        """Returns a generator for every file ending with `ext`
+
+        :param ext: File extension of genomes in species directory
+        :returns: Generator of Genome objects for all genomes in species dir
+        :rtype: generator
+        """
+        return [os.path.join(self.path, genome)
+                for genome in os.listdir(self.path)
+                if genome.endswith(ext)]
+
     def genomes(self):
         # Why doesn't this work when importing at top of file?
         """Returns a generator for every file ending with `ext`
@@ -177,7 +190,7 @@ class Species:
         """Run all mash related functions."""
         with Pool() as pool:
             pool = Pool(10)
-            pool.map(Genome.sketch_genome, (i.path for i in self.genomes))
+            pool.map(Genome.sketch_genome, self.genome_paths)
         self.mash_paste()
         self.mash_dist()
 
