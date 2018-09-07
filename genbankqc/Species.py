@@ -35,10 +35,6 @@ class Species:
         self.label = '-'.join(map(str, self.deviation_values))
         self.qc_results_dir = os.path.join(self.qc_dir, self.label)
         self.passed_dir = os.path.join(self.qc_results_dir, "passed")
-        if not os.path.isdir(self.qc_dir):
-            os.mkdir(self.qc_dir)
-        if not os.path.isdir(self.qc_results_dir):
-            os.mkdir(self.qc_results_dir)
         self.stats_path = os.path.join(self.qc_dir, 'stats.csv')
         self.nw_path = os.path.join(self.qc_dir, 'tree.nw')
         self.dmx_path = os.path.join(self.qc_dir, 'dmx.csv')
@@ -490,6 +486,10 @@ class Species:
     @assess
     @assess_total_genomes
     def qc(self):
+        if not os.path.isdir(self.qc_dir):
+            os.mkdir(self.qc_dir)
+        if not os.path.isdir(self.qc_results_dir):
+            os.mkdir(self.qc_results_dir)
         self.run_mash()
         self.get_stats()
         self.filter()
