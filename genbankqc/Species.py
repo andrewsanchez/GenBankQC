@@ -177,7 +177,7 @@ class Species:
         """Run all mash related functions."""
         with Pool() as pool:
             pool = Pool(10)
-            pool.map(Genome.sketch_genome, self.genome_paths)
+            pool.map(Genome.sketch_genome, (i.path for i in self.genomes))
         self.mash_paste()
         self.mash_dist()
 
