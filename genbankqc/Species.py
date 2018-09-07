@@ -124,8 +124,7 @@ class Species:
         except AssertionError:
             self.tree_complete = False
 
-    def genomes(self, ext="fasta"):
-        from genbankqc import Genome
+    def genomes(self):
         # Why doesn't this work when importing at top of file?
         """Returns a generator for every file ending with `ext`
 
@@ -133,10 +132,8 @@ class Species:
         :returns: Generator of Genome objects for all genomes in species dir
         :rtype: generator
         """
-        genomes = [Genome(os.path.join(self.path, f), self.assembly_summary)
-                   for f in os.listdir(self.path) if f.endswith(ext)]
-        return genomes
-
+        return [Genome.Genome(genome, self.assembly_summary)
+                for genome in self.genome_paths]
 
     @property
     def total_genomes(self):
