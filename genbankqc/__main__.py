@@ -31,18 +31,9 @@ def cli(ctx, path):
     species-based statistics and metadata.
     """
 
-    log_dir = os.path.join(path, ".logs")
-    if not os.path.isdir(log_dir):
-        os.mkdir(log_dir)
-    log_file = os.path.join(log_dir, "genbankqc.log")
-
-    logbook.set_datetime_format("local")
-    handler = logbook.TimedRotatingFileHandler(log_file, backup_count=10)
-    handler.push_application()
     genbank = Genbank(path)
-    _ctx = namedtuple('ctx', ['genbank', 'assembly_summary', 'log_file'])
-    ctx.obj = _ctx(genbank=genbank, assembly_summary=genbank.assembly_summary,
-                   log_file=log_file)
+    _ctx = namedtuple('ctx', ['genbank', 'assembly_summary'])
+    ctx.obj = _ctx(genbank=genbank, assembly_summary=genbank.assembly_summary)
     if ctx.invoked_subcommand is None:
         genbank.qc()
 

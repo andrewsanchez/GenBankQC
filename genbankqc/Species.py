@@ -3,7 +3,7 @@ import re
 import pickle
 import functools
 
-from logbook import Logger
+import logbook
 
 from subprocess import DEVNULL, Popen
 from pathos.multiprocessing import ProcessingPool as Pool
@@ -32,7 +32,7 @@ class Species:
         self.deviation_values = [max_unknowns, contigs, assembly_size, mash]
         self.path = os.path.abspath(path)
         self.name = os.path.basename(os.path.normpath(path))
-        self.log = Logger(self.name)
+        self.__logging_init__()
         self.qc_dir = os.path.join(self.path, "qc")
         self.label = '-'.join(map(str, self.deviation_values))
         self.qc_results_dir = os.path.join(self.qc_dir, self.label)
@@ -77,9 +77,19 @@ class Species:
         # Enable user defined colors
         self.colors = {"unknowns": "red", "contigs": "green",
                        "distance": "purple", "assembly_size": "orange"}
+        self.log.info("Instantiated")
         self.genomes = self.genomes()
         self.assess_tree()
-        self.log.info("Instantiated")
+
+    def __logging_init__(self):
+        self.log = logbook.Logger(self.name)
+        log_dir = os.path.join(self.path, ".logs")
+        if not os.path.isdir(log_dir):
+            os.mkdir(log_dir)
+        log_file = os.path.join(log_dir, "genbankqc.log")
+        logbook.set_datetime_format("local")
+        handler = logbook.TimedRotatingFileHandler(log_file, backup_count=10)
+        handler.push_application()
 
     def __str__(self):
         self.message = [
