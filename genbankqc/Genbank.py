@@ -14,6 +14,9 @@ class Genbank:
         GenBank
         """
         self.path = path
+        if not os.path.isdir(self.path):
+            os.mkdir(self.path)
+            os.mkdir(os.path.join(self.path), '.info')
         self.assembly_summary_path = os.path.join(self.path, ".info/assembly_summary.txt")
         try:
             self.assembly_summary = pd.read_csv(self.assembly_summary_path, sep="\t", index_col=0)
@@ -27,20 +30,18 @@ class Genbank:
     @property
     def species(self):
         for d in os.listdir(self.path):
-            if d.startswith('.'):
+            if d.startswith('.') or not os.path.isdir(path):
                 continue
             path = os.path.join(self.path, d)
-            if os.path.isdir(path):
-                yield Species.Species(path, assembly_summary=self.assembly_summary)
+            yield Species.Species(path, assembly_summary=self.assembly_summary)
 
     def init(self):
         """
         Create GenBank skeleton and get resources
         """
-        if not os.path.isdir(self.path):
-            os.mkdir(self.path)
-            os.mkdir(os.path.join(self.path), '.info')
+        pass
 
     def qc(self):
+        # use multiprocessing here
         for i in self.species:
             i.qc()
