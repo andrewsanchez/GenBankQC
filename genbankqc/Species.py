@@ -201,10 +201,13 @@ class Species:
     def run_mash(self):
         """Run all mash related functions."""
         with Pool() as pool:
-            pool = Pool(10)
+            pool = Pool()
+            self.log.info("{} cpus in pool".format(pool.ncpus))
             pool.map(Genome.sketch_genome, self.genome_paths)
+        self.log.info("All genomes sketched")
         self.mash_paste()
         self.mash_dist()
+        self.log.info("mash command completed")
 
     def get_tree(self):
         # Use decorator instead of if statement
