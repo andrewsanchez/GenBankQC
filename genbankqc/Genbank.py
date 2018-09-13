@@ -30,10 +30,10 @@ class Genbank:
     @property
     def species(self):
         for d in os.listdir(self.path):
-            if d.startswith('.') or not os.path.isdir(path):
+            if d.startswith('.') or not os.path.isdir(self.path):
                 continue
-            path = os.path.join(self.path, d)
-            yield Species.Species(path, assembly_summary=self.assembly_summary)
+            species_path = os.path.join(self.path, d)
+            yield Species.Species(species_path, assembly_summary=self.assembly_summary)
 
     def init(self):
         """
