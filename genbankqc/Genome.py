@@ -86,8 +86,7 @@ class Genome:
         if os.path.isfile(self.msh):
             self.log.info("Sketch file already exists")
         else:
-            subprocess.Popen(cmd, shell="True",
-                             stderr=subprocess.DEVNULL).wait()
+            subprocess.Popen(cmd, shell="True", stderr=subprocess.DEVNULL).wait()
             self.log.info("Sketch file created")
 
     def get_stats(self, dmx_mean):
