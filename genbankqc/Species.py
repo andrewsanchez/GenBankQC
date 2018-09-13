@@ -200,8 +200,8 @@ class Species:
         self.dmx.to_csv(self.dmx_path, sep="\t")
         self.log.info("dmx.csv created")
 
-    def run_mash(self):
-        """Run all mash related functions."""
+    def sketch_genomes(self):
+        """Sketch all genomes"""
         with Pool() as pool:
             pool = Pool()
             self.log.info("{} cpus in pool".format(pool.ncpus))
@@ -507,7 +507,7 @@ class Species:
             os.mkdir(self.qc_dir)
         if not os.path.isdir(self.qc_results_dir):
             os.mkdir(self.qc_results_dir)
-        self.run_mash()
+        self.sketch_genomes()
         self.mash_paste()
         self.mash_dist()
         self.get_stats()
