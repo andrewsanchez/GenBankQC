@@ -207,9 +207,6 @@ class Species:
             self.log.info("{} cpus in pool".format(pool.ncpus))
             pool.map(Genome.sketch_genome, self.genome_paths)
         self.log.info("All genomes sketched")
-        self.mash_paste()
-        self.mash_dist()
-        self.log.info("mash command completed")
 
     def get_tree(self):
         # Use decorator instead of if statement
@@ -511,6 +508,8 @@ class Species:
         if not os.path.isdir(self.qc_results_dir):
             os.mkdir(self.qc_results_dir)
         self.run_mash()
+        self.mash_paste()
+        self.mash_dist()
         self.get_stats()
         self.filter()
         self.link_genomes()
