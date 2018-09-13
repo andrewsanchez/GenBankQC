@@ -182,19 +182,23 @@ class Species:
         sketches = os.path.join(self.qc_dir, "*msh")
         cmd = "mash paste {} {}".format(self.paste_file, sketches)
         Popen(cmd, shell="True", stderr=DEVNULL).wait()
+        self.log.info("MASH paste completed")
         if not os.path.isfile(self.paste_file):
+            self.log.error("MASH paste failed")
             self.paste_file = None
 
     def mash_dist(self):
         cmd = "mash dist -t '{}' '{}' > '{}'".format(
             self.paste_file, self.paste_file, self.dmx_path)
         Popen(cmd, shell="True", stderr=DEVNULL).wait()
+        self.log.info("MASH distance completed")
         self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
         # Make distance matrix more readable
         names = [os.path.splitext(i)[0].split('/')[-1] for i in self.dmx.index]
         self.dmx.index = names
         self.dmx.columns = names
         self.dmx.to_csv(self.dmx_path, sep="\t")
+        self.log.info("dmx.csv created")
 
     def run_mash(self):
         """Run all mash related functions."""
