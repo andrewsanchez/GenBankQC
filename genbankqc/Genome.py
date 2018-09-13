@@ -44,7 +44,7 @@ class Genome:
             try:
                 biosample = assembly_summary.loc[self.accession_id].biosample
                 self.metadata["biosample_id"] = biosample
-            except AttributeError:
+            except (AttributeError, KeyError):
                 self.log.info("Unable to get biosample ID")
         else:
             self.log.info("Unable to read assembly_summary")
