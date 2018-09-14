@@ -203,7 +203,6 @@ class Species:
     def sketch_genomes(self):
         """Sketch all genomes"""
         with Pool() as pool:
-            pool = Pool()
             self.log.info("{} cpus in pool".format(pool.ncpus))
             pool.map(Genome.sketch_genome, self.genome_paths)
         self.log.info("All genomes sketched")
