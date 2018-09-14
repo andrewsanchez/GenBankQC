@@ -79,7 +79,8 @@ class Species:
         self.colors = {"unknowns": "red", "contigs": "green",
                        "distance": "purple", "assembly_size": "orange"}
         self.log.info("Instantiated")
-        self.genomes = self.genomes()
+        self.genomes = [Genome.Genome(genome, self.assembly_summary)
+                        for genome in self.genome_paths]
         self.assess_tree()
 
     def logger(self):
@@ -147,15 +148,15 @@ class Species:
         return [os.path.join(self.path, genome) for genome in os.listdir(self.path)
                 if genome.endswith(ext)]
 
-    @property
-    def genomes(self):
-        """Returns a generator for every file ending with `ext`
+    # @property
+    # def genomes(self):
+    #     """Returns a generator for every file ending with `ext`
 
-        :param ext: File extension of genomes in species directory
-        :returns: Generator of Genome objects for all genomes in species dir
-        :rtype: generator
-        """
-        return (Genome.Genome(genome, self.assembly_summary) for genome in self.genome_paths)
+    #     :param ext: File extension of genomes in species directory
+    #     :returns: Generator of Genome objects for all genomes in species dir
+    #     :rtype: generator
+    #     """
+    #     return (Genome.Genome(genome, self.assembly_summary) for genome in self.genome_paths)
 
     @property
     def total_genomes(self):
