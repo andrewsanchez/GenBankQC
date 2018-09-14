@@ -233,7 +233,7 @@ class Species:
 
     def get_stats(self):
         """Get stats for all genomes. Concat the results into a DataFrame"""
-        dmx_mean = [self.dmx_mean()] * len(self.genome_paths)
+        dmx_mean = [self.dmx.mean()] * len(self.genome_paths)
         with Pool() as pool:
             results = pool.map(Genome.mp_stats, self.genome_paths, dmx_mean)
         self.stats = pd.concat(results)
