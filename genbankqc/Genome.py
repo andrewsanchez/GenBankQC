@@ -46,9 +46,6 @@ class Genome:
                 self.metadata["biosample_id"] = biosample
             except (AttributeError, KeyError):
                 self.log.info("Unable to get biosample ID")
-        else:
-            self.log.info("Unable to read assembly_summary")
-        # Do this in Species object or in __main__
         self.log.info("Instantiated")
 
     def get_contigs(self):
@@ -188,6 +185,7 @@ class Genome:
         self.efetch("sra")
         self.parse_sra()
 
+# make sure Genome reads in the assembly summary here
 def sketch_genome(path):
     genome = Genome(path)
     genome.sketch()
