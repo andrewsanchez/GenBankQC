@@ -510,8 +510,7 @@ class Species:
         self.get_tree()
         self.color_tree()
         self.log.info("qc command completed")
-        self.end = time.time()
-        self.log.info("Time: {}".format(self.end - self.start))
+        self.log.info("Total run time: {}".format(time.time() - self.start))
 
     @assess_total_genomes
     def metadata(self):
