@@ -188,8 +188,10 @@ class Species:
             self.paste_file = None
 
     def mash_dist(self):
-        cmd = "mash dist -t '{}' '{}' > '{}'".format(
-            self.paste_file, self.paste_file, self.dmx_path)
+        from multiprocessing import cpu_count
+        ncpus = cpu_count() - 2
+        cmd = "mash dist -p {} -t '{}' '{}' > '{}'".format(
+            ncpus, self.paste_file, self.paste_file, self.dmx_path)
         Popen(cmd, shell="True", stderr=DEVNULL).wait()
         self.log.info("MASH distance completed")
         self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
