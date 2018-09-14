@@ -34,7 +34,7 @@ class Species:
         self.deviation_values = [max_unknowns, contigs, assembly_size, mash]
         self.path = os.path.abspath(path)
         self.name = os.path.basename(os.path.normpath(path))
-        self.__logging_init__()
+        self.logger()
         self.qc_dir = os.path.join(self.path, "qc")
         self.label = '-'.join(map(str, self.deviation_values))
         self.qc_results_dir = os.path.join(self.qc_dir, self.label)
@@ -76,14 +76,13 @@ class Species:
         self.med_abs_devs = {}
         self.dev_refs = {}
         self.allowed = {"unknowns": max_unknowns}
-        # Enable user defined colors
         self.colors = {"unknowns": "red", "contigs": "green",
                        "distance": "purple", "assembly_size": "orange"}
         self.log.info("Instantiated")
         self.genomes = self.genomes()
         self.assess_tree()
 
-    def __logging_init__(self):
+    def logger(self):
         self.log = logbook.Logger(self.name)
         log_dir = os.path.join(self.path, ".logs")
         if not os.path.isdir(log_dir):
