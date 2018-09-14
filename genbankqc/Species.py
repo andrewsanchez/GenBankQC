@@ -230,14 +230,11 @@ class Species:
             self.tree.write(outfile=self.nw_path)
 
     def get_stats(self):
-        """
-        Get stats for all genomes. Concat the results into a DataFrame
-        """
-        dmx_mean = self.dmx.mean()
-        for genome in self.genomes:
-            genome.get_stats(dmx_mean)
-        species_stats = [genome.stats for genome in self.genomes]
-        self.stats = pd.concat(species_stats)
+        """Get stats for all genomes. Concat the results into a DataFrame"""
+        dmx_mean = [self.dmx_mean()] * len(self.genome_paths)
+        with Pool() as pool:
+            results = pool.map(Genome.mp_stats, self.genome_paths, dmx_mean)
+        self.stats = pd.concat(results)
         self.stats.to_csv(self.stats_path)
         self.log.info("Generated stats and wrote to disk")
 
