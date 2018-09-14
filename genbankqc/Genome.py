@@ -191,3 +191,8 @@ class Genome:
 def sketch_genome(path):
     genome = Genome(path)
     genome.sketch()
+
+def mp_stats(path, dmx_mean):
+    genome = Genome(path)
+    genome.get_stats(dmx_mean)
+    return genome.stats
