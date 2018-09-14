@@ -239,14 +239,12 @@ class Species:
         self.log.info("Generated stats and wrote to disk")
 
     def MAD(self, df, col):
-        """Get the median absolute deviation for col
-        """
+        """Get the median absolute deviation for col"""
         MAD = abs(df[col] - df[col].median()).mean()
         return MAD
 
     def MAD_ref(MAD, tolerance):
-        """Get the reference value for median absolute deviation
-        """
+        """Get the reference value for median absolute deviation"""
         dev_ref = MAD * tolerance
         return dev_ref
 
