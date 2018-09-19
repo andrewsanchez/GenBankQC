@@ -67,8 +67,6 @@ def species(ctx, path, unknowns, contigs, assembly_size, distance, all,
               "assembly_size": assembly_size,
               "mash": distance,
               "assembly_summary": ctx.assembly_summary}
-
-    log = logbook.Logger(basename(normpath(path)))
     logbook.set_datetime_format("local")
     log_dir = os.path.join(path, ".logs")
     log_file = os.path.join(log_dir, "qc.log")
@@ -77,7 +75,6 @@ def species(ctx, path, unknowns, contigs, assembly_size, distance, all,
     handler = logbook.TimedRotatingFileHandler(log_file, backup_count=10,
                                                date_format='%Y-%m-%d-%H:%M')
     handler.push_application()
-
     species = Species(path, **kwargs)
     species.qc()
     if metadata:
