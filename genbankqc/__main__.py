@@ -72,8 +72,7 @@ def species(ctx, path, unknowns, contigs, assembly_size, distance, all,
     log_file = os.path.join(log_dir, "qc.log")
     if not os.path.isdir(log_dir):
         os.mkdir(log_dir)
-    handler = logbook.TimedRotatingFileHandler(log_file, backup_count=10,
-                                               date_format='%Y-%m-%d-%H:%M')
+    handler = logbook.TimedRotatingFileHandler(log_file, backup_count=10)
     handler.push_application()
     species = Species(path, **kwargs)
     species.qc()
