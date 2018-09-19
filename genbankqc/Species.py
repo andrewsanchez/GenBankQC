@@ -34,7 +34,6 @@ class Species:
         self.deviation_values = [max_unknowns, contigs, assembly_size, mash]
         self.path = os.path.abspath(path)
         self.name = os.path.basename(os.path.normpath(path))
-        self.logger()
         self.qc_dir = os.path.join(self.path, "qc")
         self.label = '-'.join(map(str, self.deviation_values))
         self.qc_results_dir = os.path.join(self.qc_dir, self.label)
@@ -78,20 +77,9 @@ class Species:
         self.allowed = {"unknowns": max_unknowns}
         self.colors = {"unknowns": "red", "contigs": "green",
                        "distance": "purple", "assembly_size": "orange"}
-        self.log.info("Instantiated")
         self.genomes = [Genome.Genome(genome, self.assembly_summary)
                         for genome in self.genome_paths]
         self.assess_tree()
-
-    def logger(self):
-        self.log = logbook.Logger(self.name)
-        log_dir = os.path.join(self.path, ".logs")
-        if not os.path.isdir(log_dir):
-            os.mkdir(log_dir)
-        log_file = os.path.join(log_dir, "genbankqc.log")
-        logbook.set_datetime_format("local")
-        handler = logbook.TimedRotatingFileHandler(log_file, backup_count=10)
-        handler.push_application()
 
     def __str__(self):
         self.message = [

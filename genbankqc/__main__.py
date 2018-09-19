@@ -1,9 +1,10 @@
 import os
 import re
 import click
+import logbook
 
 from collections import namedtuple
-import logbook
+from os.path import normpath, basename
 
 from genbankqc import Genbank
 from genbankqc import Genome
@@ -60,15 +61,23 @@ def cli(ctx, path):
               help='Get metadata for genome at PATH',)
 def species(ctx, path, unknowns, contigs, assembly_size, distance, all,
             metadata):
-    """
-    Run commands on a single species.
-    """
-
+    """Run commands on a single species"""
     kwargs = {"max_unknowns": unknowns,
               "contigs": contigs,
               "assembly_size": assembly_size,
               "mash": distance,
               "assembly_summary": ctx.assembly_summary}
+
+    log = logbook.Logger(basename(normpath(path)))
+    logbook.set_datetime_format("local")
+    log_dir = os.path.join(path, ".logs")
+    log_file = os.path.join(log_dir, "qc.log")
+    if not os.path.isdir(log_dir):
+        os.mkdir(log_dir)
+    handler = logbook.TimedRotatingFileHandler(log_file, backup_count=10,
+                                               date_format='%Y-%m-%d-%H:%M')
+    handler.push_application()
+
     species = Species(path, **kwargs)
     species.qc()
     if metadata:
