@@ -13,7 +13,8 @@ class Genbank:
         """
         GenBank
         """
-        self.path = path
+        self.path = os.path.abspath(path)
+        self.log = Logger("GenBank")
         if not os.path.isdir(self.path):
             os.mkdir(self.path)
             os.mkdir(os.path.join(self.path), '.info')
@@ -45,6 +46,5 @@ class Genbank:
         pass
 
     def qc(self):
-        # use multiprocessing here
-        for i in self.species:
-            i.qc()
+        for species in self.species:
+            species.qc()
