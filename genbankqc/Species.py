@@ -472,21 +472,7 @@ class Species:
                 pass
         self.log.info("Links created for genomes that passed QC")
 
-    def assess_total_genomes(f):
-        """
-        Count the number of total genomes in species_dir
-        Don't run if less than five genomes.
-        """
-        @functools.wraps(f)
-        def wrapper(self):
-            if self.total_genomes > 5:
-                f(self)
-            else:
-                self.log.info("Not enough genomes")
-        return wrapper
-
     @assess
-    @assess_total_genomes
     def qc(self):
         if not os.path.isdir(self.qc_dir):
             os.mkdir(self.qc_dir)
@@ -503,7 +489,6 @@ class Species:
         self.log.info("qc command completed")
         self.log.info("Total run time: {}".format(time.time() - self.start))
 
-    @assess_total_genomes
     def metadata(self):
         metadata = []
         for genome in self.genomes:
