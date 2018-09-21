@@ -31,10 +31,16 @@ def cli(ctx, path):
     Assess the integrity of your genomes through automated analysis of
     species-based statistics and metadata.
     """
-
     genbank = Genbank(path)
     _ctx = namedtuple('ctx', ['genbank', 'assembly_summary'])
     ctx.obj = _ctx(genbank=genbank, assembly_summary=genbank.assembly_summary)
+    logbook.set_datetime_format("local")
+    log_dir = os.path.join(path, ".logs")
+    log_file = os.path.join(log_dir, "qc.log")
+    if not os.path.isdir(log_dir):
+        os.mkdir(log_dir)
+    handler = logbook.TimedRotatingFileHandler(log_file, backup_count=10)
+    handler.push_application()
     if ctx.invoked_subcommand is None:
         genbank.qc()
 
