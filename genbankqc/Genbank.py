@@ -21,11 +21,10 @@ class Genbank:
         try:
             self.assembly_summary = pd.read_csv(self.assembly_summary_path, sep="\t", index_col=0)
         except FileNotFoundError:
-            self.assembly_summary = pd.read_csv(assembly_summary_url,
-                                                sep="\t", index_col=0, skiprows=1)
+            self.assembly_summary = pd.read_csv(assembly_summary_url, sep="\t",
+                                                index_col=0, skiprows=1)
             self.assembly_summary.to_csv(self.assembly_summary_path, sep="\t")
-        self.log = Logger("GenBank")
-        self.log.info("Instantiated")
+            self.log.info("Downloaded assembly_summary.txt")
 
     @property
     def species(self):
