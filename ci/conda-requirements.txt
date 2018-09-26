@@ -1,7 +1,7 @@
 click
 ete3
 numpy
-pandas
+pandas==0.23.4
 scikit-bio
 biopython
 pytest
