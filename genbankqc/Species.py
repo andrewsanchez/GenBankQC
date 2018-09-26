@@ -400,8 +400,7 @@ class Species:
         for genome in self.failed_report.index:
             n = self.tree.get_leaves_by_name(genome+".fasta").pop()
             nstyle = NodeStyle()
-            nstyle["fgcolor"] = self.colors[
-                self.failed_report.loc[genome, 'criteria']]
+            nstyle["fgcolor"] = self.colors[self.failed_report.loc[genome, 'criteria']]
             nstyle["size"] = 9
             n.set_style(nstyle)
         self.style_and_render_tree()
