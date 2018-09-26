@@ -33,9 +33,11 @@ class Genbank:
     def species(self):
         for d in os.listdir(self.path):
             species_path = os.path.join(self.path, d)
+            if not os.path.isdir(species_path):
+                continue
             fastas = (f for f in os.listdir(species_path) if f.endswith('fasta'))
             if len(list(fastas)) < 10:
-                self.log.info("Not enough genomes: {}".format(d))
+                self.log.info("Not enough genomes for {}".format(d))
                 continue
             yield Species.Species(species_path, assembly_summary=self.assembly_summary)
 
