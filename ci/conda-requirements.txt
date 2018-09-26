@@ -1,6 +1,6 @@
 click
 ete3
-numpy
+numpy==1.15.2
 pandas
 scikit-bio
 biopython
