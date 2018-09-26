@@ -1,5 +1,5 @@
 click
-ete3
+ete3==3.1.1
 numpy
 pandas
 scikit-bio
