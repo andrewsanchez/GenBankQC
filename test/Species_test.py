@@ -92,7 +92,9 @@ class TestBare:
 
     def test_mash(self, aphidicola_bare):
         aphidicola = aphidicola_bare
-        aphidicola.run_mash()
+        aphidicola.sketch_genomes()
+        aphidicola.mash_paste()
+        aphidicola.mash_dist()
         assert os.path.isfile(aphidicola.paste_file)
         assert os.path.isfile(aphidicola.dmx_path)
         assert type(aphidicola.dmx) == pd.DataFrame
