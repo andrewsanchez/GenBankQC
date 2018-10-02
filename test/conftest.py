@@ -22,8 +22,7 @@ def genbank():
     for resource in os.listdir(resources):
         source = os.path.join(resources, resource)
         target = os.path.join(genbank, resource)
-        if os.path.isdir(source):
-            shutil.copytree(source, target)
+        shutil.copytree(source, target)
     yield Genbank(genbank)
     shutil.rmtree(genbank)
 
