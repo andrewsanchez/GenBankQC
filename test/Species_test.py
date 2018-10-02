@@ -73,7 +73,7 @@ def altered_unknowns():
 
 
 @pytest.fixture(scope="module")
-def aphidicola_bare():
+def species_bare():
     tmp = tempfile.mkdtemp()
     aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
     shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
@@ -170,11 +170,11 @@ def test_color_tree(aphidicola):
     assert os.path.isfile(aphidicola.tree_img)
 
 
-@pytest.mark.usefixtures("aphidicola_bare")
+@pytest.mark.usefixtures("species_bare")
 class TestBare:
 
-    def test_mash(self, aphidicola_bare):
-        aphidicola = aphidicola_bare
+    def test_mash(self, species_bare):
+        aphidicola = species_bare
         aphidicola.sketch_genomes()
         aphidicola.mash_paste()
         aphidicola.mash_dist()
@@ -186,15 +186,15 @@ class TestBare:
             assert i is not None
             assert os.path.isfile(i)
 
-    def test_get_stats(self, aphidicola_bare):
-        aphidicola = aphidicola_bare
+    def test_get_stats(self, species_bare):
+        aphidicola = species_bare
         aphidicola.get_stats()
         assert os.path.isfile(aphidicola.stats_path)
         assert type(aphidicola.stats) == pd.DataFrame
 
-    def test_get_tree(self, aphidicola_bare):
+    def test_get_tree(self, species_bare):
         from ete3 import Tree
-        aphidicola = aphidicola_bare
+        aphidicola = species_bare
         aphidicola.get_tree()
         assert type(aphidicola.tree) == Tree
         assert os.path.isfile(aphidicola.nw_path)
