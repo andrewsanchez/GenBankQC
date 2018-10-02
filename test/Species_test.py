@@ -9,12 +9,20 @@ from pandas.util.testing import assert_index_equal
 from genbankqc import Genome, Species
 
 
-@pytest.fixture(scope="module",
-                params=["Buchnera_aphidicola"])
-def species(request):
-    species = "test/resources/{}".format(request.param)
-    species = Species(species, assembly_summary=assembly_summary)
+@pytest.fixture()
+def species():
+    """
+    Provides a Species object for B. aphidicola, which contains one misnamed genome, a qc directory,
+    one sketch file, dmx.csv, stats.csv, tree.nw and two filtered directories.
+    """
+    tmp = tempfile.mkdtemp()
+    path = os.path.join(tmp, "Buchnera_aphidicola")
+    shutil.copytree('test/resources/Buchnera_aphidicola', path)
+    species = Species(path, assembly_summary=assembly_summary)
     yield species
+    shutil.rmtree(tmp)
+
+
 
 
 @pytest.fixture(params=[[200, 3.0, 3.0, 3.0], [300, 2.0, 2.0, 2.0]])
