@@ -1,6 +1,5 @@
 import os
 import re
-import time
 import pickle
 import functools
 
@@ -25,7 +24,6 @@ class Species:
     """
     def __init__(self, path, max_unknowns=200, contigs=3.0, assembly_size=3.0,
                  mash=3.0, assembly_summary=None):
-        self.start = time.time()
         self.max_unknowns = max_unknowns
         self.contigs = contigs
         self.assembly_size = assembly_size
@@ -486,7 +484,6 @@ class Species:
         self.get_tree()
         self.color_tree()
         self.log.info("qc command completed")
-        self.log.info("Total run time: {}".format(time.time() - self.start))
 
     def metadata(self):
         metadata = []
