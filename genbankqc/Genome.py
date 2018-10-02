@@ -143,15 +143,12 @@ class Genome:
         """
         try:
             tree = ET.fromstring(self.xml["biosample"])
-            sra = tree.find('DocumentSummary/SampleData/'
-                            'BioSample/Ids/Id/[@db="SRA"]')
+            sra = tree.find('DocumentSummary/SampleData/BioSample/Ids/Id/[@db="SRA"]')
             self.log.info("Parsed biosample XML")
-
             try:
                 self.metadata["sra_id"] = sra.text
             except AttributeError:
                 self.metadata["sra_id"] = "missing"
-
             for name in Metadata.Metadata.biosample_fields:
                 xp = ('DocumentSummary/SampleData/BioSample/Attributes/'
                       'Attribute/[@harmonized_name="{}"]'.format(name))
