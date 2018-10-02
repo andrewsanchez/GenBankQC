@@ -13,17 +13,22 @@ import pandas as pd
 from ete3 import Tree
 from genbankqc import Genome
 # Figure out how to supress error output from this
+
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
 
 class Species:
-    """Represents a collection of genomes in `path`
-    :Parameters:
-        path : str
-            The path to the directory of related genomes you wish to analyze.
-    """
     def __init__(self, path, max_unknowns=200, contigs=3.0, assembly_size=3.0,
                  mash=3.0, assembly_summary=None):
+        """Represents a collection of genomes in `path`
+
+        :param path: Path to the directory of related genomes you wish to analyze.
+        :param max_unknowns: Number of allowable unknown bases, i.e. not [ATCG]
+        :param contigs: Acceptable deviations from median number of contigs
+        :param assembly_size: Acceptable deviations from median assembly size
+        :param mash: Acceptable deviations from median MASH distances
+        :param assembly_summary: a pandas DataFrame with assembly summary information
+        """
         self.max_unknowns = max_unknowns
         self.contigs = contigs
         self.assembly_size = assembly_size
