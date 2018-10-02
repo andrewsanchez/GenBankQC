@@ -4,4 +4,4 @@ numpy
 pandas
 scikit-bio
 biopython
-pytest
+pytest==3.8.2
