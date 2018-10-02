@@ -14,11 +14,13 @@ class Genbank:
         GenBank
         """
         self.path = os.path.abspath(path)
+        self.info_dir = os.path.join(self.path, ".info")
+        self.assembly_summary_path = os.path.join(self.info_dir, "assembly_summary.txt")
         self.log = Logger("GenBank")
         if not os.path.isdir(self.path):
             os.mkdir(self.path)
-            os.mkdir(os.path.join(self.path), '.info')
-        self.assembly_summary_path = os.path.join(self.path, ".info/assembly_summary.txt")
+        if not os.path.isdir(self.info_dir):
+            os.mkdir(self.info_dir)
         try:
             self.assembly_summary = pd.read_csv(self.assembly_summary_path, sep="\t", index_col=0)
         except FileNotFoundError:
