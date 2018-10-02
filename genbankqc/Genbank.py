@@ -41,12 +41,6 @@ class Genbank:
                 continue
             yield Species.Species(species_path, assembly_summary=self.assembly_summary)
 
-    def init(self):
-        """
-        Create GenBank skeleton and get resources
-        """
-        pass
-
     def qc(self):
         for species in self.species:
             species.qc()
