@@ -6,7 +6,11 @@ import tempfile
 import pandas as pd
 from pandas.util.testing import assert_index_equal
 
-from genbankqc import Genome, Species
+from genbankqc import Species
+from genbankqc import Genome
+
+
+assembly_summary = pd.read_csv('test/resources/.info/assembly_summary.txt', sep="\t", index_col=0)
 
 
 @pytest.fixture()
