@@ -27,6 +27,32 @@ def species():
     shutil.rmtree(tmp)
 
 
+def test_filter_contigs(species):
+    species.filter_contigs('contigs')
+    total_genomes = len(species.passed) + len(species.failed["contigs"])
+    assert total_genomes == len(species.stats)
+    assert isinstance(species.med_abs_devs["contigs"], float)
+    assert isinstance(species.dev_refs["contigs"], float)
+    assert isinstance(species.failed["contigs"], pd.Index)
+    assert isinstance(species.allowed["contigs"], float)
+    assert isinstance(species.passed, pd.DataFrame)
+
+
+def test_filter_MAD(species):
+    genomes_before_filtering = len(species.passed)
+    species.filter_MAD_range('assembly_size')
+    assert type(species.passed) == pd.DataFrame
+    assert type(species.failed['assembly_size']) == pd.Index
+    passed_and_failed = sum(
+        map(len, [species.failed['assembly_size'], species.passed]))
+    assert passed_and_failed == genomes_before_filtering
+    genomes_before_filtering = len(species.passed)
+    species.filter_MAD_upper('distance')
+    assert type(species.passed) == pd.DataFrame
+    assert type(species.failed['distance']) == pd.Index
+    passed_and_failed = sum(
+        map(len, [species.failed['distance'], species.passed]))
+    assert passed_and_failed == genomes_before_filtering
 
 
 @pytest.fixture(params=[[200, 3.0, 3.0, 3.0], [300, 2.0, 2.0, 2.0]])
@@ -189,34 +215,6 @@ def test_filter_unknowns(altered_unknowns):
     assert isinstance(aphidicola.failed["unknowns"], pd.Index)
     assert(id(aphidicola.stats) != id(aphidicola.passed))
     assert expected_failures == aphidicola.failed["unknowns"].tolist()
-
-
-def test_filter_contigs(species):
-    species.filter_contigs('contigs')
-    total_genomes = len(species.passed) + len(species.failed["contigs"])
-    assert total_genomes == len(species.stats)
-    assert isinstance(species.med_abs_devs["contigs"], float)
-    assert isinstance(species.dev_refs["contigs"], float)
-    assert isinstance(species.failed["contigs"], pd.Index)
-    assert isinstance(species.allowed["contigs"], float)
-    assert isinstance(species.passed, pd.DataFrame)
-
-
-def test_filter_MAD(species):
-    genomes_before_filtering = len(species.passed)
-    species.filter_MAD_range('assembly_size')
-    assert type(species.passed) == pd.DataFrame
-    assert type(species.failed['assembly_size']) == pd.Index
-    passed_and_failed = sum(
-        map(len, [species.failed['assembly_size'], species.passed]))
-    assert passed_and_failed == genomes_before_filtering
-    genomes_before_filtering = len(species.passed)
-    species.filter_MAD_upper('distance')
-    assert type(species.passed) == pd.DataFrame
-    assert type(species.failed['distance']) == pd.Index
-    passed_and_failed = sum(
-        map(len, [species.failed['distance'], species.passed]))
-    assert passed_and_failed == genomes_before_filtering
 
 
 def test_min_genomes(five_genomes):
