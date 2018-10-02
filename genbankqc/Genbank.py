@@ -1,5 +1,4 @@
 import os
-import time
 import pandas as pd
 from logbook import Logger
 
@@ -16,7 +15,6 @@ class Genbank:
         """
         self.path = os.path.abspath(path)
         self.log = Logger("GenBank")
-        self._start = time.time()
         if not os.path.isdir(self.path):
             os.mkdir(self.path)
             os.mkdir(os.path.join(self.path), '.info')
@@ -50,6 +48,3 @@ class Genbank:
     def qc(self):
         for species in self.species:
             species.qc()
-        self._end = time.time()
-        runtime = (self._end - self._start) / 60
-        self.log.info("Run time for all species: {:.0f} minutes".format(runtime))
