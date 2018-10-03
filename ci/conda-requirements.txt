@@ -1,6 +1,7 @@
 click==6.7
 ete3==3.1.1
 pandas>=0.19.2,<0.23.00.23.0
+numpy==1.15.1
 scikit-bio==0.5.3
 biopython==1.71
 pytest==3.7.2
