@@ -62,6 +62,32 @@ def aphidicola_multi(request):
     yield request.param, aphidicola
 
 
+def test_init(aphidicola_multi):
+    from ete3 import Tree
+    params, aphidicola = aphidicola_multi
+    a, b, c, d = params
+    assert type(aphidicola) == Species
+    assert type(aphidicola.stats) == pd.DataFrame
+    assert type(aphidicola.tree) == Tree
+    assert type(aphidicola.dmx) == pd.DataFrame
+    assert aphidicola.total_genomes == 10
+    assert (sorted(aphidicola.dmx.index.tolist()) ==
+            sorted(aphidicola.stats.index.tolist()))
+    assert (sorted(aphidicola.dmx.mean().index.tolist()) ==
+            sorted(aphidicola.stats.index.tolist()))
+    assert aphidicola.max_unknowns == a
+    assert aphidicola.contigs == b
+    assert aphidicola.assembly_size == c
+    assert aphidicola.mash == d
+    assert aphidicola.tolerance["unknowns"] == a
+    assert aphidicola.tolerance["contigs"] == b
+    assert aphidicola.tolerance["assembly_size"] == c
+    assert aphidicola.tolerance["distance"] == d
+    assert aphidicola.label == "{}-{}-{}-{}".format(a, b, c, d)
+    assert id(aphidicola.stats) == id(aphidicola.passed)
+    assert aphidicola.tree_complete is True
+
+
 @pytest.fixture(scope="module")
 def altered_unknowns():
     aphidicola = Species("test/resources/Buchnera_aphidicola")
@@ -88,32 +114,6 @@ def five_genomes(aphidicola):
     for genome in list(aphidicola.genomes)[:5]:
         os.remove(genome.path)
     yield aphidicola
-
-
-def test_init(aphidicola_multi):
-    from ete3 import Tree
-    params, aphidicola = aphidicola_multi
-    a, b, c, d = params
-    assert type(aphidicola) == Species
-    assert type(aphidicola.stats) == pd.DataFrame
-    assert type(aphidicola.tree) == Tree
-    assert type(aphidicola.dmx) == pd.DataFrame
-    assert aphidicola.total_genomes == 10
-    assert (sorted(aphidicola.dmx.index.tolist()) ==
-            sorted(aphidicola.stats.index.tolist()))
-    assert (sorted(aphidicola.dmx.mean().index.tolist()) ==
-            sorted(aphidicola.stats.index.tolist()))
-    assert aphidicola.max_unknowns == a
-    assert aphidicola.contigs == b
-    assert aphidicola.assembly_size == c
-    assert aphidicola.mash == d
-    assert aphidicola.tolerance["unknowns"] == a
-    assert aphidicola.tolerance["contigs"] == b
-    assert aphidicola.tolerance["assembly_size"] == c
-    assert aphidicola.tolerance["distance"] == d
-    assert aphidicola.label == "{}-{}-{}-{}".format(a, b, c, d)
-    assert id(aphidicola.stats) == id(aphidicola.passed)
-    assert aphidicola.tree_complete is True
 
 
 def test_genomes(aphidicola):
