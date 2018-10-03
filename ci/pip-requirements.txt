@@ -1,3 +1,4 @@
 retrying
 logbook
 bumpversion
+pathos
