@@ -1,4 +1,4 @@
-pudb
+pudb==2018.1
 flake8
 sphinx
 pytest
