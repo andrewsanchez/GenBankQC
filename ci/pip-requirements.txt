@@ -1,4 +1,4 @@
 retrying
 logbook
 bumpversion
-pathos
+pathos==0.2.2.1
