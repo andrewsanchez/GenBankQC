@@ -1,5 +1,5 @@
 pudb
-flake8
+flake8==3.5.0
 sphinx
 pytest
 pytest-cov
