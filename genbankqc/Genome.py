@@ -182,10 +182,12 @@ class Genome:
         self.efetch("sra")
         self.parse_sra()
 
+
 # make sure Genome reads in the assembly summary here
 def sketch_genome(path):
     genome = Genome(path)
     genome.sketch()
+
 
 def mp_stats(path, dmx_mean):
     genome = Genome(path)

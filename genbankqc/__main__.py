@@ -4,7 +4,6 @@ import click
 import logbook
 
 from collections import namedtuple
-from os.path import normpath, basename
 
 from genbankqc import Genbank
 from genbankqc import Genome

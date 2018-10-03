@@ -4,11 +4,9 @@ import tempfile
 
 import pytest
 import pandas as pd
-from logbook import TestHandler
 
 from genbankqc import Genbank
 from genbankqc import Species
-from genbankqc import Genome
 from genbankqc import Metadata
 
 

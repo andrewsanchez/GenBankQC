@@ -15,6 +15,7 @@ def genbank_bare():
     yield Genbank(temp_dir)
     shutil.rmtree(temp_dir)
 
+
 def test_genbank_init(genbank):
     assert isinstance(genbank, Genbank)
     assert isinstance(genbank.assembly_summary, DataFrame)
