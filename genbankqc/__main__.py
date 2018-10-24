@@ -25,7 +25,6 @@ class CLIGroup(click.Group):
 @click.pass_context
 @click.argument('path', type=click.Path(), required=False)
 def cli(ctx, path):
-    # TODO: Option for basic info about PATH
     """
     Assess the integrity of your genomes through automated analysis of
     species-based statistics and metadata.
