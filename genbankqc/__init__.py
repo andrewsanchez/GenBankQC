@@ -1,6 +1,6 @@
 from .Genome import Genome
 from .Species import Species
-from .Genbank import Genbank
-from .Metadata import Metadata
+from .genbank import Genbank
+from .metadata import Metadata
 
 __all__ = [Genome, Species, Genbank, Metadata]
