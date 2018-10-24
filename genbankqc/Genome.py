@@ -137,9 +137,8 @@ class Genome:
 
     def parse_biosample(self):
         """
-        Get what we need to get out of the xml returned by efetch("biosample")
-        Including the SRA ID and fields of interest as defined in
-        Metadata.biosample_fields
+        Get what we need out of the xml returned by efetch("biosample")ncluding
+        the SRA ID and fields of interest as defined in Metadata.biosample_fields
         """
         try:
             tree = ET.fromstring(self.xml["biosample"])
