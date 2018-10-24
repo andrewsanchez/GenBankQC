@@ -33,7 +33,7 @@ class Genome:
         self.metadata = defaultdict(lambda: 'missing')
         self.xml = defaultdict(lambda: 'missing')
         try:
-            self.accession_id = re.match('GCA_.*\.\d', self.name).group()
+            self.accession_id = re.match('GCA_[0-9]*.[0-9]', self.name).group()
             self.metadata["accession"] = self.accession_id
         except AttributeError:
             # Raise custom exception
