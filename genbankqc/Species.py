@@ -148,7 +148,7 @@ class Species:
     #     :returns: Generator of Genome objects for all genomes in species dir
     #     :rtype: generator
     #     """
-    #     return (Genome.Genome(genome, self.assembly_summary) for genome in self.genome_paths)
+    #     return (Genome(genome, self.assembly_summary) for genome in self.genome_paths)
 
     @property
     def total_genomes(self):
