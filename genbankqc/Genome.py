@@ -7,10 +7,10 @@ from retrying import retry
 import xml.etree.cElementTree as ET
 from xml.etree.ElementTree import ParseError
 from collections import defaultdict
-from genbankqc import Metadata
 
 import pandas as pd
 from Bio import SeqIO
+from metadata import Metadata
 
 
 class Genome:
