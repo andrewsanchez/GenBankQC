@@ -100,10 +100,6 @@ class Genome:
             self.stats.to_csv(self.stats_path)
             self.log.info("Generated stats and wrote to disk")
 
-    one_minute = 60000
-
-    # Retry 3 times over a period of 3 minutes max,
-    # waiting five seconds in between retries
     @retry(stop_max_attempt_number=3,
            stop_max_delay=10000,
            wait_fixed=100)
