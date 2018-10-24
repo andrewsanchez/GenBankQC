@@ -220,7 +220,7 @@ class Species:
             try:
                 self.tree.set_outgroup(self.tree.get_midpoint_outgroup())
             except TreeError as e:
-                self.log.exception()
+                self.log.exception(e)
             self.tree.write(outfile=self.nw_path)
 
     def get_stats(self):
