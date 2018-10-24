@@ -6,7 +6,7 @@ import functools
 import logbook
 
 from subprocess import DEVNULL, Popen
-from pathos.multiprocessing import ProcessingPool as Pool
+from pathos.multiprocessing import ProcessingPool
 
 import pandas as pd
 
@@ -196,7 +196,7 @@ class Species:
 
     def sketch_genomes(self):
         """Sketch all genomes"""
-        with Pool() as pool:
+        with ProcessingPool() as pool:
             self.log.info("{} cpus in pool".format(pool.ncpus))
             pool.map(Genome.sketch_genome, self.genome_paths)
         self.log.info("All genomes sketched")
@@ -226,7 +226,7 @@ class Species:
     def get_stats(self):
         """Get stats for all genomes. Concat the results into a DataFrame"""
         dmx_mean = [self.dmx.mean()] * len(self.genome_paths)
-        with Pool() as pool:
+        with ProcessingPool() as pool:
             results = pool.map(Genome.mp_stats, self.genome_paths, dmx_mean)
         self.stats = pd.concat(results)
         self.stats.to_csv(self.stats_path)
