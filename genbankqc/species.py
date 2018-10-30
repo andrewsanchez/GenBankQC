@@ -405,10 +405,10 @@ class Species:
     def color_tree(self):
         from ete3 import NodeStyle
         self.base_node_style()
-        for genome in self.failed_report.index:
-            n = self.tree.get_leaves_by_name(genome+".fasta").pop()
+        for failed_genome in self.failed_report.index:
+            n = self.tree.get_leaves_by_name(failed_genome+".fasta").pop()
             nstyle = NodeStyle()
-            nstyle["fgcolor"] = self.colors[self.failed_report.loc[genome, 'criteria']]
+            nstyle["fgcolor"] = self.colors[self.failed_report.loc[failed_genome, 'criteria']]
             nstyle["size"] = 9
             n.set_style(nstyle)
         self.style_and_render_tree()
@@ -469,8 +469,8 @@ class Species:
     def link_genomes(self):
         if not os.path.exists(self.passed_dir):
             os.mkdir(self.passed_dir)
-        for genome in self.passed.index:
-            fname = "{}.fasta".format(genome)
+        for passed_genome in self.passed.index:
+            fname = "{}.fasta".format(passed_genome)
             src = os.path.join(self.path, fname)
             dst = os.path.join(self.passed_dir, fname)
             try:
@@ -494,11 +494,11 @@ class Species:
 
     def metadata(self):
         metadata = []
-        for genome in self.genomes:
-            if genome.accession_id in self.metadata_df.index:
+        for g in self.genomes:
+            if g.accession_id in self.metadata_df.index:
                 continue
-            genome.get_metadata()
-            metadata.append(genome.metadata)
+            g.get_metadata()
+            metadata.append(g.metadata)
         self.metadata_df = pd.concat([self.metadata_df,
                                       pd.DataFrame(metadata).set_index("accession")])
         self.metadata_df.to_csv(self.metadata_path)
