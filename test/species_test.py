@@ -204,7 +204,7 @@ def test_filter_unknowns(altered_unknowns):
     assert expected_failures == aphidicola.failed["unknowns"].tolist()
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture()
 def five_genomes(aphidicola):
     shutil.rmtree(aphidicola.qc_dir)
     for genome in list(aphidicola.genomes)[:5]:
