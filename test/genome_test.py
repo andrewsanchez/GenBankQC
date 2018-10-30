@@ -1,27 +1,11 @@
 import re
 import pytest
 import os.path
-from logbook import TestHandler
 
 import pandas as pd
 from genbankqc import Genome
 
 assembly_summary = pd.read_csv('test/resources/.info/assembly_summary.txt', sep="\t", index_col=0)
-
-
-@pytest.fixture(scope="module")
-def genome(aphidicola):
-    handler = TestHandler()
-    genome = ("GCA_000521565.1_Buchnera_aphidicola_G002_"
-              "Myzus_persicae_Complete_Genome.fasta")
-    genome = os.path.join(aphidicola.path, genome)
-    with handler:
-        genome = Genome(genome, assembly_summary)
-        genome.sketch()
-        genome.get_contigs()
-        genome.get_assembly_size()
-        genome.get_unknowns()
-        yield genome, handler
 
 
 @pytest.fixture(scope="module")
