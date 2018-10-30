@@ -11,10 +11,7 @@ from pathos.multiprocessing import ProcessingPool
 import pandas as pd
 
 from ete3 import Tree
-from genbankqc import Genome
-# Figure out how to supress error output from this
-
-os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+from genbankqc import genome
 
 
 class Species:
@@ -81,8 +78,7 @@ class Species:
         self.allowed = {"unknowns": max_unknowns}
         self.colors = {"unknowns": "red", "contigs": "green",
                        "distance": "purple", "assembly_size": "orange"}
-        self.genomes = [Genome.Genome(genome, self.assembly_summary)
-                        for genome in self.genome_paths]
+        self.genomes = [genome.Genome(path, self.assembly_summary) for path in self.genome_paths]
         self.assess_tree()
 
     def __str__(self):
@@ -174,10 +170,10 @@ class Species:
         sketches = os.path.join(self.qc_dir, "*msh")
         cmd = "mash paste {} {}".format(self.paste_file, sketches)
         Popen(cmd, shell="True", stderr=DEVNULL).wait()
-        self.log.info("MASH paste completed")
         if not os.path.isfile(self.paste_file):
             self.log.error("MASH paste failed")
             self.paste_file = None
+        self.log.info("MASH paste completed")
 
     def mash_dist(self):
         from multiprocessing import cpu_count
@@ -194,12 +190,21 @@ class Species:
         self.dmx.to_csv(self.dmx_path, sep="\t")
         self.log.info("dmx.csv created")
 
-    def sketch_genomes(self):
+    def mash_sketch(self):
         """Sketch all genomes"""
         with ProcessingPool() as pool:
             self.log.info("{} cpus in pool".format(pool.ncpus))
-            pool.map(Genome.sketch_genome, self.genome_paths)
+            pool.map(genome.sketch_genome, self.genome_paths)
         self.log.info("All genomes sketched")
+
+    def run_mash(self):
+        if not os.path.isdir(self.qc_dir):
+            os.mkdir(self.qc_dir)
+        if not os.path.isdir(self.qc_results_dir):
+            os.mkdir(self.qc_results_dir)
+        self.mash_sketch()
+        self.mash_paste()
+        self.mash_dist()
 
     def get_tree(self):
         # Use decorator instead of if statement
@@ -227,7 +232,7 @@ class Species:
         """Get stats for all genomes. Concat the results into a DataFrame"""
         dmx_mean = [self.dmx.mean()] * len(self.genome_paths)
         with ProcessingPool() as pool:
-            results = pool.map(Genome.mp_stats, self.genome_paths, dmx_mean)
+            results = pool.map(genome.mp_stats, self.genome_paths, dmx_mean)
         self.stats = pd.concat(results)
         self.stats.to_csv(self.stats_path)
         self.log.info("Generated stats and wrote to disk")
@@ -476,18 +481,15 @@ class Species:
 
     @assess
     def qc(self):
-        if not os.path.isdir(self.qc_dir):
-            os.mkdir(self.qc_dir)
-        if not os.path.isdir(self.qc_results_dir):
-            os.mkdir(self.qc_results_dir)
-        self.sketch_genomes()
-        self.mash_paste()
-        self.mash_dist()
-        self.get_stats()
-        self.filter()
-        self.link_genomes()
-        self.get_tree()
-        self.color_tree()
+        if self.total_genomes > 10:
+            self.run_mash()
+            self.get_stats()
+            self.filter()
+            self.link_genomes()
+            self.get_tree()
+            self.color_tree()
+        else:
+            self.log.info('Not enough genomes.')
         self.log.info("qc command completed")
 
     def metadata(self):

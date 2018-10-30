@@ -97,14 +97,6 @@ def altered_unknowns():
     yield aphidicola, expected_failures
 
 
-@pytest.fixture(scope="module")
-def five_genomes(aphidicola):
-    shutil.rmtree(aphidicola.qc_dir)
-    for genome in list(aphidicola.genomes)[:5]:
-        os.remove(genome.path)
-    yield aphidicola
-
-
 def test_genomes(aphidicola):
     assert len(list(aphidicola.genomes)) == 10
     assert isinstance(aphidicola.genomes[0], Genome)
@@ -173,9 +165,7 @@ def species_bare():
 class TestBare:
     def test_mash(self, species_bare):
         aphidicola = species_bare
-        aphidicola.sketch_genomes()
-        aphidicola.mash_paste()
-        aphidicola.mash_dist()
+        aphidicola.run_mash()
         assert os.path.isfile(aphidicola.paste_file)
         assert os.path.isfile(aphidicola.dmx_path)
         assert type(aphidicola.dmx) == pd.DataFrame
@@ -215,9 +205,18 @@ def test_filter_unknowns(altered_unknowns):
     assert expected_failures == aphidicola.failed["unknowns"].tolist()
 
 
+@pytest.fixture(scope="module")
+def five_genomes(aphidicola):
+    shutil.rmtree(aphidicola.qc_dir)
+    for genome in list(aphidicola.genomes)[:5]:
+        os.remove(genome.path)
+    yield aphidicola
+
+
 def test_min_genomes(five_genomes):
-    with pytest.raises(FileNotFoundError):
-        five_genomes.qc()
+    # with pytest.raises(FileNotFoundError):
+    five_genomes.qc()
+    assert not os.path.isdir(five_genomes.qc_dir)
 
 
 # def test_metadata(species):
