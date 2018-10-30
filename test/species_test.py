@@ -71,8 +71,7 @@ def test_init(aphidicola_multi):
     assert type(aphidicola.tree) == Tree
     assert type(aphidicola.dmx) == pd.DataFrame
     assert aphidicola.total_genomes == 10
-    assert (sorted(aphidicola.dmx.index.tolist()) ==
-            sorted(aphidicola.stats.index.tolist()))
+    assert (sorted(aphidicola.dmx.index.tolist()) == sorted(aphidicola.stats.index.tolist()))
     assert (sorted(aphidicola.dmx.mean().index.tolist()) ==
             sorted(aphidicola.stats.index.tolist()))
     assert aphidicola.max_unknowns == a

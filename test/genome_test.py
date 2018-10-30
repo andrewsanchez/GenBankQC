@@ -10,8 +10,7 @@ assembly_summary = pd.read_csv('test/resources/.info/assembly_summary.txt', sep=
 
 @pytest.fixture(scope="module")
 def ecoli_genome(genbank):
-    genome = ("GCA_002012025.1_Escherichia_coli_"
-              "Ecol_542_Complete_Genome.fasta")
+    genome = ("GCA_002012025.1_Escherichia_coli_Ecol_542_Complete_Genome.fasta")
     genome = os.path.join(genbank.path, "Escherichia_coli", genome)
     genome = Genome(genome, assembly_summary)
     yield genome
@@ -19,8 +18,7 @@ def ecoli_genome(genbank):
 
 def test_init(genome):
     genome, handler = genome
-    expected_name = ("GCA_000521565.1_Buchnera_aphidicola_G002_"
-                     "Myzus_persicae_Complete_Genome")
+    expected_name = ("GCA_000521565.1_Buchnera_aphidicola_G002_Myzus_persicae_Complete_Genome")
     expected_path = os.path.join(genome.species_dir, expected_name+".fasta")
     assert genome.path == expected_path
     assert isinstance(genome, Genome)
