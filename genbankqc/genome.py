@@ -10,7 +10,7 @@ from collections import defaultdict
 
 import pandas as pd
 from Bio import SeqIO
-from metadata import Metadata
+from genbankqc.metadata import BioSample
 
 
 class Genome:
@@ -144,7 +144,7 @@ class Genome:
                 self.metadata["sra_id"] = sra.text
             except AttributeError:
                 self.metadata["sra_id"] = "missing"
-            for name in Metadata.Metadata.biosample_fields:
+            for name in BioSample.attributes:
                 xp = ('DocumentSummary/SampleData/BioSample/Attributes/'
                       'Attribute/[@harmonized_name="{}"]'.format(name))
                 attrib = tree.find(xp)
