@@ -98,17 +98,6 @@ def altered_unknowns():
 
 
 @pytest.fixture(scope="module")
-def species_bare():
-    tmp = tempfile.mkdtemp()
-    aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
-    shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
-    shutil.rmtree(os.path.join(aphidicola, 'qc'))
-    aphidicola = Species(aphidicola)
-    yield aphidicola
-    shutil.rmtree(tmp)
-
-
-@pytest.fixture(scope="module")
 def five_genomes(aphidicola):
     shutil.rmtree(aphidicola.qc_dir)
     for genome in list(aphidicola.genomes)[:5]:
@@ -169,9 +158,19 @@ def test_color_tree(aphidicola):
     assert os.path.isfile(aphidicola.tree_img)
 
 
+@pytest.fixture(scope="module")
+def species_bare():
+    tmp = tempfile.mkdtemp()
+    aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
+    shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
+    shutil.rmtree(os.path.join(aphidicola, 'qc'))
+    aphidicola = Species(aphidicola)
+    yield aphidicola
+    shutil.rmtree(tmp)
+
+
 @pytest.mark.usefixtures("species_bare")
 class TestBare:
-
     def test_mash(self, species_bare):
         aphidicola = species_bare
         aphidicola.sketch_genomes()
