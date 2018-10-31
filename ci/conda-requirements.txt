@@ -3,5 +3,5 @@ ete3==3.1.1
 scikit-bio==0.5.4
 biopython==1.72
 pytest==3.9.3
-pandas==0.22.0
+pandas==0.23.4
 numpy==1.15.2
