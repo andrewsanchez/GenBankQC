@@ -7,10 +7,10 @@ from retrying import retry
 import xml.etree.cElementTree as ET
 from xml.etree.ElementTree import ParseError
 from collections import defaultdict
-from genbankqc import Metadata
 
 import pandas as pd
 from Bio import SeqIO
+from genbankqc.metadata import BioSample
 
 
 class Genome:
@@ -33,7 +33,7 @@ class Genome:
         self.metadata = defaultdict(lambda: 'missing')
         self.xml = defaultdict(lambda: 'missing')
         try:
-            self.accession_id = re.match('GCA_.*\.\d', self.name).group()
+            self.accession_id = re.match('GCA_[0-9]*.[0-9]', self.name).group()
             self.metadata["accession"] = self.accession_id
         except AttributeError:
             # Raise custom exception
@@ -100,10 +100,6 @@ class Genome:
             self.stats.to_csv(self.stats_path)
             self.log.info("Generated stats and wrote to disk")
 
-    one_minute = 60000
-
-    # Retry 3 times over a period of 3 minutes max,
-    # waiting five seconds in between retries
     @retry(stop_max_attempt_number=3,
            stop_max_delay=10000,
            wait_fixed=100)
@@ -137,9 +133,8 @@ class Genome:
 
     def parse_biosample(self):
         """
-        Get what we need to get out of the xml returned by efetch("biosample")
-        Including the SRA ID and fields of interest as defined in
-        Metadata.biosample_fields
+        Get what we need out of the xml returned by efetch("biosample")ncluding
+        the SRA ID and fields of interest as defined in Metadata.biosample_fields
         """
         try:
             tree = ET.fromstring(self.xml["biosample"])
@@ -149,7 +144,7 @@ class Genome:
                 self.metadata["sra_id"] = sra.text
             except AttributeError:
                 self.metadata["sra_id"] = "missing"
-            for name in Metadata.Metadata.biosample_fields:
+            for name in BioSample.attributes:
                 xp = ('DocumentSummary/SampleData/BioSample/Attributes/'
                       'Attribute/[@harmonized_name="{}"]'.format(name))
                 attrib = tree.find(xp)
