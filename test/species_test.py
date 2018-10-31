@@ -71,8 +71,7 @@ def test_init(aphidicola_multi):
     assert type(aphidicola.tree) == Tree
     assert type(aphidicola.dmx) == pd.DataFrame
     assert aphidicola.total_genomes == 10
-    assert (sorted(aphidicola.dmx.index.tolist()) ==
-            sorted(aphidicola.stats.index.tolist()))
+    assert (sorted(aphidicola.dmx.index.tolist()) == sorted(aphidicola.stats.index.tolist()))
     assert (sorted(aphidicola.dmx.mean().index.tolist()) ==
             sorted(aphidicola.stats.index.tolist()))
     assert aphidicola.max_unknowns == a
@@ -95,25 +94,6 @@ def altered_unknowns():
     aphidicola.stats.iloc[:3, 3] = 300
     expected_failures = aphidicola.stats.iloc[:3, 3].index.tolist()
     yield aphidicola, expected_failures
-
-
-@pytest.fixture(scope="module")
-def species_bare():
-    tmp = tempfile.mkdtemp()
-    aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
-    shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
-    shutil.rmtree(os.path.join(aphidicola, 'qc'))
-    aphidicola = Species(aphidicola)
-    yield aphidicola
-    shutil.rmtree(tmp)
-
-
-@pytest.fixture(scope="module")
-def five_genomes(aphidicola):
-    shutil.rmtree(aphidicola.qc_dir)
-    for genome in list(aphidicola.genomes)[:5]:
-        os.remove(genome.path)
-    yield aphidicola
 
 
 def test_genomes(aphidicola):
@@ -141,8 +121,7 @@ def test_filter(aphidicola):
     # assert aphidicola.complete is False
     total_failed = sum(map(len, aphidicola.failed.values()))
     assert os.path.isfile(aphidicola.summary_path)
-    assert sum([total_failed, len(aphidicola.passed)]) \
-        == len(aphidicola.stats)
+    assert sum([total_failed, len(aphidicola.passed)]) == len(aphidicola.stats)
     aphidicola.filter()
     # assert aphidicola.complete is True
     assert isinstance(aphidicola.allowed, dict)
@@ -153,8 +132,7 @@ def test_link_genomes(aphidicola):
     passed = ["{}.fasta".format(i)
               for i in aphidicola.passed.index.tolist()]
     assert os.listdir(aphidicola.passed_dir)
-    assert sorted(os.listdir(aphidicola.passed_dir)) == \
-        sorted(passed)
+    assert sorted(os.listdir(aphidicola.passed_dir)) == sorted(passed)
 
 
 def test_failed_report(aphidicola):
@@ -162,21 +140,26 @@ def test_failed_report(aphidicola):
 
 
 def test_color_tree(aphidicola):
-    aphidicola = aphidicola
     aphidicola.color_tree()
-    import subprocess
-    subprocess.call("open {}".format(aphidicola.tree_img), shell=True)
     assert os.path.isfile(aphidicola.tree_img)
+
+
+@pytest.fixture(scope="module")
+def species_bare():
+    tmp = tempfile.mkdtemp()
+    aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
+    shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
+    shutil.rmtree(os.path.join(aphidicola, 'qc'))
+    aphidicola = Species(aphidicola)
+    yield aphidicola
+    shutil.rmtree(tmp)
 
 
 @pytest.mark.usefixtures("species_bare")
 class TestBare:
-
     def test_mash(self, species_bare):
         aphidicola = species_bare
-        aphidicola.sketch_genomes()
-        aphidicola.mash_paste()
-        aphidicola.mash_dist()
+        aphidicola.run_mash()
         assert os.path.isfile(aphidicola.paste_file)
         assert os.path.isfile(aphidicola.dmx_path)
         assert type(aphidicola.dmx) == pd.DataFrame
@@ -216,9 +199,18 @@ def test_filter_unknowns(altered_unknowns):
     assert expected_failures == aphidicola.failed["unknowns"].tolist()
 
 
+@pytest.fixture()
+def five_genomes(aphidicola):
+    shutil.rmtree(aphidicola.qc_dir)
+    for genome in list(aphidicola.genomes)[:5]:
+        os.remove(genome.path)
+    yield aphidicola
+
+
 def test_min_genomes(five_genomes):
-    with pytest.raises(FileNotFoundError):
-        five_genomes.qc()
+    # with pytest.raises(FileNotFoundError):
+    five_genomes.qc()
+    assert not os.path.isdir(five_genomes.qc_dir)
 
 
 # def test_metadata(species):
