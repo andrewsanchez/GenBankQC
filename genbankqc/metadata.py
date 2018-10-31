@@ -18,18 +18,20 @@ class Metadata:
 
 
 class BioSample:
+    """Download and parse BioSample metadata for GenBank bacteria genomes."""
+
+    attributes = [
+        "BioSample", "geo_loc_name", "collection_date", "strain",
+        "isolation_source", "host", "collected_by", "sample_type",
+        "sample_name", "host_disease", "isolate", "host_health_state",
+        "serovar", "env_biome", "env_feature", "ref_biomaterial",
+        "env_material", "isol_growth_condt", "num_replicons",
+        "sub_species", "host_age", "genotype", "host_sex", "serotype",
+        "host_disease_outcome",
+        ]
+
     def __init__(self):
         """Download and parse BioSample metadata"""
-
-        self.attributes = [
-            "BioSample", "geo_loc_name", "collection_date", "strain",
-            "isolation_source", "host", "collected_by", "sample_type",
-            "sample_name", "host_disease", "isolate", "host_health_state",
-            "serovar", "env_biome", "env_feature", "ref_biomaterial",
-            "env_material", "isol_growth_condt", "num_replicons",
-            "sub_species", "host_age", "genotype", "host_sex", "serotype",
-            "host_disease_outcome"
-        ]
         self.df = pd.DataFrame(index=['BioSample'], columns=self.attributes)
 
     # @retry(stop_max_attempt_number=3, stop_max_delay=10000, wait_fixed=100)
