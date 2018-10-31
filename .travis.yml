@@ -16,7 +16,7 @@ before_install:
 install:
   - conda create -y -q -n genbankqc python=$PYTHON_VERSION
   - source activate genbankqc
-  - conda install -y -q -c etetoolkit -c conda-forge --file=requirements/conda.txt
+  - conda install -y -q -c etetoolkit -c https://conda.anaconda.org/biocore --file=requirements/conda.txt
   - pip install -r requirements/pip.txt
   - pip install -q . --no-deps
   - pip install flake8
