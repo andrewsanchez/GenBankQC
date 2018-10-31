@@ -121,8 +121,7 @@ def test_filter(aphidicola):
     # assert aphidicola.complete is False
     total_failed = sum(map(len, aphidicola.failed.values()))
     assert os.path.isfile(aphidicola.summary_path)
-    assert sum([total_failed, len(aphidicola.passed)]) \
-        == len(aphidicola.stats)
+    assert sum([total_failed, len(aphidicola.passed)]) == len(aphidicola.stats)
     aphidicola.filter()
     # assert aphidicola.complete is True
     assert isinstance(aphidicola.allowed, dict)
@@ -133,20 +132,21 @@ def test_link_genomes(aphidicola):
     passed = ["{}.fasta".format(i)
               for i in aphidicola.passed.index.tolist()]
     assert os.listdir(aphidicola.passed_dir)
-    assert sorted(os.listdir(aphidicola.passed_dir)) == \
-        sorted(passed)
+    assert sorted(os.listdir(aphidicola.passed_dir)) == sorted(passed)
 
 
 def test_failed_report(aphidicola):
     assert os.path.isfile(aphidicola.failed_path)
 
 
+import sys
+from io import StringIO
 def test_color_tree(aphidicola):
-    aphidicola = aphidicola
+    orig_out = sys.stdout
+    sys.stdout = StringIO()
     aphidicola.color_tree()
-    import subprocess
-    subprocess.call("open {}".format(aphidicola.tree_img), shell=True)
     assert os.path.isfile(aphidicola.tree_img)
+    sys.stdout = orig_out
 
 
 @pytest.fixture(scope="module")
