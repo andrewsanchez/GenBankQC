@@ -139,14 +139,9 @@ def test_failed_report(aphidicola):
     assert os.path.isfile(aphidicola.failed_path)
 
 
-import sys
-from io import StringIO
 def test_color_tree(aphidicola):
-    orig_out = sys.stdout
-    sys.stdout = StringIO()
     aphidicola.color_tree()
     assert os.path.isfile(aphidicola.tree_img)
-    sys.stdout = orig_out
 
 
 @pytest.fixture(scope="module")
