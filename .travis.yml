@@ -15,7 +15,7 @@ before_install:
   - export PATH=$HOME/usr/bin:$PATH
 install:
   - conda env create -q -n genbankqc -f requirements/environment.yaml
-  - source activate genbankqc
+  - conda activate genbankqc
   - pip install -r requirements/pip.txt
   - pip install -q . --no-deps
   - pip install flake8
