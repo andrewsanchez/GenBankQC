@@ -9,10 +9,7 @@ before_install:
     fi
   - bash miniconda.sh -b -p $HOME/miniconda && . /$HOME/miniconda/etc/profile.d/conda.sh
   - wget -q https://github.com/marbl/Mash/releases/download/v2.1/mash-Linux64-v2.1.tar -O mash.tar
-  - mkdir -p $HOME/usr/bin
-  - tar -xf mash.tar --strip 1 --directory $HOME/usr/bin
-  - echo $PATH
-  - export PATH=$HOME/usr/bin:$PATH
+  - sudo tar -xf mash.tar --strip 1 --directory /usr/bin
 install:
   - conda env create -q -n genbankqc -f requirements/environment.yaml
   - conda activate genbankqc
