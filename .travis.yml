@@ -7,12 +7,10 @@ before_install:
     else
         wget -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
-  - wget -q https://github.com/marbl/Mash/releases/download/v2.1/mash-Linux64-v2.1.tar
-  - tar -xf mash-Linux64-v2.1.tar
   - . miniconda.sh -b -p $HOME/miniconda && . /$HOME/miniconda/etc/profile.d/conda.sh
+  - wget -q https://github.com/marbl/Mash/releases/download/v2.1/mash-Linux64-v2.1.tar -O mash.tar
   - mkdir -p $HOME/usr/bin
-  - mv mash-Linux64-v2.1/mash $HOME/usr/bin/mash
-  - export PATH=$HOME/miniconda/bin:$HOME/usr/bin:$PATH
+  - tar -xf mash.tar --strip 1 --directory $HOME/usr/bin
 install:
   - conda env create -q -n genbankqc -f requirements/environment.yaml
   - source activate genbankqc
