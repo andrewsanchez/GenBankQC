@@ -15,5 +15,5 @@ install:
   - pip install -q . --no-deps
   - pip install flake8
 script:
-  - pytest -v test/genbank_test.py
+  - pytest -v
   - flake8
