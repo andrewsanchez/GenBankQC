@@ -14,7 +14,7 @@ before_install:
   - mv mash-Linux64-v2.1/mash $HOME/usr/bin/mash
   - export PATH=$HOME/miniconda/bin:$HOME/usr/bin:$PATH
 install:
-  - conda env create -n genbankqc -f requirements/environment.yaml
+  - conda env create -q -n genbankqc -f requirements/environment.yaml
   - source activate genbankqc
   - pip install -r requirements/pip.txt
   - pip install -q . --no-deps
