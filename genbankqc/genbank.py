@@ -17,6 +17,11 @@ class Genbank(Metadata):
         self.path = os.path.abspath(path)
         self.info_dir = os.path.join(self.path, ".info")
         self.metadata_dir = os.path.join(self.path, "metadata")
+        self.biosample_path = os.path.join(self.metadata_dir, "biosample.csv")
+        try:
+            self.biosample_df = pd.read_csv(self.biosample_path, index_col=0)
+        except FileNotFoundError:
+            pass
         self.assembly_summary_path = os.path.join(self.info_dir, "assembly_summary.txt")
         self.log = Logger("GenBank")
         if not os.path.isdir(self.path):
