@@ -158,6 +158,11 @@ class Species:
         ids = [i.name for i in self.genomes]
         return pd.Index(ids)
 
+    @property
+    def biosample_ids(self):
+        ids = self.assembly_summary.loc[self.accession_ids].biosample.tolist()
+        return ids
+
     # may be redundant. see genome_ids attrib
     @property
     def accession_ids(self):
