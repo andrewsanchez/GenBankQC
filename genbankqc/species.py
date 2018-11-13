@@ -16,7 +16,7 @@ from genbankqc import genome
 
 class Species:
     def __init__(self, path, max_unknowns=200, contigs=3.0, assembly_size=3.0,
-                 mash=3.0, assembly_summary=None):
+                 mash=3.0, assembly_summary=None, genbank_metadata=None):
         """Represents a collection of genomes in `path`
 
         :param path: Path to the directory of related genomes you wish to analyze.
@@ -99,7 +99,7 @@ class Species:
             try:
                 assert self.stats is not None
                 assert os.path.isfile(self.allowed_path)
-                assert (sorted(self.genome_ids().tolist()) ==
+                assert (sorted(self.genome_ids.tolist()) ==
                         sorted(self.stats.index.tolist()))
                 self.complete = True
                 with open(self.allowed_path, 'rb') as p:
@@ -118,7 +118,7 @@ class Species:
                           self.tree.get_leaf_names()]
             assert (sorted(leaf_names) ==
                     sorted(self.stats.index.tolist()) ==
-                    sorted(self.genome_ids().tolist()))
+                    sorted(self.genome_ids.tolist()))
             self.tree_complete = True
             self.log.info("Tree already complete")
         except AssertionError:
@@ -153,6 +153,7 @@ class Species:
     def sketches(self):
         return (i.msh for i in self.genomes)
 
+    @property
     def genome_ids(self):
         ids = [i.name for i in self.genomes]
         return pd.Index(ids)
