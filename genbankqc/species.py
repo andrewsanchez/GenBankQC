@@ -498,14 +498,7 @@ class Species:
             self.log.info('Not enough genomes.')
         self.log.info("qc command completed")
 
-    def metadata(self):
-        metadata = []
-        for g in self.genomes:
-            if g.accession_id in self.metadata_df.index:
-                continue
-            g.get_metadata()
-            metadata.append(g.metadata)
-        self.metadata_df = pd.concat([self.metadata_df,
-                                      pd.DataFrame(metadata).set_index("accession")])
-        self.metadata_df.to_csv(self.metadata_path)
-        self.log.info("Completed metadata command")
+    def get_metadata(self, genbank_metadata, to_csv=True):
+        self.metadata = genbank_metadata.loc[self.biosample_ids]
+        if to_csv:
+            self.metadata.to_csv(self.metadata_path)
