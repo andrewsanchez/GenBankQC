@@ -28,20 +28,26 @@ class Genbank(object):
             self.log.info("Downloaded assembly_summary.txt")
 
     @property
+    def species_directories(self):
+        for dir_ in os.listdir(self.root):
+            species_dir = os.path.join(self.root, dir_)
+            if not os.path.isdir(species_dir):
+                continue
+            if species_dir.startswith('.'):
+                continue
+            yield species_dir
+
     def species(self):
-        """Iterate through all directories under self.path, yielding those
+        """Iterate through all directories under self.root, yielding those
         that contain > 10 fastas.
         """
-        for d in os.listdir(self.path):
-            species_path = os.path.join(self.path, d)
-            if not os.path.isdir(species_path):
-                continue
-            fastas = len([f for f in os.listdir(species_path) if f.endswith('fasta')])
+        for dir_ in os.listdir(self.species_directories):
+            fastas = len([f for f in os.listdir(dir_) if f.endswith('fasta')])
             if fastas < 10:
-                self.log.info("Not enough genomes for {}".format(d))
+                self.log.info("Not enough genomes for {}".format(dir_))
                 continue
-            yield Species(species_path, assembly_summary=self.assembly_summary)
+            yield Species(dir_, assembly_summary=self.assembly_summary)
 
     def qc(self):
-        for species in self.species:
+        for species in self.species():
             species.qc()
