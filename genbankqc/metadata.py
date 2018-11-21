@@ -95,6 +95,11 @@ class BioSample(object):
             with open(out_file, 'w') as f:
                 f.write('\n'.join(group))
 
+    def SRA_runs(self):	
+        file_ = os.path.join(self.paths.metadata('SRA_runs.txt'))
+        df = pd.read_csv(file_, sep='\t', error_bad_lines=False, warn_bad_lines=False)
+        self.df_SRA_runs = df
+
     def _DataFrame(self):
         self.file_ = "biosample.csv"
         self.df = pd.concat(self.data)
