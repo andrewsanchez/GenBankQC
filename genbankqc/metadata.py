@@ -82,6 +82,11 @@ class BioSample(object):
                 xml = xml['SampleData']
                 parse_record(xml)
 
+    @property
+    def SRA_ids(self):
+        ids = self.df[self.df.SRA.notnull()].SRA.tolist()
+        return ids
+
     def _DataFrame(self):
         self.file_ = "biosample.csv"
         self.df = pd.concat(self.data)
