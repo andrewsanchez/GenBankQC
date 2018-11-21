@@ -16,14 +16,9 @@ import xml.etree.cElementTree as ET
 ONE_MINUTE = 60000
 
 
-class Metadata:
-    def __init__(self):
-        self.log = Logger("Metadata")
-
-
-class BioSample:
+@attr.s
+class BioSample(object):
     """Download and parse BioSample metadata for GenBank bacteria genomes."""
-
     attributes = [
         "BioSample", "geo_loc_name", "collection_date", "strain",
         "isolation_source", "host", "collected_by", "sample_type",
@@ -33,17 +28,15 @@ class BioSample:
         "sub_species", "host_age", "genotype", "host_sex", "serotype",
         "host_disease_outcome",
         ]
-
-    def __init__(self):
-        """Download and parse BioSample metadata"""
-        self.df = pd.DataFrame(index=['BioSample'], columns=self.attributes)
+    root = attr.ib(default=os.getcwd())
+    def __attrs_post_init__(self):
+        self.paths = Paths(root=self.root, subdirs=['metadata'])
+        self.paths.mkdirs()
 
     # @retry(stop_max_attempt_number=3, stop_max_delay=10000, wait_fixed=100)
     def _esearch(self, email='inbox.asanchez@gmail.com', db="biosample",
                  term="bacteria[orgn] AND biosample_assembly[filter]"):
-
         """Use NCBI's esearch to make a query"""
-
         Entrez.email = email
         esearch_handle = Entrez.esearch(db=db, term=term, usehistory='y')
         self.esearch_results = Entrez.read(esearch_handle)
