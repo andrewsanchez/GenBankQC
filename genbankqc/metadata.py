@@ -101,10 +101,10 @@ class BioSample(object):
         self.df_SRA_runs = df
 
     def _DataFrame(self):
-        self.file_ = "biosample.csv"
+        self.df = pd.DataFrame(index=['BioSample'], columns=attributes)
         self.df = pd.concat(self.data)
         self.df.set_index("BioSample", inplace=True)
-        self.df.to_csv(self.file_)
+        self.df.to_csv(os.path.join(self.paths.metadata, "biosample.csv"), csv)
 
     def generate(self):
         self._esearch()
