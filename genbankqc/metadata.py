@@ -110,6 +110,7 @@ class BioSample(object):
         self._esearch()
         self._efetch()
         self._DataFrame()
+        self.split_SRA()
 
 
 class SRA:
