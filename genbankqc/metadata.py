@@ -87,6 +87,14 @@ class BioSample(object):
         ids = self.df[self.df.SRA.notnull()].SRA.tolist()
         return ids
 
+    def split_SRA(self):
+        """Split SRA IDs into several files for better processing with epost."""
+        groups = list(zip(*(iter(self.SRA_ids),) * 5000))
+        for ix, group in enumerate(groups):
+            out_file = os.path.join(self.paths.metadata, "SRA_Ids_{}.txt".format(ix))
+            with open(out_file, 'w') as f:
+                f.write('\n'.join(group))
+
     def _DataFrame(self):
         self.file_ = "biosample.csv"
         self.df = pd.concat(self.data)
