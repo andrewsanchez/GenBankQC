@@ -10,33 +10,21 @@ taxdump_url = "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
 assembly_summary_url = "ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt"
 
 
-class Genbank(Metadata):
-    def __init__(self, path):
-        """
-        GenBank
-        """
-        self.path = os.path.abspath(path)
-        self.info_dir = os.path.join(self.path, ".info")
-        self.metadata_dir = os.path.join(self.path, "metadata")
-        self.biosample_path = os.path.join(self.metadata_dir, "biosample.csv")
+@attr.s
+class Genbank(object):
+    log = Logger("GenBank")
+    root = attr.ib(default=os.getcwd())
+    def __attrs_post_init__(self):
+        self.paths = Paths(root=self.root, subdirs=['metadata'])
+
+    def assembly_summary(self):
+        self.paths.assembly_summary = os.path.join(self.paths.metadata, "assembly_summary.txt")
         try:
-            self.biosample_df = pd.read_csv(self.biosample_path, index_col=0)
-        except FileNotFoundError:
-            pass
-        self.assembly_summary_path = os.path.join(self.info_dir, "assembly_summary.txt")
-        self.log = Logger("GenBank")
-        if not os.path.isdir(self.path):
-            os.mkdir(self.path)
-        if not os.path.isdir(self.info_dir):
-            os.mkdir(self.info_dir)
-        if not os.path.isdir(self.metadata_dir):
-            os.mkdir(self.metadata_dir)
-        try:
-            self.assembly_summary = pd.read_csv(self.assembly_summary_path, sep="\t", index_col=0)
+            self.assembly_summary = pd.read_csv(self.paths.assembly_summary, sep="\t", index_col=0)
         except FileNotFoundError:
             self.assembly_summary = pd.read_csv(assembly_summary_url, sep="\t",
                                                 index_col=0, skiprows=1)
-            self.assembly_summary.to_csv(self.assembly_summary_path, sep="\t")
+            self.assembly_summary.to_csv(self.paths.assembly_summary, sep="\t")
             self.log.info("Downloaded assembly_summary.txt")
 
     @property
