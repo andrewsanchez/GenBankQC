@@ -11,7 +11,7 @@ from pathos.multiprocessing import ProcessingPool
 import pandas as pd
 
 from ete3 import Tree
-from genbankqc import genome
+import genbankqc.genome as genome
 
 
 class Species:
