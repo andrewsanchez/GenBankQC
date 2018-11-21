@@ -10,7 +10,6 @@ from collections import defaultdict
 
 import pandas as pd
 from Bio import SeqIO
-from genbankqc.metadata import BioSample
 
 
 class Genome:
@@ -136,6 +135,15 @@ class Genome:
         Get what we need out of the xml returned by efetch("biosample")ncluding
         the SRA ID and fields of interest as defined in Metadata.biosample_fields
         """
+        attributes = [
+            "BioSample", "geo_loc_name", "collection_date", "strain",
+            "isolation_source", "host", "collected_by", "sample_type",
+            "sample_name", "host_disease", "isolate", "host_health_state",
+            "serovar", "env_biome", "env_feature", "ref_biomaterial",
+            "env_material", "isol_growth_condt", "num_replicons",
+            "sub_species", "host_age", "genotype", "host_sex", "serotype",
+            "host_disease_outcome",
+            ]
         try:
             tree = ET.fromstring(self.xml["biosample"])
             sra = tree.find('DocumentSummary/SampleData/BioSample/Ids/Id/[@db="SRA"]')
@@ -144,7 +152,7 @@ class Genome:
                 self.metadata["sra_id"] = sra.text
             except AttributeError:
                 self.metadata["sra_id"] = "missing"
-            for name in BioSample.attributes:
+            for name in attributes:
                 xp = ('DocumentSummary/SampleData/BioSample/Attributes/'
                       'Attribute/[@harmonized_name="{}"]'.format(name))
                 attrib = tree.find(xp)
