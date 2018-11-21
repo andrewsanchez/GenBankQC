@@ -1,8 +1,12 @@
+import os
+import attr
 import pandas as pd
+
 from Bio import Entrez
 
 
 from logbook import Logger
+from genbankqc import Paths
 # from retrying import retry
 
 import xml.etree.cElementTree as ET
