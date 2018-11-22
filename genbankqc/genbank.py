@@ -17,16 +17,6 @@ class Genbank(object):
     def __attrs_post_init__(self):
         self.paths = Paths(root=self.root, subdirs=['metadata'])
 
-    def assembly_summary(self):
-        self.paths.assembly_summary = os.path.join(self.paths.metadata, "assembly_summary.txt")
-        try:
-            self.assembly_summary = pd.read_csv(self.paths.assembly_summary, sep="\t", index_col=0)
-        except FileNotFoundError:
-            self.assembly_summary = pd.read_csv(assembly_summary_url, sep="\t",
-                                                index_col=0, skiprows=1)
-            self.assembly_summary.to_csv(self.paths.assembly_summary, sep="\t")
-            self.log.info("Downloaded assembly_summary.txt")
-
     @property
     def species_directories(self):
         for dir_ in os.listdir(self.root):
