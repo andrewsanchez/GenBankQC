@@ -13,7 +13,26 @@ import xml.etree.cElementTree as ET
 # from xml.etree.ElementTree import ParseError
 
 
+
 ONE_MINUTE = 60000
+
+
+@attr.s
+class AssemblySummary(object):
+    """Read in existing file or download latest assembly summary."""
+    path = attr.ib()
+    url = "ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt"
+
+    def __attrs_post_init__(self):
+            try:
+                self.df = pd.read_csv(self.path, sep="\t", index_col=0)
+            except (FileNotFoundError, pd.errors.EmptyDataError):
+                self.df = self.download()
+
+    def download(self):
+        df = pd.read_csv(self.url, sep="\t", index_col=0, skiprows=1)
+        df.to_csv(self.path, sep="\t")
+        return df
 
 
 @attr.s
