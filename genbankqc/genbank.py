@@ -13,7 +13,8 @@ taxdump_url = "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
 @attr.s
 class Genbank(object):
     log = Logger("GenBank")
-    root = attr.ib(default=os.getcwd())
+    root = attr.ib(default=Path())
+
     def __attrs_post_init__(self):
         self.paths = Paths(root=self.root, subdirs=['metadata'])
 
@@ -31,13 +32,15 @@ class Genbank(object):
         """Iterate through all directories under self.root, yielding those
         that contain > 10 fastas.
         """
-        for dir_ in os.listdir(self.species_directories):
+        self.assembly_summary = metadata.AssemblySummary(Path(self.paths.metadata / "assembly_summary.csv"))
+        for dir_ in self.species_directories:
             fastas = len([f for f in os.listdir(dir_) if f.endswith('fasta')])
             if fastas < 10:
                 self.log.info("Not enough genomes for {}".format(dir_))
                 continue
-            yield Species(dir_, assembly_summary=self.assembly_summary)
+            yield Species(dir_, assembly_summary=self.assembly_summary.df)
 
     def qc(self):
+        self.assembly_summary = metadata.AssemblySummary.read(os.path.join(self.paths.metadata, "assembly_summary.csv"))
         for species in self.species():
             species.qc()
