@@ -3,14 +3,6 @@ from pathlib import Path
 
 import attr
 
-from . import metadata as metadata
-from .genbank import Genbank
-from .genome import Genome
-from .metadata import BioSample
-from .species import Species
-
-__all__ = [Genome, Species, Genbank, BioSample]
-
 
 @attr.s
 class Paths(object):
@@ -30,6 +22,16 @@ class Paths(object):
             path = self.__getattribute__(subdir)
             if not os.path.isdir(path):
                 os.mkdir(path)
+
+
+from . import metadata as metadata
+from .species import Species
+from .genbank import Genbank
+from .genome import Genome
+from .metadata import BioSample
+from .metadata import AssemblySummary
+
+__all__ = [Genome, Species, Genbank, BioSample]
 
 
 # Figure out how to supress error output from this
