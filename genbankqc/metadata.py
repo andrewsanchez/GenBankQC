@@ -44,9 +44,10 @@ class BioSample(object):
         "sub_species", "host_age", "genotype", "host_sex", "serotype",
         "host_disease_outcome",
         ]
-    root = attr.ib(default=os.getcwd())
+    output_dir = attr.ib(default=Path.cwd())
+
     def __attrs_post_init__(self):
-        self.paths = Paths(root=self.root, subdirs=['metadata'])
+        self.paths = Paths(root=self.output_dir, subdirs=['metadata'])
         self.paths.mkdirs()
 
     # @retry(stop_max_attempt_number=3, stop_max_delay=10000, wait_fixed=100)
