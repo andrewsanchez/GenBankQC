@@ -1,6 +1,7 @@
 import shutil
 import pytest
 import tempfile
+from pathlib import Path
 
 from pandas import DataFrame
 
@@ -10,15 +11,14 @@ from genbankqc import Species
 
 @pytest.fixture()
 def genbank_bare():
-    temp_dir = tempfile.mkdtemp()
+    temp_dir = Path(tempfile.mkdtemp())
     yield Genbank(temp_dir)
     shutil.rmtree(temp_dir)
 
 
 def test_genbank_init(genbank):
     assert isinstance(genbank, Genbank)
-    assert isinstance(genbank.assembly_summary, DataFrame)
-    for i in genbank.species:
+    for i in genbank.species():
         assert isinstance(i, Species)
 
 
