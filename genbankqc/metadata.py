@@ -37,6 +37,7 @@ class AssemblySummary(object):
 class BioSample(object):
     """Download and parse BioSample metadata for GenBank bacteria genomes."""
 
+    log = Logger("BioSample")
     attributes = [
         "BioSample",
         "geo_loc_name",
