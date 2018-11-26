@@ -1,6 +1,7 @@
 import os.path
 import shutil
 import tempfile
+from pathlib import Path
 
 import pytest
 import pandas as pd
@@ -11,7 +12,7 @@ from genbankqc import Species
 from genbankqc import Genbank
 
 
-assembly_summary = pd.read_csv('test/resources/.info/assembly_summary.txt', sep="\t", index_col=0)
+assembly_summary = pd.read_csv('test/resources/metadata/assembly_summary.txt', sep="\t", index_col=0)
 
 
 @pytest.fixture(scope="module")
@@ -30,14 +31,13 @@ def genome(aphidicola):
 
 @pytest.fixture(scope="module")
 def genbank():
-    resources = 'test/resources'
-    genbank = tempfile.mkdtemp()
-    for resource in os.listdir(resources):
-        source = os.path.join(resources, resource)
-        target = os.path.join(genbank, resource)
-        shutil.copytree(source, target)
-    yield Genbank(genbank)
-    shutil.rmtree(genbank)
+    resources = Path('test/resources').absolute()
+    tmp = Path(tempfile.mkdtemp())
+    for resource in resources.iterdir():
+        target = tmp / resource.name
+        shutil.copytree(resource, target)
+    yield Genbank(tmp)
+    shutil.rmtree(tmp)
 
 
 @pytest.fixture(scope="module")
