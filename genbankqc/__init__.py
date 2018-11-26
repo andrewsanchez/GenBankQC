@@ -15,6 +15,7 @@ class Paths(object):
         for name in self.subdirs:
             path = self.root / name
             object.__setattr__(self, name, path)
+        self.mkdirs()
 
     def mkdirs(self):
         """Create `root` and `subdirs` if they don't already exist."""
