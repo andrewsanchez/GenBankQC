@@ -44,27 +44,19 @@ def cli(ctx, path):
 
 
 @cli.command()
-@click.pass_obj
 @click.argument('path', type=click.Path(exists=True, file_okay=False))
-@click.option('--unknowns', '-n',
-              type=int, default=200,
+@click.option('--unknowns', '-n', type=int, default=200,
               help='Maximum number of unknown bases (not A, T, C, G)')
-@click.option('--contigs', '-c',
-              type=float, default=3.0,
+@click.option('--contigs', '-c', type=float, default=3.0,
               help='Acceptable deviations from median number of contigs')
-@click.option('--assembly_size', '-s',
-              type=float, default=3.0,
+@click.option('--assembly_size', '-s', type=float, default=3.0,
               help='Acceptable deviations from median assembly size')
-@click.option('--distance', '-d',
-              type=float, default=3.0,
+@click.option('--distance', '-d', type=float, default=3.0,
               help='Acceptable deviations from median MASH distances')
-@click.option('--all',
-              type=float,
+@click.option('--all', type=float,
               help='Acceptable deviations for all metrics')
-@click.option('--metadata', is_flag=True,
-              help='Get metadata for genome at PATH',)
-def species(ctx, path, unknowns, contigs, assembly_size, distance, all,
-            metadata):
+@click.option('--metadata', is_flag=True, help='Get metadata for genome at PATH')
+def species(path, unknowns, contigs, assembly_size, distance, all, metadata):
     """Run commands on a single species"""
     kwargs = {"max_unknowns": unknowns,
               "contigs": contigs,
