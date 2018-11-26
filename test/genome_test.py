@@ -12,7 +12,7 @@ assembly_summary = pd.read_csv('test/resources/metadata/assembly_summary.txt',
 @pytest.fixture(scope="module")
 def ecoli_genome(genbank):
     genome = ("GCA_002012025.1_Escherichia_coli_Ecol_542_Complete_Genome.fasta")
-    genome = os.path.join(genbank.path, "Escherichia_coli", genome)
+    genome = os.path.join(genbank.root, "Escherichia_coli", genome)
     genome = Genome(genome, assembly_summary)
     yield genome
 
