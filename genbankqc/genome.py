@@ -26,6 +26,7 @@ class Genome:
         self.qc_dir = os.path.join(self.species_dir, "qc")
         self.msh = os.path.join(self.qc_dir, self.name + ".msh")
         self.stats_path = os.path.join(self.qc_dir, self.name + '.csv')
+        # Don't do this here
         if os.path.isfile(self.stats_path):
             self.stats = pd.read_csv(self.stats_path, index_col=0)
         self.assembly_summary = assembly_summary
@@ -39,6 +40,7 @@ class Genome:
             self.accession_id = "missing"
             self.log.error("Invalid accession ID")
             self.log.exception()
+        # Don't do this here
         if isinstance(self.assembly_summary, pd.DataFrame):
             try:
                 biosample = assembly_summary.loc[self.accession_id].biosample
