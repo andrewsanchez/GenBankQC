@@ -114,8 +114,7 @@ class Species:
         try:
             assert self.tree is not None
             assert self.stats is not None
-            leaf_names = [re.sub(".fasta", "", i) for i in
-                          self.tree.get_leaf_names()]
+            leaf_names = [re.sub(".fasta", "", i) for i in self.tree.get_leaf_names()]
             assert (sorted(leaf_names) ==
                     sorted(self.stats.index.tolist()) ==
                     sorted(self.genome_ids.tolist()))
