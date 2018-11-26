@@ -12,7 +12,8 @@ from genbankqc import Species
 from genbankqc import Genbank
 
 
-assembly_summary = pd.read_csv('test/resources/metadata/assembly_summary.txt', sep="\t", index_col=0)
+assembly_summary = pd.read_csv('test/resources/metadata/assembly_summary.txt',
+                               sep="\t", index_col=0)
 
 
 @pytest.fixture(scope="module")
