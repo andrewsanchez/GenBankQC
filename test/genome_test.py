@@ -5,7 +5,8 @@ import os.path
 import pandas as pd
 from genbankqc import Genome
 
-assembly_summary = pd.read_csv('test/resources/.info/assembly_summary.txt', sep="\t", index_col=0)
+assembly_summary = pd.read_csv('test/resources/metadata/assembly_summary.txt',
+                               sep="\t", index_col=0)
 
 
 @pytest.fixture(scope="module")
