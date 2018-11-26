@@ -3,8 +3,6 @@ import pytest
 import tempfile
 from pathlib import Path
 
-from pandas import DataFrame
-
 from genbankqc import Genbank
 from genbankqc import Species
 

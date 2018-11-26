@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import attr
-import pandas as pd
 from logbook import Logger
 
 from genbankqc import Paths, Species, metadata
