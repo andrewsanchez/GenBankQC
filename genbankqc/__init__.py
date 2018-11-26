@@ -37,4 +37,4 @@ __all__ = [Genome, Species, Genbank, BioSample]
 
 
 # Figure out how to supress error output from this
-os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+os.environ["QT_QPA_PLATFORM"] = "offscreen"

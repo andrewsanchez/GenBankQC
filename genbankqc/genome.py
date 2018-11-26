@@ -25,15 +25,15 @@ class Genome:
         self.log = Logger(self.name)
         self.qc_dir = os.path.join(self.species_dir, "qc")
         self.msh = os.path.join(self.qc_dir, self.name + ".msh")
-        self.stats_path = os.path.join(self.qc_dir, self.name + '.csv')
+        self.stats_path = os.path.join(self.qc_dir, self.name + ".csv")
         # Don't do this here
         if os.path.isfile(self.stats_path):
             self.stats = pd.read_csv(self.stats_path, index_col=0)
         self.assembly_summary = assembly_summary
-        self.metadata = defaultdict(lambda: 'missing')
-        self.xml = defaultdict(lambda: 'missing')
+        self.metadata = defaultdict(lambda: "missing")
+        self.xml = defaultdict(lambda: "missing")
         try:
-            self.accession_id = re.match('GCA_[0-9]*.[0-9]', self.name).group()
+            self.accession_id = re.match("GCA_[0-9]*.[0-9]", self.name).group()
             self.metadata["accession"] = self.accession_id
         except AttributeError:
             # Raise custom exception
@@ -71,8 +71,7 @@ class Genome:
         """Count the number of unknown bases, i.e. not [ATCG]"""
         # TODO: Would it be useful to allow the user to define p?
         p = re.compile("[^ATCG]")
-        self.unknowns = sum((len(re.findall(p, str(seq)))
-                             for seq in self.contigs))
+        self.unknowns = sum((len(re.findall(p, str(seq))) for seq in self.contigs))
         self.log.info("Unknowns: {}".format(self.unknowns))
 
     def get_distance(self, dmx_mean):
@@ -93,17 +92,17 @@ class Genome:
             self.get_assembly_size()
             self.get_unknowns()
             self.get_distance(dmx_mean)
-            data = {"contigs": self.count_contigs,
-                    "assembly_size": self.assembly_size,
-                    "unknowns": self.unknowns,
-                    "distance": self.distance}
+            data = {
+                "contigs": self.count_contigs,
+                "assembly_size": self.assembly_size,
+                "unknowns": self.unknowns,
+                "distance": self.distance,
+            }
             self.stats = pd.DataFrame(data, index=[self.name])
             self.stats.to_csv(self.stats_path)
             self.log.info("Generated stats and wrote to disk")
 
-    @retry(stop_max_attempt_number=3,
-           stop_max_delay=10000,
-           wait_fixed=100)
+    @retry(stop_max_attempt_number=3, stop_max_delay=10000, wait_fixed=100)
     def efetch(self, db):
         """
         Use NCBI's efetch tools to get xml for genome's biosample id or SRA id
@@ -112,16 +111,20 @@ class Genome:
             db_id = db + "_id"
         elif db == "sra":
             db_id = db + "_id"
-        cmd = ("esearch -db {} -query {} | "
-               "efetch -format docsum".format(db, self.metadata[db_id]))
+        cmd = "esearch -db {} -query {} | " "efetch -format docsum".format(
+            db, self.metadata[db_id]
+        )
         # Make efetch timeout and retry after 30 seconds
         time_limit = 30
-        if self.metadata[db_id] is not 'missing':
+        if self.metadata[db_id] is not "missing":
             try:
-                p = subprocess.run(cmd, shell="True",
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.DEVNULL,
-                                   timeout=time_limit)
+                p = subprocess.run(
+                    cmd,
+                    shell="True",
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
+                    timeout=time_limit,
+                )
                 xml = p.stdout
                 self.xml[db] = xml
                 self.log.info("{} XML downloaded".format(db))
@@ -138,14 +141,32 @@ class Genome:
         the SRA ID and fields of interest as defined in Metadata.biosample_fields
         """
         attributes = [
-            "BioSample", "geo_loc_name", "collection_date", "strain",
-            "isolation_source", "host", "collected_by", "sample_type",
-            "sample_name", "host_disease", "isolate", "host_health_state",
-            "serovar", "env_biome", "env_feature", "ref_biomaterial",
-            "env_material", "isol_growth_condt", "num_replicons",
-            "sub_species", "host_age", "genotype", "host_sex", "serotype",
+            "BioSample",
+            "geo_loc_name",
+            "collection_date",
+            "strain",
+            "isolation_source",
+            "host",
+            "collected_by",
+            "sample_type",
+            "sample_name",
+            "host_disease",
+            "isolate",
+            "host_health_state",
+            "serovar",
+            "env_biome",
+            "env_feature",
+            "ref_biomaterial",
+            "env_material",
+            "isol_growth_condt",
+            "num_replicons",
+            "sub_species",
+            "host_age",
+            "genotype",
+            "host_sex",
+            "serotype",
             "host_disease_outcome",
-            ]
+        ]
         try:
             tree = ET.fromstring(self.xml["biosample"])
             sra = tree.find('DocumentSummary/SampleData/BioSample/Ids/Id/[@db="SRA"]')
@@ -155,8 +176,10 @@ class Genome:
             except AttributeError:
                 self.metadata["sra_id"] = "missing"
             for name in attributes:
-                xp = ('DocumentSummary/SampleData/BioSample/Attributes/'
-                      'Attribute/[@harmonized_name="{}"]'.format(name))
+                xp = (
+                    "DocumentSummary/SampleData/BioSample/Attributes/"
+                    'Attribute/[@harmonized_name="{}"]'.format(name)
+                )
                 attrib = tree.find(xp)
                 try:
                     self.metadata[name] = attrib.text
@@ -173,11 +196,11 @@ class Genome:
             self.log.info("Parsed SRA XML")
             srr_accessions = []
             for el in elements:
-                    items = el.items()
-                    acc = [i[1] for i in items if i[0] == 'acc']
-                    acc = acc[0]
-                    srr_accessions.append(acc)
-            self.metadata["srr_accessions"] = ','.join(srr_accessions)
+                items = el.items()
+                acc = [i[1] for i in items if i[0] == "acc"]
+                acc = acc[0]
+                srr_accessions.append(acc)
+            self.metadata["srr_accessions"] = ",".join(srr_accessions)
         except ParseError:
             self.log.error("Parse error for SRA XML")
 
