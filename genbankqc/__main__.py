@@ -32,8 +32,6 @@ def cli(ctx, path):
     """
     path = Path(path)
     genbank = Genbank(path)
-    _ctx = namedtuple('ctx', ['genbank', 'assembly_summary'])
-    ctx.obj = _ctx(genbank=genbank, assembly_summary=genbank.assembly_summary)
     logbook.set_datetime_format("local")
     handler = logbook.TimedRotatingFileHandler(path / ".logs" / "qc.log", backup_count=10)
     handler.push_application()
@@ -59,8 +57,7 @@ def species(path, unknowns, contigs, assembly_size, distance, all, metadata):
     kwargs = {"max_unknowns": unknowns,
               "contigs": contigs,
               "assembly_size": assembly_size,
-              "mash": distance,
-              "assembly_summary": ctx.assembly_summary}
+              "mash": distance}
     logbook.set_datetime_format("local")
     log_dir = os.path.join(path, ".logs")
     log_file = os.path.join(log_dir, "qc.log")
@@ -75,16 +72,12 @@ def species(path, unknowns, contigs, assembly_size, distance, all, metadata):
 
 
 @cli.command()
-@click.pass_obj
 @click.argument('path', type=click.Path(exists=True, dir_okay=False))
-@click.option('--metadata', is_flag=True,
-              help='Get metadata for genome at PATH')
-def genome(ctx, path, metadata):
-    """
-    Get information about a single genome.
-    """
+@click.option('--metadata', is_flag=True, help='Get metadata for genome at PATH')
+def genome(path, metadata):
+    """ Get information about a single genome."""
 
-    genome = Genome(path, ctx.assembly_summary)
+    genome = Genome(path)
     if metadata:
         click.echo(genome.metadata)
 
