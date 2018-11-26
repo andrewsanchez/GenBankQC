@@ -17,15 +17,16 @@ ONE_MINUTE = 60000
 class AssemblySummary(object):
     """Read in existing file or download latest assembly summary."""
     path = attr.ib()
+    latest = attr.ib(default=True)
     url = "ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt"
 
     def __attrs_post_init__(self):
-            try:
+            if self.latest:
+                self.df = self._download()
+            else:
                 self.df = pd.read_csv(self.path, sep="\t", index_col=0)
-            except (FileNotFoundError, pd.errors.EmptyDataError):
-                self.df = self.download()
 
-    def download(self):
+    def _download(self):
         df = pd.read_csv(self.url, sep="\t", index_col=0, skiprows=1)
         df.to_csv(self.path, sep="\t")
         return df
