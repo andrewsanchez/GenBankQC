@@ -66,44 +66,44 @@ def test_get_stats(genome, aphidicola):
     assert os.path.isfile(genome.stats_path)
 
 
-def test_parse_empty_biosample(ecoli_genome):
-    ecoli_genome.parse_biosample()
-    assert ecoli_genome.metadata["sra_id"] == "missing"
+# def test_parse_empty_biosample(ecoli_genome):
+#     ecoli_genome.parse_biosample()
+#     assert ecoli_genome.metadata["sra_id"] == "missing"
 
 
-def test_efetch_biosample(ecoli_genome, genome):
-    genome, handler = genome
-    ecoli_genome.efetch("biosample")
-    assert ecoli_genome.xml["biosample"] is not None
-    genome.efetch("biosample")
-    assert genome.xml["biosample"] is not None
+# def test_efetch_biosample(ecoli_genome, genome):
+#     genome, handler = genome
+#     ecoli_genome.efetch("biosample")
+#     assert ecoli_genome.xml["biosample"] is not None
+#     genome.efetch("biosample")
+#     assert genome.xml["biosample"] is not None
 
 
-def test_parse_biosample(ecoli_genome):
-    ecoli_genome.parse_biosample()
-    assert ecoli_genome.metadata.items() is not None
+# def test_parse_biosample(ecoli_genome):
+#     ecoli_genome.parse_biosample()
+#     assert ecoli_genome.metadata.items() is not None
 
 
-def test_efetch_sra(ecoli_genome, genome):
-    genome, handler = genome
-    ecoli_genome.efetch("sra")
-    assert ecoli_genome.xml["sra"] is not None
-    genome.efetch("sra")
-    assert genome.xml["sra"] is 'missing'
+# def test_efetch_sra(ecoli_genome, genome):
+#     genome, handler = genome
+#     ecoli_genome.efetch("sra")
+#     assert ecoli_genome.xml["sra"] is not None
+#     genome.efetch("sra")
+#     assert genome.xml["sra"] is 'missing'
 
 
-# Test for genome that doesn't have SRA info
-def test_efetch_fail(genome):
-    genome, handler = genome
-    pass
+# # Test for genome that doesn't have SRA info
+# def test_efetch_fail(genome):
+#     genome, handler = genome
+#     pass
 
 
-def test_parse_sra(ecoli_genome):
-    ecoli_genome.parse_sra()
-    assert ecoli_genome.metadata["srs_accessions"] is not None
+# def test_parse_sra(ecoli_genome):
+#     ecoli_genome.parse_sra()
+#     assert ecoli_genome.metadata["srs_accessions"] is not None
 
 
-def test_get_metadata(ecoli_genome, genome):
-    genome, handler = genome
-    ecoli_genome.get_metadata()
-    genome.get_metadata()
+# def test_get_metadata(ecoli_genome, genome):
+#     genome, handler = genome
+#     ecoli_genome.get_metadata()
+#     genome.get_metadata()
