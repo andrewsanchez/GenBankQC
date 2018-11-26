@@ -1,10 +1,11 @@
 import os
+from pathlib import Path
+
 import attr
 import pandas as pd
 from logbook import Logger
 
-from genbankqc import Paths
-from genbankqc import Species
+from genbankqc import Paths, Species, metadata
 
 taxdump_url = "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
 assembly_summary_url = "ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt"
