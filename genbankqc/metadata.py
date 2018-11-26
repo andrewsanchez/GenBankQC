@@ -112,16 +112,16 @@ class BioSample(object):
             with open(out_file, 'w') as f:
                 f.write('\n'.join(group))
 
-    def SRA_runs(self):	
+    def SRA_runs(self):
         file_ = os.path.join(self.paths.metadata('SRA_runs.txt'))
         df = pd.read_csv(file_, sep='\t', error_bad_lines=False, warn_bad_lines=False)
         self.df_SRA_runs = df
 
     def _DataFrame(self):
-        self.df = pd.DataFrame(index=['BioSample'], columns=attributes)
+        self.df = pd.DataFrame(index=['BioSample'], columns=self.attributes)
         self.df = pd.concat(self.data)
         self.df.set_index("BioSample", inplace=True)
-        self.df.to_csv(os.path.join(self.paths.metadata, "biosample.csv"), csv)
+        self.df.to_csv(os.path.join(self.paths.metadata, "biosample.csv"), self.df)
 
     def generate(self):
         self._esearch()
