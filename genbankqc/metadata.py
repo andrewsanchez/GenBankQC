@@ -1,16 +1,13 @@
 import os
+import xml.etree.cElementTree as ET
+from pathlib import Path
+
 import attr
 import pandas as pd
-
 from Bio import Entrez
-
-
 from logbook import Logger
-from genbankqc import Paths
-# from retrying import retry
 
-import xml.etree.cElementTree as ET
-# from xml.etree.ElementTree import ParseError
+from genbankqc import Paths
 
 
 ONE_MINUTE = 60000
