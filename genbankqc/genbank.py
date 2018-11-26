@@ -16,7 +16,7 @@ class Genbank(object):
     root = attr.ib(default=Path())
 
     def __attrs_post_init__(self):
-        self.paths = Paths(root=self.root, subdirs=['metadata'])
+        self.paths = Paths(root=self.root, subdirs=['metadata', '.logs'])
 
     @property
     def species_directories(self):
