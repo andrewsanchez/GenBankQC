@@ -4,7 +4,7 @@ from pathlib import Path
 import attr
 from logbook import Logger
 
-from genbankqc import Paths, Species, metadata
+from genbankqc import config, Species, metadata
 
 taxdump_url = "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
 
@@ -15,7 +15,7 @@ class Genbank(object):
     root = attr.ib(default=Path())
 
     def __attrs_post_init__(self):
-        self.paths = Paths(root=self.root, subdirs=["metadata", ".logs"])
+        self.paths = config.Paths(root=self.root, subdirs=["metadata", ".logs"])
 
     @property
     def species_directories(self):

@@ -7,7 +7,7 @@ import pandas as pd
 from Bio import Entrez
 from logbook import Logger
 
-from genbankqc import Paths
+from genbankqc import config
 
 
 ONE_MINUTE = 60000
@@ -68,7 +68,7 @@ class BioSample(object):
     output_dir = attr.ib(default=Path.cwd())
 
     def __attrs_post_init__(self):
-        self.paths = Paths(root=self.output_dir, subdirs=["metadata"])
+        self.paths = config.Paths(root=self.output_dir, subdirs=["metadata"])
         self.paths.mkdirs()
 
     # @retry(stop_max_attempt_number=3, stop_max_delay=10000, wait_fixed=100)

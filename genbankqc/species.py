@@ -11,6 +11,7 @@ from pathos.multiprocessing import ProcessingPool
 import pandas as pd
 
 from ete3 import Tree
+from genbankqc import config
 import genbankqc.genome as genome
 
 
@@ -35,6 +36,7 @@ class Species:
         :param assembly_summary: a pandas DataFrame with assembly summary information
         """
         self.path = os.path.abspath(path)
+        self.paths = config.Paths(root=self.path, subdirs=["metadata", ".logs"])
         self.name = os.path.basename(os.path.normpath(path))
         self.log = logbook.Logger(self.name)
         self.max_unknowns = max_unknowns
