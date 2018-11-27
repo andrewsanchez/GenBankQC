@@ -538,7 +538,7 @@ class Species:
             self.log.info("Not enough genomes.")
         self.log.info("qc command completed")
 
-    def get_metadata(self, genbank_metadata, to_csv=True):
+    def metadata(self, genbank_metadata, to_csv=True):
         self.metadata = genbank_metadata.loc[self.biosample_ids]
         if to_csv:
             self.metadata.to_csv(self.metadata_path)

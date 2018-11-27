@@ -41,6 +41,13 @@ def cli(ctx, path):
 
 
 @cli.command()
+def metadata(path):
+    path = Path(path)
+    genbank = Genbank(path)
+    genbank.metadata()
+
+
+@cli.command()
 @click.argument("path", type=click.Path(exists=True, file_okay=False))
 @click.option(
     "--unknowns",
