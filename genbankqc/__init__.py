@@ -1,6 +1,7 @@
 import os
 
-from . import metadata as metadata
+from . import config
+from . import metadata
 from .species import Species
 from .genbank import Genbank
 from .genome import Genome
