@@ -5,13 +5,14 @@ import os.path
 import pandas as pd
 from genbankqc import Genome
 
-assembly_summary = pd.read_csv('test/resources/.info/assembly_summary.txt', sep="\t", index_col=0)
+assembly_summary = pd.read_csv('test/resources/metadata/assembly_summary.txt',
+                               sep="\t", index_col=0)
 
 
 @pytest.fixture(scope="module")
 def ecoli_genome(genbank):
     genome = ("GCA_002012025.1_Escherichia_coli_Ecol_542_Complete_Genome.fasta")
-    genome = os.path.join(genbank.path, "Escherichia_coli", genome)
+    genome = os.path.join(genbank.root, "Escherichia_coli", genome)
     genome = Genome(genome, assembly_summary)
     yield genome
 
@@ -66,44 +67,44 @@ def test_get_stats(genome, aphidicola):
     assert os.path.isfile(genome.stats_path)
 
 
-def test_parse_empty_biosample(ecoli_genome):
-    ecoli_genome.parse_biosample()
-    assert ecoli_genome.metadata["sra_id"] == "missing"
+# def test_parse_empty_biosample(ecoli_genome):
+#     ecoli_genome.parse_biosample()
+#     assert ecoli_genome.metadata["sra_id"] == "missing"
 
 
-def test_efetch_biosample(ecoli_genome, genome):
-    genome, handler = genome
-    ecoli_genome.efetch("biosample")
-    assert ecoli_genome.xml["biosample"] is not None
-    genome.efetch("biosample")
-    assert genome.xml["biosample"] is not None
+# def test_efetch_biosample(ecoli_genome, genome):
+#     genome, handler = genome
+#     ecoli_genome.efetch("biosample")
+#     assert ecoli_genome.xml["biosample"] is not None
+#     genome.efetch("biosample")
+#     assert genome.xml["biosample"] is not None
 
 
-def test_parse_biosample(ecoli_genome):
-    ecoli_genome.parse_biosample()
-    assert ecoli_genome.metadata.items() is not None
+# def test_parse_biosample(ecoli_genome):
+#     ecoli_genome.parse_biosample()
+#     assert ecoli_genome.metadata.items() is not None
 
 
-def test_efetch_sra(ecoli_genome, genome):
-    genome, handler = genome
-    ecoli_genome.efetch("sra")
-    assert ecoli_genome.xml["sra"] is not None
-    genome.efetch("sra")
-    assert genome.xml["sra"] is 'missing'
+# def test_efetch_sra(ecoli_genome, genome):
+#     genome, handler = genome
+#     ecoli_genome.efetch("sra")
+#     assert ecoli_genome.xml["sra"] is not None
+#     genome.efetch("sra")
+#     assert genome.xml["sra"] is 'missing'
 
 
-# Test for genome that doesn't have SRA info
-def test_efetch_fail(genome):
-    genome, handler = genome
-    pass
+# # Test for genome that doesn't have SRA info
+# def test_efetch_fail(genome):
+#     genome, handler = genome
+#     pass
 
 
-def test_parse_sra(ecoli_genome):
-    ecoli_genome.parse_sra()
-    assert ecoli_genome.metadata["srs_accessions"] is not None
+# def test_parse_sra(ecoli_genome):
+#     ecoli_genome.parse_sra()
+#     assert ecoli_genome.metadata["srs_accessions"] is not None
 
 
-def test_get_metadata(ecoli_genome, genome):
-    genome, handler = genome
-    ecoli_genome.get_metadata()
-    genome.get_metadata()
+# def test_get_metadata(ecoli_genome, genome):
+#     genome, handler = genome
+#     ecoli_genome.get_metadata()
+#     genome.get_metadata()

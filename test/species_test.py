@@ -10,7 +10,8 @@ from genbankqc import Species
 from genbankqc import Genome
 
 
-assembly_summary = pd.read_csv('test/resources/.info/assembly_summary.txt', sep="\t", index_col=0)
+assembly_summary = pd.read_csv('test/resources/metadata/assembly_summary.txt',
+                               sep="\t", index_col=0)
 
 
 @pytest.fixture()
@@ -102,7 +103,7 @@ def test_genomes(aphidicola):
 
 
 def test_genome_ids(aphidicola):
-    assert_index_equal(aphidicola.genome_ids().sort_values(), aphidicola.stats.index.sort_values())
+    assert_index_equal(aphidicola.genome_ids.sort_values(), aphidicola.stats.index.sort_values())
 
 
 def test_sketches(aphidicola):
@@ -110,7 +111,7 @@ def test_sketches(aphidicola):
     aphidicola_sketches = aphidicola.sketches()
     for i in aphidicola_sketches:
         assert isinstance(i, str)
-        assert basename(i).replace('.msh', '') in aphidicola.genome_ids()
+        assert basename(i).replace('.msh', '') in aphidicola.genome_ids
 
 
 def test_filter(aphidicola):
