@@ -1,24 +1,19 @@
 language: python
-env:
-  - PYTHON_VERSION=3.6.6
 before_install:
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-        wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+        wget -q https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
     else
-        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+        wget -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
     fi
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - wget -q https://github.com/marbl/Mash/releases/download/v2.1/mash-Linux64-v2.1.tar
-  - tar -xf mash-Linux64-v2.1.tar
-  - mkdir -p $HOME/usr/bin
-  - mv mash-Linux64-v2.1/mash $HOME/usr/bin/mash
-  - export PATH=$HOME/miniconda/bin:$HOME/usr/bin:$PATH
+  - bash miniconda.sh -b -p $HOME/miniconda && . /$HOME/miniconda/etc/profile.d/conda.sh
+  - wget -q https://github.com/marbl/Mash/releases/download/v2.1/mash-Linux64-v2.1.tar -O mash.tar
+  - sudo tar -xf mash.tar --strip 1 --directory /usr/bin
 install:
-  - conda env create -n genbankqc -f requirements/environment.yaml
-  - source activate genbankqc
+  - conda env create -q -n genbankqc -f requirements/environment.yaml
+  - conda activate genbankqc
   - pip install -r requirements/pip.txt
   - pip install -q . --no-deps
   - pip install flake8
 script:
-  - pytest -v
+  - pytest
   - flake8

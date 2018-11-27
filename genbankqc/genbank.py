@@ -1,53 +1,49 @@
 import os
-import pandas as pd
+from pathlib import Path
+
+import attr
 from logbook import Logger
 
-from genbankqc import Species
-from genbankqc.metadata import Metadata
+from genbankqc import Paths, Species, metadata
 
 taxdump_url = "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
-assembly_summary_url = "ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt"
 
 
-class Genbank(Metadata):
-    def __init__(self, path):
-        """
-        GenBank
-        """
-        self.path = os.path.abspath(path)
-        self.info_dir = os.path.join(self.path, ".info")
-        self.metadata_dir = os.path.join(self.path, "metadata")
-        self.assembly_summary_path = os.path.join(self.info_dir, "assembly_summary.txt")
-        self.log = Logger("GenBank")
-        if not os.path.isdir(self.path):
-            os.mkdir(self.path)
-        if not os.path.isdir(self.info_dir):
-            os.mkdir(self.info_dir)
-        if not os.path.isdir(self.metadata_dir):
-            os.mkdir(self.metadata_dir)
-        try:
-            self.assembly_summary = pd.read_csv(self.assembly_summary_path, sep="\t", index_col=0)
-        except FileNotFoundError:
-            self.assembly_summary = pd.read_csv(assembly_summary_url, sep="\t",
-                                                index_col=0, skiprows=1)
-            self.assembly_summary.to_csv(self.assembly_summary_path, sep="\t")
-            self.log.info("Downloaded assembly_summary.txt")
+@attr.s
+class Genbank(object):
+    log = Logger("GenBank")
+    root = attr.ib(default=Path())
+
+    def __attrs_post_init__(self):
+        self.paths = Paths(root=self.root, subdirs=["metadata", ".logs"])
 
     @property
+    def species_directories(self):
+        for dir_ in os.listdir(self.root):
+            species_dir = os.path.join(self.root, dir_)
+            if not os.path.isdir(species_dir):
+                continue
+            if species_dir.startswith("."):
+                continue
+            yield species_dir
+
     def species(self):
-        """Iterate through all directories under self.path, yielding those
+        """Iterate through all directories under self.root, yielding those
         that contain > 10 fastas.
         """
-        for d in os.listdir(self.path):
-            species_path = os.path.join(self.path, d)
-            if not os.path.isdir(species_path):
-                continue
-            fastas = len([f for f in os.listdir(species_path) if f.endswith('fasta')])
+        self.assembly_summary = metadata.AssemblySummary(
+            Path(self.paths.metadata / "assembly_summary.csv")
+        )
+        for dir_ in self.species_directories:
+            fastas = len([f for f in os.listdir(dir_) if f.endswith("fasta")])
             if fastas < 10:
-                self.log.info("Not enough genomes for {}".format(d))
+                self.log.info("Not enough genomes for {}".format(dir_))
                 continue
-            yield Species(species_path, assembly_summary=self.assembly_summary)
+            yield Species(dir_, assembly_summary=self.assembly_summary.df)
 
     def qc(self):
-        for species in self.species:
+        self.assembly_summary = metadata.AssemblySummary.read(
+            os.path.join(self.paths.metadata, "assembly_summary.csv")
+        )
+        for species in self.species():
             species.qc()
