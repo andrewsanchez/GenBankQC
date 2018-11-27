@@ -81,11 +81,9 @@ def species(path, unknowns, contigs, assembly_size, distance, all, metadata):
         "mash": distance,
     }
     logbook.set_datetime_format("local")
-    log_dir = os.path.join(path, ".logs")
-    log_file = os.path.join(log_dir, "qc.log")
-    if not os.path.isdir(log_dir):
-        os.mkdir(log_dir)
-    handler = logbook.TimedRotatingFileHandler(log_file, backup_count=10)
+    path = Path(path)
+    handler = logbook.TimedRotatingFileHandler(
+        path / ".logs" / "qc.log", backup_count=10)
     handler.push_application()
     species = Species(path, **kwargs)
     species.qc()
