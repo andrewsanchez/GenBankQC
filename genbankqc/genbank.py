@@ -29,8 +29,7 @@ class Genbank(object):
 
     def species(self):
         """Iterate through all directories under self.root, yielding those
-        that contain > 10 fastas.
-        """
+        that contain > 10 fastas."""
         self.assembly_summary = metadata.AssemblySummary(
             Path(self.paths.metadata / "assembly_summary.csv")
         )
