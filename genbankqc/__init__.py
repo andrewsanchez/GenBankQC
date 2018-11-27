@@ -37,5 +37,6 @@ from .metadata import AssemblySummary
 __all__ = [Genome, Species, Genbank, BioSample]
 
 
-# Figure out how to supress error output from this
+# Suppress error output with:
+# wget -P ~/path/to/env/genbankqc/lib/ https://github.com/openwebos/qt/tree/master/lib/fonts
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
