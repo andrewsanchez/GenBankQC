@@ -29,14 +29,14 @@ def cli(ctx, path):
     Assess the integrity of your genomes through automated analysis of
     species-based statistics and metadata.
     """
-    path = Path(path)
-    genbank = Genbank(path)
-    logbook.set_datetime_format("local")
-    handler = logbook.TimedRotatingFileHandler(
-        path / ".logs" / "qc.log", backup_count=10
-    )
-    handler.push_application()
     if ctx.invoked_subcommand is None:
+        path = Path(path)
+        genbank = Genbank(path)
+        logbook.set_datetime_format("local")
+        handler = logbook.TimedRotatingFileHandler(
+            path / ".logs" / "qc.log", backup_count=10
+        )
+        handler.push_application()
         genbank.qc()
 
 
