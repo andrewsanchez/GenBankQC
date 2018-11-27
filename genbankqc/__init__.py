@@ -15,6 +15,7 @@ class Paths(object):
         for name in self.subdirs:
             path = self.root / name
             object.__setattr__(self, name, path)
+        self.mkdirs()
 
     def mkdirs(self):
         """Create `root` and `subdirs` if they don't already exist."""
@@ -37,4 +38,4 @@ __all__ = [Genome, Species, Genbank, BioSample]
 
 
 # Figure out how to supress error output from this
-os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+os.environ["QT_QPA_PLATFORM"] = "offscreen"

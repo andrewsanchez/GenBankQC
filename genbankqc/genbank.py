@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import attr
-import pandas as pd
 from logbook import Logger
 
 from genbankqc import Paths, Species, metadata
@@ -16,7 +15,7 @@ class Genbank(object):
     root = attr.ib(default=Path())
 
     def __attrs_post_init__(self):
-        self.paths = Paths(root=self.root, subdirs=['metadata', '.logs'])
+        self.paths = Paths(root=self.root, subdirs=["metadata", ".logs"])
 
     @property
     def species_directories(self):
@@ -24,7 +23,7 @@ class Genbank(object):
             species_dir = os.path.join(self.root, dir_)
             if not os.path.isdir(species_dir):
                 continue
-            if species_dir.startswith('.'):
+            if species_dir.startswith("."):
                 continue
             yield species_dir
 
@@ -32,15 +31,19 @@ class Genbank(object):
         """Iterate through all directories under self.root, yielding those
         that contain > 10 fastas.
         """
-        self.assembly_summary = metadata.AssemblySummary(Path(self.paths.metadata / "assembly_summary.csv"))
+        self.assembly_summary = metadata.AssemblySummary(
+            Path(self.paths.metadata / "assembly_summary.csv")
+        )
         for dir_ in self.species_directories:
-            fastas = len([f for f in os.listdir(dir_) if f.endswith('fasta')])
+            fastas = len([f for f in os.listdir(dir_) if f.endswith("fasta")])
             if fastas < 10:
                 self.log.info("Not enough genomes for {}".format(dir_))
                 continue
             yield Species(dir_, assembly_summary=self.assembly_summary.df)
 
     def qc(self):
-        self.assembly_summary = metadata.AssemblySummary.read(os.path.join(self.paths.metadata, "assembly_summary.csv"))
+        self.assembly_summary = metadata.AssemblySummary.read(
+            os.path.join(self.paths.metadata, "assembly_summary.csv")
+        )
         for species in self.species():
             species.qc()
