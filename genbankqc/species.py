@@ -36,7 +36,12 @@ class Species:
         :param assembly_summary: a pandas DataFrame with assembly summary information
         """
         self.path = os.path.abspath(path)
-        self.paths = config.Paths(root=self.path, subdirs=["metadata", ".logs"])
+        self.deviation_values = [max_unknowns, contigs, assembly_size, mash]
+        self.label = "-".join(map(str, self.deviation_values))
+        self.paths = config.Paths(root=self.path, subdirs=["metadata", ".logs", "qc"])
+        self.qc_results_dir = os.path.join(self.paths.qc, self.label)
+        if not os.path.isdir(self.qc_results_dir):
+            os.mkdir(self.qc_results_dir)
         self.name = os.path.basename(os.path.normpath(path))
         self.log = logbook.Logger(self.name)
         self.max_unknowns = max_unknowns
@@ -44,10 +49,7 @@ class Species:
         self.assembly_size = assembly_size
         self.mash = mash
         self.assembly_summary = assembly_summary
-        self.deviation_values = [max_unknowns, contigs, assembly_size, mash]
         self.qc_dir = os.path.join(self.path, "qc")
-        self.label = "-".join(map(str, self.deviation_values))
-        self.qc_results_dir = os.path.join(self.qc_dir, self.label)
         self.passed_dir = os.path.join(self.qc_results_dir, "passed")
         self.stats_path = os.path.join(self.qc_dir, "stats.csv")
         self.nw_path = os.path.join(self.qc_dir, "tree.nw")
@@ -234,10 +236,6 @@ class Species:
         self.log.info("All genomes sketched")
 
     def run_mash(self):
-        if not os.path.isdir(self.qc_dir):
-            os.mkdir(self.qc_dir)
-        if not os.path.isdir(self.qc_results_dir):
-            os.mkdir(self.qc_results_dir)
         self.mash_sketch()
         self.mash_paste()
         self.mash_dist()
