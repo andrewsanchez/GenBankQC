@@ -1,6 +1,7 @@
 channels:
   - etetoolkit
-  - https://conda.anaconda.org/biocore
+  - biocore
+  - bioconda
 dependencies:
   - python==3.6.6
   - click==7.0
@@ -9,3 +10,6 @@ dependencies:
   - biopython==1.72
   - pandas==0.22.0
   - numpy==1.15.2
+  - snakemake
+  - mash
+  - edirect
