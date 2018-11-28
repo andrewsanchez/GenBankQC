@@ -1,8 +1,7 @@
 channels:
-  - etetoolkit
-  - biocore
-  - bioconda
   - conda-forge
+  - bioconda
+  - biocore
 dependencies:
   - python==3.6.6
   - click==7.0
