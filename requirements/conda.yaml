@@ -2,6 +2,7 @@ channels:
   - etetoolkit
   - biocore
   - bioconda
+  - conda-forge
 dependencies:
   - python==3.6.6
   - click==7.0
@@ -11,5 +12,5 @@ dependencies:
   - pandas==0.22.0
   - numpy==1.15.2
   - snakemake
-  - mash
-  - edirect
+  - mash==2.1
+  - entrez-direct==10.2
