@@ -15,6 +15,14 @@ def test_help():
     assert result.exit_code == 0
 
 
+def test_genbank():
+    pass
+
+
+def test_metadata():
+    pass
+
+
 def test_species(genbank, aphidicola):
     runner = CliRunner()
     result = runner.invoke(cli, [genbank.root.as_posix(), 'species', aphidicola.path])
