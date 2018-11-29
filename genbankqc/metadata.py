@@ -70,7 +70,7 @@ class BioSample(object):
     output_dir = attr.ib(default=Path.cwd())
 
     def __attrs_post_init__(self):
-        self.paths = config.Paths(root=self.output_dir, subdirs=["metadata"])
+        self.paths = config.Paths(root=self.output_dir, subdirs=["sra_runs", "sra_ids"])
         self.paths.mkdirs()
 
     # @retry(stop_max_attempt_number=3, stop_max_delay=10000, wait_fixed=100)
@@ -143,14 +143,14 @@ class BioSample(object):
 
     def split_SRA(self):
         """Split SRA IDs into several files for better processing with epost."""
-        groups = list(zip(*(iter(self.SRA_ids),) * 5000))
+        groups = list(zip(*(iter(self.sra_ids),) * 5000))
         for ix, group in enumerate(groups):
-            out_file = os.path.join(self.paths.metadata, "SRA_Ids_{}.txt".format(ix))
+            out_file = os.path.join(self.paths.sra_ids, "sra_ids_{}.txt".format(ix))
             with open(out_file, "w") as f:
                 f.write("\n".join(group))
 
     def SRA_runs(self):
-        file_ = os.path.join(self.paths.metadata("SRA_runs.txt"))
+        file_ = os.path.join(self.paths.sra_runs("sra_runs.txt"))
         df = pd.read_csv(file_, sep="\t", error_bad_lines=False, warn_bad_lines=False)
         self.df_SRA_runs = df
 
@@ -158,7 +158,8 @@ class BioSample(object):
         self.df = pd.DataFrame(index=["BioSample"], columns=self.attributes)
         self.df = pd.concat(self.data)
         self.df.set_index("BioSample", inplace=True)
-        self.df.to_csv(os.path.join(self.paths.metadata, "biosample.csv"), self.df)
+        self.paths.csv = self.output_dir / "biosample.csv"
+        self.df.to_csv(self.paths.csv, self.df)
 
     def generate(self):
         self._esearch()
