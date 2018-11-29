@@ -27,12 +27,10 @@ class Genbank(object):
                 continue
             yield species_dir
 
-    def species(self):
+    def species(self, assembly_summary=None):
         """Iterate through all directories under self.root, yielding those
         that contain > 10 fastas."""
-        self.assembly_summary = metadata.AssemblySummary(
-            Path(self.paths.metadata / "assembly_summary.csv")
-        )
+        self.assembly_summary = metadata.AssemblySummary(self.paths.metadata)
         for dir_ in self.species_directories:
             fastas = len([f for f in os.listdir(dir_) if f.endswith("fasta")])
             if fastas < 10:
@@ -41,9 +39,6 @@ class Genbank(object):
             yield Species(dir_, assembly_summary=self.assembly_summary.df)
 
     def qc(self):
-        self.assembly_summary = metadata.AssemblySummary.read(
-            os.path.join(self.paths.metadata, "assembly_summary.csv")
-        )
         for species in self.species():
             species.qc()
 
