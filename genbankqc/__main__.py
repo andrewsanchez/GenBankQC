@@ -40,11 +40,13 @@ def cli(ctx, path):
         genbank.qc()
 
 
+@click.argument("path", type=click.Path())
 @cli.command()
 def metadata(path):
+    """Download assembly_summary.txt and BioSample metata, including SRA Ids."""
     path = Path(path)
     genbank = Genbank(path)
-    genbank.metadata()
+    Genbank.metadata()
 
 
 @cli.command()
