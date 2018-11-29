@@ -23,7 +23,7 @@ class AssemblySummary(object):
 
     def __attrs_post_init__(self):
         self.path = Path(self.path)
-        self.outfile = self.path / "assembly_summary.txt" 
+        self.outfile = self.path / "assembly_summary.txt"
         if not self.read:
             self.df = self._download()
         else:

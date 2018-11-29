@@ -92,7 +92,8 @@ def species(path, unknowns, contigs, assembly_size, distance, all, metadata):
     logbook.set_datetime_format("local")
     path = Path(path)
     handler = logbook.TimedRotatingFileHandler(
-        path / ".logs" / "qc.log", backup_count=10)
+        path / ".logs" / "qc.log", backup_count=10
+    )
     handler.push_application()
     species = Species(path, **kwargs)
     species.qc()
