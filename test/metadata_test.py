@@ -10,11 +10,11 @@ assembly_summary = Path("test/resources/metadata/assembly_summary.txt")
 
 
 def test_existing_assembly_summary():
-    summary = metadata.AssemblySummary(assembly_summary, latest=False)
+    summary = metadata.AssemblySummary(assembly_summary, read=True)
     assert isinstance(summary.df, pd.DataFrame)
 
 
 def test_download_assembly_summary():
-    summary = metadata.AssemblySummary(tempfile.mktemp())
-    assert os.path.isfile(summary.path)
+    summary = metadata.AssemblySummary(tempfile.mkdtemp())
+    assert os.path.isfile(summary.outfile.as_posix())
     assert isinstance(summary.df, pd.DataFrame)
