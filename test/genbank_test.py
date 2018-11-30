@@ -22,9 +22,8 @@ def test_genbank_init(genbank):
 
 def test_metadata(genbank):
     genbank.metadata()
-    metadata = species.metadata()
-    assert isinstance(metadata, pd.DataFrame)
-    assert os.path.isfile(species.metadata_path)
+    for species in genbank.species():
+        assert os.path.isfile(species.metadata_path)
 
 # def test_genbank_bare(genbank_bare):
 #     genbank = genbank_bare
