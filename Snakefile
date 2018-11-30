@@ -1,11 +1,21 @@
+from pathlib import Path
+
+metadata_dir = "metadata"
+sra_ids = [f for f in Path(metadata_dir).joinpath("sra_ids").glob("sra*txt")]
+
 rule biosample:
-     input:
-          {dir}
-     output:
-          {dir}/metadata/assembly_summary.txt
-          {dir}/metadata/biosample.csv
-          {dir}/metadata/sra_ids/sra_ids_1.csv
-          {dir}/metadata/sra_ids/sra_ids_2.csv
-          ... etc ...
-     script:
-          genbankqc metadata {dir}
+    input:
+        "{metadata_dir}"
+    output:
+         "{metadata_dir}/biosample.csv",
+         "{metadata_dir}/assembly_summary.csv",
+    script:
+         "genbankqc metadata {metadata_dir}"
+
+rule runs:
+    input:
+        "{sra_ids}"
+    output:
+        "{metadata_dir}/sra_runs.txt"
+    shell:
+        "sh efetch.sh {input}"
