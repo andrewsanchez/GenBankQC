@@ -72,6 +72,8 @@ class BioSample(object):
     def __attrs_post_init__(self):
         self.paths = config.Paths(root=self.outdir, subdirs=["sra_ids"])
         self.paths.mkdirs()
+        if self.read_existing:
+            self.df = self.read()
 
     # @retry(stop_max_attempt_number=3, stop_max_delay=10000, wait_fixed=100)
     def _esearch(
@@ -166,6 +168,9 @@ class BioSample(object):
         self._efetch()
         self._DataFrame()
         self.split_SRA()
+
+    def read(self):
+        return pd.read_csv(self.paths.metadata / "biosample.csv")
 
 
 class SRA:
