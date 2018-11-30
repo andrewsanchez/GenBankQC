@@ -24,7 +24,7 @@ class Species:
         assembly_size=3.0,
         mash=3.0,
         assembly_summary=None,
-        genbank_metadata=None,
+        biosample=None,
     ):
         """Represents a collection of genomes in `path`
 
@@ -536,7 +536,8 @@ class Species:
             self.log.info("Not enough genomes.")
         self.log.info("qc command completed")
 
-    def metadata(self, genbank_metadata, to_csv=True):
-        self.metadata = genbank_metadata.loc[self.biosample_ids]
+    def metadata(self, biosample, to_csv=True):
+        metadata = biosample.loc[self.biosample_ids]
         if to_csv:
-            self.metadata.to_csv(self.metadata_path)
+            metadata.to_csv(self.metadata_path)
+        return metadata
