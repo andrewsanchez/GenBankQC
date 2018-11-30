@@ -79,10 +79,6 @@ class Species:
         self.metadata_path = os.path.join(
             self.qc_dir, "{}_metadata.csv".format(self.name)
         )
-        try:
-            self.metadata_df = pd.read_csv(self.metadata_path, index_col="accession")
-        except FileNotFoundError:
-            self.metadata_df = pd.DataFrame(columns=["accession"])
         self.criteria = ["unknowns", "contigs", "assembly_size", "distance"]
         self.tolerance = {
             "unknowns": max_unknowns,
