@@ -46,7 +46,7 @@ def metadata(path):
     """Download assembly_summary.txt and BioSample metata, including SRA Ids."""
     path = Path(path)
     genbank = Genbank(path)
-    Genbank.metadata()
+    genbank.metadata()
 
 
 @cli.command()
