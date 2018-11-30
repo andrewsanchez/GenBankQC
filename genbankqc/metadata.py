@@ -68,6 +68,7 @@ class BioSample(object):
         "host_disease_outcome",
     ]
     outdir = attr.ib(default=Path.cwd(), validator=attr.validators.instance_of(Path))
+    read_existing = attr.ib(default=False)
 
     def __attrs_post_init__(self):
         self.paths = config.Paths(root=self.outdir, subdirs=["sra_ids"])
