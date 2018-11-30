@@ -67,10 +67,10 @@ class BioSample(object):
         "serotype",
         "host_disease_outcome",
     ]
-    output_dir = attr.ib(default=Path.cwd())
+    outdir = attr.ib(default=Path.cwd(), validator=attr.validators.instance_of(Path))
 
     def __attrs_post_init__(self):
-        self.paths = config.Paths(root=self.output_dir, subdirs=["sra_runs", "sra_ids"])
+        self.paths = config.Paths(root=self.outdir, subdirs=["sra_ids"])
         self.paths.mkdirs()
 
     # @retry(stop_max_attempt_number=3, stop_max_delay=10000, wait_fixed=100)
@@ -137,7 +137,7 @@ class BioSample(object):
                 parse_record(xml)
 
     @property
-    def SRA_ids(self):
+    def sra_ids(self):
         ids = self.df[self.df.SRA.notnull()].SRA.tolist()
         return ids
 
@@ -158,8 +158,8 @@ class BioSample(object):
         self.df = pd.DataFrame(index=["BioSample"], columns=self.attributes)
         self.df = pd.concat(self.data)
         self.df.set_index("BioSample", inplace=True)
-        self.paths.csv = self.output_dir / "biosample.csv"
-        self.df.to_csv(self.paths.csv, self.df)
+        self.paths.csv = self.outdir / "biosample.csv"
+        self.df.to_csv(self.paths.csv)
 
     def generate(self):
         self._esearch()
