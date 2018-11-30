@@ -25,6 +25,7 @@ def test_metadata(genbank):
     for species in genbank.species():
         assert os.path.isfile(species.metadata_path)
 
+
 # def test_genbank_bare(genbank_bare):
 #     genbank = genbank_bare
 #     assert os.path.isdir(genbank.path)

@@ -11,7 +11,7 @@ def test_cli():
 
 def test_help():
     runner = CliRunner()
-    result = runner.invoke(cli, ['--help'])
+    result = runner.invoke(cli, ["--help"])
     assert result.exit_code == 0
 
 
@@ -25,12 +25,12 @@ def test_metadata():
 
 def test_species(genbank, aphidicola):
     runner = CliRunner()
-    result = runner.invoke(cli, [genbank.root.as_posix(), 'species', aphidicola.path])
+    result = runner.invoke(cli, [genbank.root.as_posix(), "species", aphidicola.path])
     assert result.exit_code == 0
 
 
 def test_genome(genbank, genome):
     genome, handler = genome
     runner = CliRunner()
-    result = runner.invoke(cli, [genbank.root.as_posix(), 'genome', genome.path])
+    result = runner.invoke(cli, [genbank.root.as_posix(), "genome", genome.path])
     assert result.exit_code == 0

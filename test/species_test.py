@@ -10,8 +10,9 @@ from genbankqc import Species
 from genbankqc import Genome
 
 
-assembly_summary = pd.read_csv('test/resources/metadata/assembly_summary.txt',
-                               sep="\t", index_col=0)
+assembly_summary = pd.read_csv(
+    "test/resources/metadata/assembly_summary.txt", sep="\t", index_col=0
+)
 
 
 @pytest.fixture()
@@ -22,14 +23,14 @@ def species():
     """
     tmp = tempfile.mkdtemp()
     path = os.path.join(tmp, "Buchnera_aphidicola")
-    shutil.copytree('test/resources/Buchnera_aphidicola', path)
+    shutil.copytree("test/resources/Buchnera_aphidicola", path)
     species = Species(path, assembly_summary=assembly_summary)
     yield species
     shutil.rmtree(tmp)
 
 
 def test_filter_contigs(species):
-    species.filter_contigs('contigs')
+    species.filter_contigs("contigs")
     total_genomes = len(species.passed) + len(species.failed["contigs"])
     assert total_genomes == len(species.stats)
     assert isinstance(species.med_abs_devs["contigs"], float)
@@ -41,17 +42,16 @@ def test_filter_contigs(species):
 
 def test_filter_MAD(species):
     genomes_before_filtering = len(species.passed)
-    species.filter_MAD_range('assembly_size')
+    species.filter_MAD_range("assembly_size")
     assert type(species.passed) == pd.DataFrame
-    assert type(species.failed['assembly_size']) == pd.Index
-    passed_and_failed = sum(map(len, [species.failed['assembly_size'], species.passed]))
+    assert type(species.failed["assembly_size"]) == pd.Index
+    passed_and_failed = sum(map(len, [species.failed["assembly_size"], species.passed]))
     assert passed_and_failed == genomes_before_filtering
     genomes_before_filtering = len(species.passed)
-    species.filter_MAD_upper('distance')
+    species.filter_MAD_upper("distance")
     assert type(species.passed) == pd.DataFrame
-    assert type(species.failed['distance']) == pd.Index
-    passed_and_failed = sum(
-        map(len, [species.failed['distance'], species.passed]))
+    assert type(species.failed["distance"]) == pd.Index
+    passed_and_failed = sum(map(len, [species.failed["distance"], species.passed]))
     assert passed_and_failed == genomes_before_filtering
 
 
@@ -65,6 +65,7 @@ def aphidicola_multi(request):
 
 def test_init(aphidicola_multi):
     from ete3 import Tree
+
     params, aphidicola = aphidicola_multi
     a, b, c, d = params
     assert type(aphidicola) == Species
@@ -72,9 +73,12 @@ def test_init(aphidicola_multi):
     assert type(aphidicola.tree) == Tree
     assert type(aphidicola.dmx) == pd.DataFrame
     assert aphidicola.total_genomes == 10
-    assert (sorted(aphidicola.dmx.index.tolist()) == sorted(aphidicola.stats.index.tolist()))
-    assert (sorted(aphidicola.dmx.mean().index.tolist()) ==
-            sorted(aphidicola.stats.index.tolist()))
+    assert sorted(aphidicola.dmx.index.tolist()) == sorted(
+        aphidicola.stats.index.tolist()
+    )
+    assert sorted(aphidicola.dmx.mean().index.tolist()) == sorted(
+        aphidicola.stats.index.tolist()
+    )
     assert aphidicola.max_unknowns == a
     assert aphidicola.contigs == b
     assert aphidicola.assembly_size == c
@@ -103,15 +107,18 @@ def test_genomes(aphidicola):
 
 
 def test_genome_ids(aphidicola):
-    assert_index_equal(aphidicola.genome_ids.sort_values(), aphidicola.stats.index.sort_values())
+    assert_index_equal(
+        aphidicola.genome_ids.sort_values(), aphidicola.stats.index.sort_values()
+    )
 
 
 def test_sketches(aphidicola):
     from os.path import basename
+
     aphidicola_sketches = aphidicola.sketches()
     for i in aphidicola_sketches:
         assert isinstance(i, str)
-        assert basename(i).replace('.msh', '') in aphidicola.genome_ids
+        assert basename(i).replace(".msh", "") in aphidicola.genome_ids
 
 
 def test_filter(aphidicola):
@@ -130,8 +137,7 @@ def test_filter(aphidicola):
 
 def test_link_genomes(aphidicola):
     aphidicola.link_genomes()
-    passed = ["{}.fasta".format(i)
-              for i in aphidicola.passed.index.tolist()]
+    passed = ["{}.fasta".format(i) for i in aphidicola.passed.index.tolist()]
     assert os.listdir(aphidicola.passed_dir)
     assert sorted(os.listdir(aphidicola.passed_dir)) == sorted(passed)
 
@@ -149,8 +155,8 @@ def test_color_tree(aphidicola):
 def species_bare():
     tmp = tempfile.mkdtemp()
     aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
-    shutil.copytree('test/resources/Buchnera_aphidicola', aphidicola)
-    shutil.rmtree(os.path.join(aphidicola, 'qc'))
+    shutil.copytree("test/resources/Buchnera_aphidicola", aphidicola)
+    shutil.rmtree(os.path.join(aphidicola, "qc"))
     aphidicola = Species(aphidicola)
     yield aphidicola
     shutil.rmtree(tmp)
@@ -180,6 +186,7 @@ class TestBare:
 
     def test_get_tree(self, species_bare):
         from ete3 import Tree
+
         aphidicola = species_bare
         aphidicola.get_tree()
         assert type(aphidicola.tree) == Tree
@@ -194,12 +201,13 @@ class TestBare:
 def test_filter_unknowns(altered_unknowns):
     aphidicola, expected_failures = altered_unknowns
     aphidicola.filter_unknown_bases()
-    passed_and_failed = sum(map(len, [aphidicola.failed["unknowns"],
-                                      aphidicola.passed]))
+    passed_and_failed = sum(
+        map(len, [aphidicola.failed["unknowns"], aphidicola.passed])
+    )
     assert len(aphidicola.stats) == passed_and_failed
     assert isinstance(aphidicola.passed, pd.DataFrame)
     assert isinstance(aphidicola.failed["unknowns"], pd.Index)
-    assert(id(aphidicola.stats) != id(aphidicola.passed))
+    assert id(aphidicola.stats) != id(aphidicola.passed)
     assert expected_failures == aphidicola.failed["unknowns"].tolist()
 
 
@@ -215,4 +223,3 @@ def test_min_genomes(five_genomes):
     # with pytest.raises(FileNotFoundError):
     five_genomes.qc()
     assert not os.path.isdir(five_genomes.qc_dir)
-

@@ -5,13 +5,14 @@ import os.path
 import pandas as pd
 from genbankqc import Genome
 
-assembly_summary = pd.read_csv('test/resources/metadata/assembly_summary.txt',
-                               sep="\t", index_col=0)
+assembly_summary = pd.read_csv(
+    "test/resources/metadata/assembly_summary.txt", sep="\t", index_col=0
+)
 
 
 @pytest.fixture(scope="module")
 def ecoli_genome(genbank):
-    genome = ("GCA_002012025.1_Escherichia_coli_Ecol_542_Complete_Genome.fasta")
+    genome = "GCA_002012025.1_Escherichia_coli_Ecol_542_Complete_Genome.fasta"
     genome = os.path.join(genbank.root, "Escherichia_coli", genome)
     genome = Genome(genome, assembly_summary)
     yield genome
@@ -19,18 +20,21 @@ def ecoli_genome(genbank):
 
 def test_init(genome):
     genome, handler = genome
-    expected_name = ("GCA_000521565.1_Buchnera_aphidicola_G002_Myzus_persicae_Complete_Genome")
-    expected_path = os.path.join(genome.species_dir, expected_name+".fasta")
+    expected_name = (
+        "GCA_000521565.1_Buchnera_aphidicola_G002_Myzus_persicae_Complete_Genome"
+    )
+    expected_path = os.path.join(genome.species_dir, expected_name + ".fasta")
     assert genome.path == expected_path
     assert isinstance(genome, Genome)
     assert genome.name == expected_name
     assert genome.name in genome.msh
-    assert handler.has_info(re.compile('Instantiated'))
+    assert handler.has_info(re.compile("Instantiated"))
 
 
 def test_get_contigs(genome):
     genome, handler = genome
     from Bio.Seq import Seq
+
     assert type(genome.contigs) is list
     assert type(genome.contigs[0]) is Seq
     assert isinstance(genome.count_contigs, int)
@@ -61,6 +65,7 @@ def test_sketch(genome):
 def test_get_stats(genome, aphidicola):
     genome, handler = genome
     from pandas import DataFrame
+
     dmx_mean = aphidicola.dmx.mean()
     genome.get_stats(dmx_mean)
     assert isinstance(genome.stats, DataFrame)
