@@ -46,3 +46,8 @@ class Genbank(object):
         assembly_summary = metadata.AssemblySummary(self.paths.metadata)
         biosample = metadata.BioSample(self.paths.metadata)
         biosample.generate()
+        for species in self.species():
+            species.biosample = biosample
+            species.assembly_summary = assembly_summary
+            species.metadata()
+
