@@ -25,7 +25,7 @@ class Genbank(object):
                 continue
             if species_dir.startswith("."):
                 continue
-            yield species_dir
+            yield Path(species_dir)
 
     def species(self, assembly_summary=None):
         """Iterate through all directories under self.root, yielding those
