@@ -18,7 +18,7 @@ biosample_xtract="$dir/biosample.txt"
 #             -def "missing" -element @harmonized_name Attribute > "$biosample_xtract"
 
 # Get SRA runs for each ID
-for f in SRA*txt;
+for f in ${dir}/sra*txt;
 do epost -db sra -input $f -format acc | \
         efetch -format docsum | \
         xtract -pattern DocumentSummary/* \
