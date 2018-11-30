@@ -5,6 +5,7 @@ import functools
 
 import logbook
 
+from pathlib import Path
 from subprocess import DEVNULL, Popen
 from pathos.multiprocessing import ProcessingPool
 
@@ -38,7 +39,7 @@ class Species:
         self.path = os.path.abspath(path)
         self.deviation_values = [max_unknowns, contigs, assembly_size, mash]
         self.label = "-".join(map(str, self.deviation_values))
-        self.paths = config.Paths(root=self.path, subdirs=["metadata", ".logs", "qc"])
+        self.paths = config.Paths(root=Path(self.path), subdirs=["metadata", ".logs", "qc"])
         self.qc_results_dir = os.path.join(self.paths.qc, self.label)
         if not os.path.isdir(self.qc_results_dir):
             os.mkdir(self.qc_results_dir)
