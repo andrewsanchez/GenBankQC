@@ -213,8 +213,3 @@ def test_min_genomes(five_genomes):
     five_genomes.qc()
     assert not os.path.isdir(five_genomes.qc_dir)
 
-
-# def test_metadata(species):
-#     species.metadata()
-#     assert isinstance(species.metadata_df, pd.DataFrame)
-#     assert os.path.isfile(species.metadata_path)
