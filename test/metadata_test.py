@@ -24,15 +24,14 @@ def test_download_assembly_summary():
 
 @pytest.fixture()
 def biosample():
-    temp = tempfile.mkdtemp()
+    temp = Path(tempfile.mkdtemp())
     biosample = metadata.BioSample(temp)
     yield biosample
-    shutil.rmtree(biosample.output_dir)
+    shutil.rmtree(biosample.outdir)
 
 
 def test_biosample(biosample):
     biosample.generate()
     assert biosample.paths.csv.is_file()
     assert len(list(biosample.paths.sra_ids.iterdir())) > 5
-    assert biosample.paths.sra_ids / "sra_ids_0.txt".is_file()
-    print(list(biosample.paths.sra_ids.iterdir()))
+    assert (biosample.paths.sra_ids / "sra_ids_0.txt").is_file()
