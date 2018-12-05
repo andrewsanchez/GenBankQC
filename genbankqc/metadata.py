@@ -171,7 +171,7 @@ class BioSample(object):
         self.split_SRA()
 
     def read(self):
-        return pd.read_csv(self.paths.metadata / "biosample.csv")
+        return pd.read_csv(self.paths.root / "biosample.csv", index_col=0)
 
 
 class SRA:
