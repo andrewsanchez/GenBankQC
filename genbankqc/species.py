@@ -534,12 +534,16 @@ class Species:
         self.log.info("qc command completed")
 
     def metadata(self, biosample, sra_runs, to_csv=True):
-        metadata = biosample.loc[self.biosample_ids]
+        try:
+            metadata = biosample.loc[self.biosample_ids]
+            if to_csv:
+                metadata.to_csv(self.metadata_path)
+                self.log.info('Metadata saved')
+        except KeyError:
+                self.log.info('Metadata failed')
         try:
             runs = sra_runs.loc[self.biosample_ids]
-            runs.to_csv(os.path.join(self.metadata_path, "runs.csv"))
+            runs.to_csv(os.path.join(self.paths.metadata, "runs.csv"))
+            self.log.info('Saved runs')
         except KeyError:
-            pass
-        if to_csv:
-            metadata.to_csv(self.metadata_path)
-        return metadata
+            self.log.info('No runs')
