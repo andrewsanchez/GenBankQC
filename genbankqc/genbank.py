@@ -44,9 +44,9 @@ class Genbank(object):
             species.qc()
 
     def metadata(self):
-        assembly_summary = metadata.AssemblySummary(self.paths.metadata)
-        biosample = metadata.BioSample(self.paths.metadata)
-        biosample.generate()
+        assembly_summary = metadata.AssemblySummary(self.paths.metadata, read=True)
+        biosample = metadata.BioSample(self.paths.metadata, read_existing=True)
+        # biosample.generate()
         sra_runs = pd.read_csv(
             self.paths.metadata / "sra_runs.txt",
             index_col=0, sep="\t",
