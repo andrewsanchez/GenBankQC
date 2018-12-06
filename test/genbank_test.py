@@ -21,7 +21,7 @@ def test_genbank_init(genbank):
         assert isinstance(i, Species)
 
 
-def test_metadata(genbank):
-    genbank.metadata()
+def test_biosample_metadata(genbank):
+    genbank.biosample_metadata()
     for species in genbank.species():
         assert os.path.isfile(species.metadata_path)
