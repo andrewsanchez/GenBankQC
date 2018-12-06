@@ -20,23 +20,21 @@ class Genbank(object):
 
     @property
     def species_directories(self):
-        for dir_ in os.listdir(self.root):
-            species_dir = os.path.join(self.root, dir_)
-            if not os.path.isdir(species_dir):
+        """Generator of `Path` objects for directories under `self.root`.
+        Only species with more than ten FASTAs are included."""
+        for item in self.root.iterdir():
+            if not item.is_dir():
                 continue
-            if species_dir.startswith("."):
+            dir_ = item.absolute()
+            if len(list(dir_.glob("*fasta"))) < 10:
+                self.log.info("Not enough FASTAs in {}".format(dir_))
                 continue
-            yield Path(species_dir)
+            yield dir_
 
     def species(self, assembly_summary=None):
-        """Iterate through all directories under self.root, yielding those
-        that contain > 10 fastas."""
+        """Generator of Species objects for directories returned by `species_directories`."""
         self.assembly_summary = metadata.AssemblySummary(self.paths.metadata)
         for dir_ in self.species_directories:
-            fastas = len([f for f in os.listdir(dir_) if f.endswith("fasta")])
-            if fastas < 10:
-                self.log.info("Not enough genomes for {}".format(dir_))
-                continue
             yield Species(dir_, assembly_summary=self.assembly_summary.df)
 
     def qc(self):
