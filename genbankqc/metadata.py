@@ -41,6 +41,7 @@ class BioSample(object):
 
     email = attr.ib()
     outdir = attr.ib(default=Path.cwd())
+    sample = attr.ib(default=False)
     read_existing = attr.ib(default=False)
     log = Logger("BioSample")
     attributes = [
@@ -118,9 +119,15 @@ class BioSample(object):
 
         web_env = self.esearch_results["WebEnv"]
         query_key = self.esearch_results["QueryKey"]
-        count = int(self.esearch_results["Count"])
-        batch_size = 10000
-        for start in range(0, count, batch_size):
+        if self.sample:
+            count = self.sample
+            batch_size = self.sample
+            group = range(0, count, batch_size)
+        else:
+            group = range(0, count, batch_size)
+            count = int(self.esearch_results["Count"])
+            batch_size = 10000
+        for start in group:
             end = min(count, start + batch_size)
             print("Downloading record {} to {}".format(start + 1, end))
             with Entrez.efetch(
