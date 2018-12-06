@@ -43,15 +43,13 @@ class Genbank(object):
         for species in self.species():
             species.qc()
 
-    def metadata(self):
-        assembly_summary = metadata.AssemblySummary(self.paths.metadata, read=True)
-        biosample = metadata.BioSample(self.paths.metadata, read_existing=True)
-        # biosample.generate()
-        sra_runs = pd.read_csv(
-            self.paths.metadata / "sra_runs.txt",
-            index_col=0, sep="\t",
-            error_bad_lines=False
-        )
-        for species in self.species():
-            species.metadata(biosample=biosample.df, sra_runs=sra_runs)
+    def biosample_metadata(self):
+        biosample = metadata.BioSample(self.path.metadata)
+        biosample.generate()
 
+    def metadata(self):
+        """Assumes existence of metadata files"""
+        biosample = metadata.BioSample(self.path.metadata, read_existing=True)
+        runs = metadata.SRA(self.paths.metadata / "sra_runs.tsv")
+        for species in self.species():
+            species.metadata(biosample=biosample.df, runs=sra_runs)
