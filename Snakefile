@@ -19,3 +19,13 @@ rule runs:
         "{metadata_dir}/sra_runs.txt"
     shell:
         "sh efetch.sh {input}"
+
+rule install:
+    shell:
+        """
+        conda env create -q -n genbankqc -f requirements/conda.yaml &&
+        conda activate genbankqc &&
+        pip install -r requirements/pip.txt &&
+        pip install -r requirements/dev.txt &&
+        pip install --no-deps -e .
+        """
