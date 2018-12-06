@@ -33,5 +33,4 @@ def biosample():
 def test_biosample(biosample):
     biosample.generate()
     assert biosample.paths.csv.is_file()
-    assert len(list(biosample.paths.sra_ids.iterdir())) > 5
-    assert (biosample.paths.sra_ids / "sra_ids_0.txt").is_file()
+    assert (biosample.outdir / "sra_ids.txt").is_file()
