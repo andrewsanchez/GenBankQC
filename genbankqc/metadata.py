@@ -92,7 +92,6 @@ class BioSample(object):
 
     def _efetch(self):
         """Use NCBI's efetch to download esearch results"""
-        self.data = []
         db_xp = 'Ids/Id/[@db="{}"]'
         # Tuples for building XPath patterns
         xp_tups = [("SRA", "db", db_xp), ("BioSample", "db", db_xp)]
@@ -105,6 +104,7 @@ class BioSample(object):
                 )
             )
 
+        self.data = []
         def parse_record(xml):
             data = {}
             tree = ET.fromstring(xml)
