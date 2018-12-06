@@ -82,9 +82,7 @@ class BioSample(object):
 
     # @retry(stop_max_attempt_number=3, stop_max_delay=10000, wait_fixed=100)
     def _esearch(
-        self,
-        db="biosample",
-        term="bacteria[orgn] AND biosample_assembly[filter]",
+        self, db="biosample", term="bacteria[orgn] AND biosample_assembly[filter]"
     ):
         """Use NCBI's esearch to make a query"""
         Entrez.email = self.email
@@ -106,6 +104,7 @@ class BioSample(object):
             )
 
         self.data = []
+
         def parse_record(xml):
             data = {}
             tree = ET.fromstring(xml)
@@ -178,11 +177,8 @@ class BioSample(object):
 @attr.s
 class SRA:
     """Runs from the SRA database"""
+
     path = attr.ib(default="sra_runs.tsv")
+
     def __attrs_post_init__(self):
-        self.df = pd.read_csv(
-            self.path,
-            index_col=0,
-            sep="\t",
-            error_bad_lines=False,
-        )
+        self.df = pd.read_csv(self.path, index_col=0, sep="\t", error_bad_lines=False)

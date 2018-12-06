@@ -26,4 +26,4 @@ class Paths(object):
 
     @staticmethod
     def clean_path_name(path):
-        return path.strip('.')
+        return path.strip(".")

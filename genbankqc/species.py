@@ -39,7 +39,9 @@ class Species:
         self.path = os.path.abspath(path)
         self.deviation_values = [max_unknowns, contigs, assembly_size, mash]
         self.label = "-".join(map(str, self.deviation_values))
-        self.paths = config.Paths(root=Path(self.path), subdirs=["metadata", ".logs", "qc"])
+        self.paths = config.Paths(
+            root=Path(self.path), subdirs=["metadata", ".logs", "qc"]
+        )
         self.qc_results_dir = os.path.join(self.paths.qc, self.label)
         if not os.path.isdir(self.qc_results_dir):
             os.mkdir(self.qc_results_dir)
@@ -538,12 +540,12 @@ class Species:
             metadata = biosample.loc[self.biosample_ids]
             if to_csv:
                 metadata.to_csv(self.metadata_path)
-                self.log.info('Metadata saved')
+                self.log.info("Metadata saved")
         except KeyError:
-                self.log.info('Metadata failed')
+            self.log.info("Metadata failed")
         try:
             runs = sra_runs.loc[self.biosample_ids]
             runs.to_csv(os.path.join(self.paths.metadata, "runs.csv"))
-            self.log.info('Saved runs')
+            self.log.info("Saved runs")
         except KeyError:
-            self.log.info('No runs')
+            self.log.info("No runs")

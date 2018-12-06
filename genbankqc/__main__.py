@@ -45,7 +45,7 @@ def cli(ctx, path):
     "--species",
     is_flag=True,
     default=False,
-    help="Write metadata files to disk for all species"
+    help="Write metadata files to disk for all species",
 )
 def metadata(path, species):
     """Download assembly_summary.txt and BioSample metadata."""
