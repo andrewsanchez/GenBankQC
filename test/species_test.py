@@ -163,7 +163,8 @@ def species_bare():
 
 
 @pytest.mark.skipif(
-    "TRAVIS" in os.environ and os.environ["TRAVIS"] == "true", reason="Skipping test on Travis"
+    "TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
+    reason="Skipping test on Travis",
 )
 @pytest.mark.usefixtures("species_bare")
 class TestBare:
