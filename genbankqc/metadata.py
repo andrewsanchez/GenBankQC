@@ -39,6 +39,9 @@ class AssemblySummary(object):
 class BioSample(object):
     """Download and parse BioSample metadata for GenBank bacteria genomes."""
 
+    email = attr.ib()
+    outdir = attr.ib(default=Path.cwd())
+    read_existing = attr.ib(default=False)
     log = Logger("BioSample")
     attributes = [
         "BioSample",
@@ -67,10 +70,10 @@ class BioSample(object):
         "serotype",
         "host_disease_outcome",
     ]
-    outdir = attr.ib(default=Path.cwd(), validator=attr.validators.instance_of(Path))
-    read_existing = attr.ib(default=False)
 
     def __attrs_post_init__(self):
+        if not isinstance(self.outdir, Path):
+            self.outdir = Path(self.outdir)
         self.paths = config.Paths(root=self.outdir, subdirs=["sra_ids"])
         self.paths.mkdirs()
         if self.read_existing:
@@ -79,12 +82,11 @@ class BioSample(object):
     # @retry(stop_max_attempt_number=3, stop_max_delay=10000, wait_fixed=100)
     def _esearch(
         self,
-        email="inbox.asanchez@gmail.com",
         db="biosample",
         term="bacteria[orgn] AND biosample_assembly[filter]",
     ):
         """Use NCBI's esearch to make a query"""
-        Entrez.email = email
+        Entrez.email = self.email
         esearch_handle = Entrez.esearch(db=db, term=term, usehistory="y")
         self.esearch_results = Entrez.read(esearch_handle)
 
@@ -174,6 +176,14 @@ class BioSample(object):
         return pd.read_csv(self.paths.root / "biosample.csv", index_col=0)
 
 
+@attr.s
 class SRA:
-    def __init__(self, args):
-        "docstring"
+    """Runs from the SRA database"""
+    path = attr.ib(default="sra_runs.tsv")
+    def __attrs_post_init__(self):
+        self.df = pd.read_csv(
+            self.path,
+            index_col=0,
+            sep="\t",
+            error_bad_lines=False,
+        )

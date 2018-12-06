@@ -18,7 +18,7 @@ def test_existing_assembly_summary():
 
 def test_download_assembly_summary():
     summary = metadata.AssemblySummary(tempfile.mkdtemp())
-    assert os.path.isfile(summary.outfile.as_posix())
+    assert os.path.isfile(summary.file_.as_posix())
     assert isinstance(summary.df, pd.DataFrame)
 
 
