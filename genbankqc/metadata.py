@@ -152,14 +152,6 @@ class BioSample(object):
         ids = self.df[self.df.SRA.notnull()].SRA.tolist()
         return ids
 
-    def split_SRA(self):
-        """Split SRA IDs into several files for better processing with epost."""
-        groups = list(zip(*(iter(self.sra_ids),) * 5000))
-        for ix, group in enumerate(groups):
-            out_file = os.path.join(self.paths.sra_ids, "sra_ids_{}.txt".format(ix))
-            with open(out_file, "w") as f:
-                f.write("\n".join(group))
-
     def SRA_runs(self):
         file_ = os.path.join(self.paths.sra_runs("sra_runs.txt"))
         df = pd.read_csv(file_, sep="\t", error_bad_lines=False, warn_bad_lines=False)
@@ -176,7 +168,8 @@ class BioSample(object):
         self._esearch()
         self._efetch()
         self._DataFrame()
-        self.split_SRA()
+        with open(self.outdir / "sra_ids.txt", "w") as f:
+            f.write("\n".join(self.sra_ids))
 
     def read(self):
         return pd.read_csv(self.paths.root / "biosample.csv", index_col=0)
