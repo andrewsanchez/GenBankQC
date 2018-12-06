@@ -92,11 +92,6 @@ class BioSample(object):
 
     def _efetch(self):
         """Use NCBI's efetch to download esearch results"""
-        web_env = self.esearch_results["WebEnv"]
-        query_key = self.esearch_results["QueryKey"]
-        count = int(self.esearch_results["Count"])
-        batch_size = 10000
-
         self.data = []
         db_xp = 'Ids/Id/[@db="{}"]'
         # Tuples for building XPath patterns
@@ -121,6 +116,10 @@ class BioSample(object):
                     data[name] = attribute
             self.data.append(pd.DataFrame(data, index=[data["BioSample"]]))
 
+        web_env = self.esearch_results["WebEnv"]
+        query_key = self.esearch_results["QueryKey"]
+        count = int(self.esearch_results["Count"])
+        batch_size = 10000
         for start in range(0, count, batch_size):
             end = min(count, start + batch_size)
             print("Downloading record {} to {}".format(start + 1, end))
