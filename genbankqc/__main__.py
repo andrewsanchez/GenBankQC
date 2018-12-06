@@ -5,6 +5,7 @@ import logbook
 
 from pathlib import Path
 
+from genbankqc import metadata
 from genbankqc import Genbank
 from genbankqc import Genome
 from genbankqc import Species
@@ -40,14 +41,20 @@ def cli(ctx, path):
         genbank.qc()
 
 
-@click.argument("path", type=click.Path())
 @cli.command()
-def metadata(path):
-    """Download assembly_summary.txt and BioSample metata, including SRA Ids."""
-    path = Path(path)
+@click.argument("path", type=click.Path())
+@click.option(
+    "--species",
+    is_flag=True,
+    default=False,
+    help="Write metadata files to disk for all species"
+)
+def metadata(path, species):
+    """Download assembly_summary.txt and BioSample metadata."""
     genbank = Genbank(path)
+    genbank.biosample_metadata()
+    if species:
     genbank.metadata()
-
 
 @cli.command()
 @click.argument("path", type=click.Path(exists=True, file_okay=False))
