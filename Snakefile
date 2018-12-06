@@ -21,10 +21,10 @@ rule runs:
         "sh efetch.sh {input}"
 
 rule install:
+    conda:
+        "requirements/conda.yaml"
     shell:
         """
-        conda env create -q -n genbankqc -f requirements/conda.yaml &&
-        conda activate genbankqc &&
         pip install -r requirements/pip.txt &&
         pip install -r requirements/dev.txt &&
         pip install --no-deps -e .
