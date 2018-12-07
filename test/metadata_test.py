@@ -22,7 +22,7 @@ def test_download_assembly_summary():
 @pytest.fixture()
 def biosample():
     temp = Path(tempfile.mkdtemp())
-    biosample = metadata.BioSample("inbox.asanchez@gmail.com", temp, sample=100)
+    biosample = metadata.BioSample(temp, "inbox.asanchez@gmail.com", sample=100)
     yield biosample
     shutil.rmtree(temp)
 
