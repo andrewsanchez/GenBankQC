@@ -1,8 +1,6 @@
-import os
 from pathlib import Path
 
 import attr
-import pandas as pd
 from logbook import Logger
 
 from genbankqc import config, Species, metadata
@@ -47,9 +45,9 @@ class Genbank(object):
         biosample = metadata.BioSample(self.path.metadata)
         biosample.generate()
 
-    def metadata(self):
+    def species_metadata(self):
         """Assumes existence of metadata files"""
         biosample = metadata.BioSample(self.path.metadata, read_existing=True)
         runs = metadata.SRA(self.paths.metadata / "sra_runs.tsv")
         for species in self.species():
-            species.metadata(biosample=biosample.df, runs=sra_runs)
+            species.metadata(biosample=biosample.df, sra_runs=runs.df)
