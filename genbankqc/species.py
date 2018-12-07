@@ -25,7 +25,7 @@ class Species:
         assembly_size=3.0,
         mash=3.0,
         assembly_summary=None,
-        metadata=None
+        metadata=None,
     ):
         """Represents a collection of genomes in `path`
 

@@ -197,7 +197,7 @@ class SRA:
         self.df = pd.read_csv(
             self.path,
             index_col=0,
-            cols=['biosample', 'runs'],
+            cols=["biosample", "runs"],
             sep="\t",
-            error_bad_lines=False
+            error_bad_lines=False,
         )
