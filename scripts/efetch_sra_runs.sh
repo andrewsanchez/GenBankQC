@@ -1,7 +1,7 @@
 #!/bin/bash
 
 metadata_dir=$1
-outdir=${metadata_dir}/epost
+outdir=${metadata_dir}/.sra_runs
 
 # Get SRA runs for each ID
 mkdir ${outdir}
