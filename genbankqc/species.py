@@ -25,7 +25,7 @@ class Species:
         assembly_size=3.0,
         mash=3.0,
         assembly_summary=None,
-        biosample=None,
+        metadata=None
     ):
         """Represents a collection of genomes in `path`
 
@@ -535,17 +535,11 @@ class Species:
             self.log.info("Not enough genomes.")
         self.log.info("qc command completed")
 
-    def metadata(self, biosample, sra_runs, to_csv=True):
+    def metadata(self):
         try:
-            metadata = biosample.loc[self.biosample_ids]
+            metadata = metadata.loc[self.biosample_ids]
             if to_csv:
                 metadata.to_csv(self.metadata_path)
                 self.log.info("Metadata saved")
         except KeyError:
             self.log.info("Metadata failed")
-        try:
-            runs = sra_runs.loc[self.biosample_ids]
-            runs.to_csv(os.path.join(self.paths.metadata, "runs.csv"))
-            self.log.info("Saved runs")
-        except KeyError:
-            self.log.info("No runs")
