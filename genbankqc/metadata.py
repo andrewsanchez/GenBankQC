@@ -26,12 +26,18 @@ class AssemblySummary(object):
         if not self.read:
             self.df = self._download()
         else:
-            self.df = pd.read_csv(self.file_, sep="\t", index_col=0)
+            self.df = self._read()
 
     def _download(self):
         df = pd.read_csv(self.url, sep="\t", index_col=0, skiprows=1)
         df.to_csv(self.file_, sep="\t")
         return df
+
+    def _read(self):
+        try:
+            return pd.read_csv(self.file_, sep="\t", index_col=0)
+        except FileNotFoundError:
+            return self._download()
 
 
 @attr.s
