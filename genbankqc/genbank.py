@@ -41,8 +41,8 @@ class Genbank(object):
         for species in self.species():
             species.qc()
 
-    def biosample_metadata(self):
-        biosample = metadata.BioSample(self.path.metadata)
+    def biosample_metadata(self, email):
+        biosample = metadata.BioSample(self.paths.metadata, email=email)
         biosample.generate()
 
     def species_metadata(self, email):
