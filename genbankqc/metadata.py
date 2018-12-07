@@ -50,8 +50,7 @@ class BioSample(object):
     read_existing = attr.ib(default=False)
 
     def __attrs_post_init__(self):
-        self.paths = config.Paths(root=self.outdir, subdirs=["sra_ids"])
-        self.paths.mkdirs()
+        self.paths = config.Paths(root=self.outdir)
         if self.read_existing:
             self.df = self.read()
 
