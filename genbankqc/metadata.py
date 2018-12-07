@@ -44,10 +44,17 @@ class AssemblySummary(object):
 class BioSample(object):
     """Download and parse BioSample metadata for GenBank bacteria genomes."""
 
+    outdir = attr.ib(converter=Path)
     email = attr.ib()
-    outdir = attr.ib(default=Path.cwd())
     sample = attr.ib(default=False)
     read_existing = attr.ib(default=False)
+
+    def __attrs_post_init__(self):
+        self.paths = config.Paths(root=self.outdir, subdirs=["sra_ids"])
+        self.paths.mkdirs()
+        if self.read_existing:
+            self.df = self.read()
+
     log = Logger("BioSample")
     attributes = [
         "BioSample",
@@ -76,14 +83,6 @@ class BioSample(object):
         "serotype",
         "host_disease_outcome",
     ]
-
-    def __attrs_post_init__(self):
-        if not isinstance(self.outdir, Path):
-            self.outdir = Path(self.outdir)
-        self.paths = config.Paths(root=self.outdir, subdirs=["sra_ids"])
-        self.paths.mkdirs()
-        if self.read_existing:
-            self.df = self.read()
 
     # @retry(stop_max_attempt_number=3, stop_max_delay=10000, wait_fixed=100)
     def _esearch(
