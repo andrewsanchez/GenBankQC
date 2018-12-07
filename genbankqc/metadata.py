@@ -127,9 +127,9 @@ class BioSample(object):
             batch_size = self.sample
             group = range(0, count, batch_size)
         else:
-            group = range(0, count, batch_size)
             count = int(self.esearch_results["Count"])
             batch_size = 10000
+            group = range(0, count, batch_size)
         for start in group:
             end = min(count, start + batch_size)
             print("Downloading record {} to {}".format(start + 1, end))
