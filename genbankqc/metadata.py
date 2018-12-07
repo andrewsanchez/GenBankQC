@@ -177,9 +177,9 @@ class BioSample(object):
         summary = AssemblySummary(self.outdir)
         # Add accession summary accession IDs to BioSample DataFrame
         summary.df.reset_index(inplace=True)
-        biosample_and_summary_ids = summary.df[["biosample", "# assembly_accession"]]
-        biosample_and_summary_ids.set_index("biosample", inplace=True)
-        self.df = pd.concat([self.df, biosample_and_summary_ids])
+        ids = summary.df[["biosample", "# assembly_accession"]]
+        ids.set_index("biosample", inplace=True)
+        self.df = self.df.join(ids)
         self.paths.csv = self.outdir / "biosample.csv"
         self.df.to_csv(self.paths.csv)
 
