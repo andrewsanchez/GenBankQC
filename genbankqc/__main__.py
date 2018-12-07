@@ -41,16 +41,17 @@ def cli(ctx, path):
 
 @cli.command()
 @click.argument("path", type=click.Path())
+@click.argument("email")
 @click.option(
     "--species",
     is_flag=True,
     default=False,
     help="Write metadata files to disk for all species",
 )
-def metadata(path, species):
+def metadata(path, email, species):
     """Download assembly_summary.txt and BioSample metadata."""
     genbank = Genbank(path)
-    genbank.biosample_metadata()
+    genbank.biosample_metadata(email=email)
 
 
 @cli.command()
