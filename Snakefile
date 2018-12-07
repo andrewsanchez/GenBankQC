@@ -20,7 +20,7 @@ rule runs:
     shell:
         "sh efetch.sh {input}"
 
-rule install:
+rule install_dev:
     conda:
         "requirements/conda.yaml"
     shell:
