@@ -30,4 +30,6 @@ def biosample():
 def test_biosample(biosample):
     biosample.generate()
     assert biosample.paths.csv.is_file()
-    assert (biosample.outdir / "sra_ids.txt").is_file()
+    assert biosample.paths.raw.is_file()
+    assert biosample.paths.sra_ids.is_file()
+    assert "# assembly_accession" in biosample.df.columns
