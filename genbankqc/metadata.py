@@ -194,4 +194,10 @@ class SRA:
     path = attr.ib(default="sra_runs.tsv")
 
     def __attrs_post_init__(self):
-        self.df = pd.read_csv(self.path, index_col=0, sep="\t", error_bad_lines=False)
+        self.df = pd.read_csv(
+            self.path,
+            index_col=0,
+            cols=['biosample', 'runs'],
+            sep="\t",
+            error_bad_lines=False
+        )
