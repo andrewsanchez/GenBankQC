@@ -174,8 +174,14 @@ class BioSample(object):
         self.paths.sra_ids = self.outdir / "sra_ids.txt"
         with open(self.paths.sra_ids, "w") as f:
             f.write("\n".join(self.sra_ids))
-        # ids = summary.df.reset_index()[['biosample', 'assembly_accession']].set_index('biosample')
-        # pd.concat([biosample.df, ids]).assembly_accession
+        summary = AssemblySummary(self.outdir)
+        # Add accession summary accession IDs to BioSample DataFrame
+        summary.df.reset_index(inplace=True)
+        biosample_and_summary_ids = summary.df[["biosample", "# assembly_accession"]]
+        biosample_and_summary_ids.set_index("biosample", inplace=True)
+        self.df = pd.concat([self.df, biosample_and_summary_ids])
+        self.paths.csv = self.outdir / "biosample.csv"
+        self.df.to_csv(self.paths.csv)
 
     def read(self):
         return pd.read_csv(self.paths.root / "biosample.csv", index_col=0)
