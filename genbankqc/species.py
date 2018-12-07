@@ -535,11 +535,10 @@ class Species:
             self.log.info("Not enough genomes.")
         self.log.info("qc command completed")
 
-    def metadata(self):
+    def metadata(self, metadata):
         try:
             metadata = metadata.loc[self.biosample_ids]
-            if to_csv:
-                metadata.to_csv(self.metadata_path)
-                self.log.info("Metadata saved")
+            metadata.to_csv(self.metadata_path)
+            self.log.info("Metadata saved")
         except KeyError:
             self.log.info("Metadata failed")

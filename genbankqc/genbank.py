@@ -49,6 +49,6 @@ class Genbank(object):
         """Assumes existence of metadata files"""
         biosample = metadata.BioSample(self.paths.metadata, email, read_existing=True)
         runs = metadata.SRA(self.paths.metadata / "sra_runs.tsv")
-        metadata = biosample.join(runs)
+        all_metadata = biosample.df.join(runs.df)
         for species in self.species():
-            species.metadata(metadata)
+            species.metadata(all_metadata)
