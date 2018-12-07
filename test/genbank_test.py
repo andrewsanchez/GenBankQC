@@ -1,4 +1,3 @@
-import os
 import shutil
 import pytest
 import tempfile
@@ -19,9 +18,3 @@ def test_genbank_init(genbank):
     assert isinstance(genbank, Genbank)
     for i in genbank.species():
         assert isinstance(i, Species)
-
-
-def test_biosample_metadata(genbank):
-    genbank.biosample_metadata()
-    for species in genbank.species():
-        assert os.path.isfile(species.metadata_path)
