@@ -8,7 +8,7 @@ from .genome import Genome
 from .metadata import BioSample
 from .metadata import AssemblySummary
 
-__all__ = [Genome, Species, Genbank, BioSample]
+__all__ = ["Genome", "Species", "Genbank", "BioSample", "AssemblySummary"]
 
 
 # Suppress error output with:
