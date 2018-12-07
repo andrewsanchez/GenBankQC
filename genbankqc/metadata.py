@@ -171,7 +171,8 @@ class BioSample(object):
         self._esearch()
         self._efetch()
         self._DataFrame()
-        with open(self.outdir / "sra_ids.txt", "w") as f:
+        self.paths.sra_ids = self.outdir / "sra_ids.txt"
+        with open(self.paths.sra_ids, "w") as f:
             f.write("\n".join(self.sra_ids))
         # ids = summary.df.reset_index()[['biosample', 'assembly_accession']].set_index('biosample')
         # pd.concat([biosample.df, ids]).assembly_accession
