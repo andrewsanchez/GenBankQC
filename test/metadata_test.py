@@ -8,11 +8,8 @@ import pandas as pd
 from genbankqc import metadata
 
 
-assembly_summary = Path("test/resources/metadata/assembly_summary.txt")
-
-
 def test_existing_assembly_summary():
-    summary = metadata.AssemblySummary(assembly_summary, read=True)
+    summary = metadata.AssemblySummary("test/resources/metadata", read=True)
     assert isinstance(summary.df, pd.DataFrame)
 
 
