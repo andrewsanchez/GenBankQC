@@ -142,12 +142,12 @@ class BioSample(object):
             ) as handle:
                 try:
                     efetch_record = Entrez.read(handle, validate=False)
+                    for xml in efetch_record["DocumentSummarySet"]["DocumentSummary"]:
+                        xml = xml["SampleData"]
+                        parse_record(xml)
                 except Entrez.Parser.CorruptedXMLError:
                     continue
                     # log here
-            for xml in efetch_record["DocumentSummarySet"]["DocumentSummary"]:
-                xml = xml["SampleData"]
-                parse_record(xml)
 
     @property
     def sra_ids(self):
