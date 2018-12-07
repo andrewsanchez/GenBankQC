@@ -17,12 +17,11 @@ ONE_MINUTE = 60000
 class AssemblySummary(object):
     """Read in existing file or download latest assembly summary."""
 
-    path = attr.ib()
+    path = attr.ib(converter=Path)
     read = attr.ib(default=False)
     url = "ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt"
 
     def __attrs_post_init__(self):
-        self.path = Path(self.path)
         self.file_ = self.path / "assembly_summary.txt"
         if not self.read:
             self.df = self._download()

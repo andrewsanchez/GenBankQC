@@ -4,12 +4,10 @@ from pathlib import Path
 
 @attr.s
 class Paths(object):
-    subdirs = attr.ib()
-    root = attr.ib(default=Path.cwd())
+    root = attr.ib(converter=Path)
+    subdirs = attr.ib(attr.validators.instance_of(list))
 
     def __attrs_post_init__(self):
-        if not isinstance(self.root, Path):
-            self.root = Path(self.root)
         for subdir in self.subdirs:
             name = self.clean_path_name(subdir)
             path = self.root / subdir
