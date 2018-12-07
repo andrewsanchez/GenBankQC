@@ -129,9 +129,9 @@ class BioSample(object):
             count = int(self.esearch_results["Count"])
             batch_size = 10000
             group = range(0, count, batch_size)
+        # Return a list of handles for multiprocessing
         for start in group:
             end = min(count, start + batch_size)
-            print("Downloading record {} to {}".format(start + 1, end))
             with Entrez.efetch(
                 db="biosample",
                 rettype="docsum",
@@ -141,6 +141,7 @@ class BioSample(object):
                 retmax=batch_size,
             ) as handle:
                 try:
+                    print("Downloading records {} to {}".format(start + 1, end))
                     efetch_record = Entrez.read(handle, validate=False)
                     for xml in efetch_record["DocumentSummarySet"]["DocumentSummary"]:
                         xml = xml["SampleData"]
