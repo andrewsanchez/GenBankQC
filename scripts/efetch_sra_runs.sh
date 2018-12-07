@@ -12,6 +12,6 @@ do epost -db sra -input $f -format acc | \
         xtract -pattern DocumentSummary/* \
                -group Biosample -ret '\t' -element Biosample \
                -group Runs -sep ',' -element Runs/Run@acc \
-               >> ${metadata_dir}/sra_runs.txt
+               >> ${metadata_dir}/sra_runs.tsv
 done
 rm ${outdir}
