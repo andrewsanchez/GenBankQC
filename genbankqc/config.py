@@ -5,9 +5,10 @@ from pathlib import Path
 @attr.s
 class Paths(object):
     root = attr.ib(converter=Path)
-    subdirs = attr.ib(attr.validators.instance_of(list))
+    subdirs = attr.ib(default=[], validator=attr.validators.instance_of(list))
 
     def __attrs_post_init__(self):
+        self.root.mkdir(exist_ok=True)
         for subdir in self.subdirs:
             name = self.clean_path_name(subdir)
             path = self.root / subdir
@@ -16,7 +17,6 @@ class Paths(object):
 
     def mkdirs(self):
         """Create `root` and `subdirs` if they don't already exist."""
-        self.root.mkdir(exist_ok=True)
         for subdir in self.subdirs:
             name = self.clean_path_name(subdir)
             path = self.__getattribute__(name)
