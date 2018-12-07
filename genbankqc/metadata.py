@@ -164,8 +164,8 @@ class BioSample(object):
         self.df = pd.DataFrame(index=["BioSample"], columns=self.attributes)
         self.df = pd.concat(self.data)
         self.df.set_index("BioSample", inplace=True)
-        self.paths.csv = self.outdir / "biosample.csv"
-        self.df.to_csv(self.paths.csv)
+        self.paths.raw = self.outdir / "_biosample_raw.csv"
+        self.df.to_csv(self.paths.raw)
 
     def generate(self):
         self._esearch()
