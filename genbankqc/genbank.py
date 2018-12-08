@@ -31,9 +31,8 @@ class Genbank(object):
 
     def species(self, assembly_summary=None):
         """Generator of Species objects for directories returned by `species_directories`."""
-        self.assembly_summary = metadata.AssemblySummary(self.paths.metadata)
         for dir_ in self.species_directories:
-            yield Species(dir_, assembly_summary=self.assembly_summary.df)
+            yield Species(dir_)
 
     def qc(self):
         for species in self.species():
