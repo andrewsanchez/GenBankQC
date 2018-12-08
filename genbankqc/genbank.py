@@ -11,11 +11,9 @@ taxdump_url = "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
 @attr.s
 class Genbank(object):
     log = Logger("GenBank")
-    root = attr.ib(default=Path())
+    root = attr.ib(default=Path(), converter=Path)
 
     def __attrs_post_init__(self):
-        if not isinstance(self.root, Path):
-            self.root = Path(self.root)
         self.paths = config.Paths(root=self.root, subdirs=["metadata", ".logs"])
 
     @property
