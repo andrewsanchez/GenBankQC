@@ -4,11 +4,11 @@ from pathlib import Path
 
 import attr
 import pandas as pd
-from retrying import retry
-from Bio import Entrez
 from logbook import Logger
 
+from Bio import Entrez
 from genbankqc import config
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 
 @attr.s
@@ -26,7 +26,7 @@ class AssemblySummary(object):
         else:
             self.df = self._download()
 
-    @retry(stop_max_attempt_number=3, wait_fixed=2000)
+    @retry(stop=stop_after_attempt(7), wait=wait_fixed(2))
     def _download(self):
         df = pd.read_csv(self.url, sep="\t", index_col=0, skiprows=1)
         df.to_csv(self.file_, sep="\t")

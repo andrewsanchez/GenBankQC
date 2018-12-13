@@ -1,15 +1,15 @@
 import os.path
 import re
 import subprocess
-
-from logbook import Logger
-from retrying import retry
 import xml.etree.cElementTree as ET
-from xml.etree.ElementTree import ParseError
 from collections import defaultdict
+from xml.etree.ElementTree import ParseError
 
 import pandas as pd
+from logbook import Logger
+
 from Bio import SeqIO
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 
 class Genome:
@@ -102,7 +102,7 @@ class Genome:
             self.stats.to_csv(self.stats_path)
             self.log.info("Generated stats and wrote to disk")
 
-    @retry(stop_max_attempt_number=3, stop_max_delay=10000, wait_fixed=100)
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
     def efetch(self, db):
         """
         Use NCBI's efetch tools to get xml for genome's biosample id or SRA id
