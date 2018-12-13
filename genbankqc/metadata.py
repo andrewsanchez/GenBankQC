@@ -4,13 +4,11 @@ from pathlib import Path
 
 import attr
 import pandas as pd
+from retrying import retry
 from Bio import Entrez
 from logbook import Logger
 
 from genbankqc import config
-
-
-ONE_MINUTE = 60000
 
 
 @attr.s
@@ -23,11 +21,12 @@ class AssemblySummary(object):
 
     def __attrs_post_init__(self):
         self.file_ = self.path / "assembly_summary.txt"
-        if not self.read:
-            self.df = self._download()
-        else:
+        if self.read:
             self.df = self._read()
+        else:
+            self.df = self._download()
 
+    @retry(stop_max_attempt_number=3, wait_fixed=2000)
     def _download(self):
         df = pd.read_csv(self.url, sep="\t", index_col=0, skiprows=1)
         df.to_csv(self.file_, sep="\t")
