@@ -40,7 +40,7 @@ class Genbank(object):
 
     def biosample_metadata(self, email):
         biosample = metadata.BioSample(self.paths.metadata, email=email)
-        biosample.generate()
+        biosample.with_runs()
 
     def species_metadata(self, email):
         """Assumes existence of metadata files"""

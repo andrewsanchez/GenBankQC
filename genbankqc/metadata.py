@@ -174,6 +174,9 @@ class BioSample(object):
         self.paths.sra_ids = self.outdir / "sra_ids.txt"
         with open(self.paths.sra_ids, "w") as f:
             f.write("\n".join(self.sra_ids))
+
+    def with_runs(self):
+        self.generate()
         summary = AssemblySummary(self.outdir)
         # Add accession summary accession IDs to BioSample DataFrame
         summary.df.reset_index(inplace=True)
