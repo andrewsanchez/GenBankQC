@@ -10,7 +10,6 @@ dependencies:
   - biopython==1.72
   - mash==2.1
   - entrez-direct==10.2
-  - snakemake==5.3.1
 # General
   - pathos==0.2.1
   - pandas==0.22.0
