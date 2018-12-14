@@ -3,8 +3,6 @@ import re
 import click
 import logbook
 
-from pathlib import Path
-
 from genbankqc import Genbank
 from genbankqc import Genome
 from genbankqc import Species
@@ -25,15 +23,14 @@ class CLIGroup(click.Group):
 @click.pass_context
 @click.argument("path", type=click.Path(), required=False)
 def cli(ctx, path):
-    """
-    Assess the integrity of your genomes through automated analysis of
+    """Assess the integrity of your genomes through automated analysis of
     species-based statistics and metadata.
     """
     if ctx.invoked_subcommand is None:
         genbank = Genbank(path)
         logbook.set_datetime_format("local")
         handler = logbook.TimedRotatingFileHandler(
-            path / ".logs" / "qc.log", backup_count=10
+            os.path.join(path, ".logs", "qc.log"), backup_count=10
         )
         handler.push_application()
         genbank.qc()
@@ -95,9 +92,8 @@ def species(path, unknowns, contigs, assembly_size, distance, all, metadata):
         "mash": distance,
     }
     logbook.set_datetime_format("local")
-    path = Path(path)
     handler = logbook.TimedRotatingFileHandler(
-        path / ".logs" / "qc.log", backup_count=10
+        os.path.join(path, ".logs", "qc.log"), backup_count=10
     )
     handler.push_application()
     species = Species(path, **kwargs)
