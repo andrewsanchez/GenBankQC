@@ -25,7 +25,6 @@ rule install_dev:
         "requirements/conda.yaml"
     shell:
         """
-        pip install -r requirements/pip.txt &&
         pip install -r requirements/dev.txt &&
         pip install --no-deps -e .
         """
