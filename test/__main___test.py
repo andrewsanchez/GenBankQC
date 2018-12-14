@@ -3,9 +3,16 @@ from click.testing import CliRunner
 from genbankqc.__main__ import cli
 
 
-def test_cli():
+def test_cli_noargs():
     runner = CliRunner()
+    # Should only display help
     result = runner.invoke(cli)
+    assert result.exit_code == 0
+
+
+def test_cli_nosubcommand(genbank):
+    runner = CliRunner()
+    result = runner.invoke(cli, [genbank.root.as_posix()])
     assert result.exit_code == 0
 
 
