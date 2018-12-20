@@ -1,0 +1,46 @@
+package:
+  name: genbankqc
+  version: "18.19.14"
+
+source:
+  git_url: https://github.com/andrewsanchez/GenBankQC.git
+
+build:
+  number: 0
+  # noarch: python
+  script: python -m pip install --no-deps --ignore-installed .
+  entry_points:
+    - genbankqc = genbankqc.__main__:cli
+
+requirements:
+  host:
+    - python >=3.6
+    - pip
+  run:
+    - python==3.6.6
+    - ete3==3.1.1
+    - scikit-bio==0.5.4
+    - biopython==1.72
+    - mash==2.1
+    - entrez-direct==10.2
+    - pathos==0.2.1
+    - pandas==0.22.0
+    - numpy==1.15.2
+    - click==7.0
+    - tenacity==5.0.2
+    - logbook==1.4.1
+    - attrs==18.2.0
+
+test:
+  requires:
+    - pytest
+  imports:
+    - genbankqc
+  commands:
+    - genbankqc --help
+    - pytest --ignore test/metadata_test.py
+
+about:
+  home: https://github.com/andrewsanchez/GenBankQC
+  license: BSD
+  license_file: LICENSE
