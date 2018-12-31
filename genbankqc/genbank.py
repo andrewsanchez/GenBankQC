@@ -32,7 +32,7 @@ class Genbank(object):
     def species(self, assembly_summary=None):
         """Generator of Species objects for directories returned by `species_directories`."""
         for dir_ in self.species_directories:
-            yield Species(dir_)
+            yield Species(dir_, assembly_summary=assembly_summary)
 
     def qc(self):
         for species in self.species():
@@ -47,5 +47,6 @@ class Genbank(object):
         biosample = metadata.BioSample(self.paths.metadata, email, read_existing=True)
         runs = metadata.SRA(self.paths.metadata / "sra_runs.tsv")
         all_metadata = biosample.df.join(runs.df)
-        for species in self.species():
+        assembly_summary = metadata.AssemblySummary(self.paths.metadata)
+        for species in self.species(assembly_summary):
             species.metadata(all_metadata)
