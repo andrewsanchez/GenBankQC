@@ -190,7 +190,7 @@ class Species:
 
     @property
     def biosample_ids(self):
-        ids = self.assembly_summary.loc[self.accession_ids].biosample.tolist()
+        ids = self.assembly_summary.df.loc[self.accession_ids].biosample.tolist()
         return ids
 
     # may be redundant. see genome_ids attrib
