@@ -48,14 +48,9 @@ class BioSample(object):
     sample = attr.ib(default=False)
     read_existing = attr.ib(default=False)
 
-    def __attrs_post_init__(self):
-        self.paths = config.Paths(root=self.outdir)
-        if self.read_existing:
-            self.df = self.read()
-
-    log = Logger("BioSample")
     attributes = [
         "BioSample",
+        "SRA",
         "geo_loc_name",
         "collection_date",
         "strain",
@@ -82,6 +77,15 @@ class BioSample(object):
         "host_disease_outcome",
     ]
 
+    def __attrs_post_init__(self):
+        self.paths = config.Paths(root=self.outdir)
+        self.df = pd.DataFrame(index=["BioSample"], columns=self.attributes)
+        self.data = [self.df]
+        if self.read_existing:
+            self.df = self.read()
+
+    log = Logger("BioSample")
+
     # @retry(stop_max_attempt_number=3, stop_max_delay=10000, wait_fixed=100)
     def _esearch(
         self, db="biosample", term="bacteria[orgn] AND biosample_assembly[filter]"
@@ -104,8 +108,6 @@ class BioSample(object):
                     'Attributes/Attribute/[@harmonized_name="{}"]',
                 )
             )
-
-        self.data = []
 
         def parse_record(xml):
             data = {}
@@ -160,7 +162,6 @@ class BioSample(object):
         self.df_SRA_runs = df
 
     def _DataFrame(self):
-        self.df = pd.DataFrame(index=["BioSample"], columns=self.attributes)
         self.df = pd.concat(self.data)
         self.df.set_index("BioSample", inplace=True)
         self.paths.raw = self.outdir / "_biosample_raw.csv"
