@@ -1,6 +1,7 @@
 import os
 import xml.etree.cElementTree as ET
 from pathlib import Path
+from tempfile import mkdtemp
 
 import attr
 import pandas as pd
@@ -15,7 +16,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 class AssemblySummary(object):
     """Read in existing file or download latest assembly summary."""
 
-    path = attr.ib(converter=Path)
+    path = attr.ib(default=mkdtemp(), converter=Path)
     read = attr.ib(default=False)
     url = "ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt"
 
