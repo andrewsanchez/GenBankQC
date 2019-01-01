@@ -26,9 +26,11 @@ class AssemblySummary(object):
             self.df = self._read()
         else:
             self.df = self._download()
+        self.ids = self.df.index.tolist()
 
-    @retry(stop=stop_after_attempt(7), wait=wait_fixed(2))
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
     def _download(self):
+        print(f"Downloading {self.url}")
         df = pd.read_csv(self.url, sep="\t", index_col=0, skiprows=1)
         df.to_csv(self.file_, sep="\t")
         return df
