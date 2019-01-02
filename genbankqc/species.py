@@ -531,9 +531,9 @@ class Species:
             self.link_genomes()
             self.get_tree()
             self.color_tree()
+            self.log.info("qc command completed")
         else:
             self.log.info("Not enough genomes.")
-        self.log.info("qc command completed")
 
     def metadata(self, metadata):
         try:
