@@ -108,7 +108,7 @@ class Species:
         self.message = [
             "Species: {}".format(self.name),
             "Maximum Unknown Bases:  {}".format(self.max_unknowns),
-            "Acceptable Deviations,",
+            "Acceptable Deviations:",
             "Contigs, {}".format(self.contigs),
             "Assembly Size, {}".format(self.assembly_size),
             "MASH: {}".format(self.mash),
