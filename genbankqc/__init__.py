@@ -12,5 +12,5 @@ __all__ = ["Genome", "Species", "Genbank", "BioSample", "AssemblySummary"]
 
 
 # Suppress error output with:
-# wget -P ~/path/to/env/genbankqc/lib/ https://github.com/openwebos/qt/tree/master/lib/fonts
+# wget -P ~/path/to/env/genbankqc/lib/fonts/ https://github.com/openwebos/qt/tree/master/lib/fonts
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
