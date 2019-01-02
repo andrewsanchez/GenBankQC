@@ -37,7 +37,11 @@ class Genbank(object):
 
     def qc(self):
         for species in self.species():
-            species.qc()
+            try:
+                species.qc()
+            except Exception:
+                self.log.error(f"qc command failed for {species.name}")
+                self.log.exception()
 
     def prune(self):
         """Prune all files that aren't latest assembly versions."""
