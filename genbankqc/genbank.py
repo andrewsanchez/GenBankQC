@@ -67,7 +67,8 @@ class Genbank(object):
 
         # Remove local files that aren't latest assembly versions
         assumbly_summary = metadata.AssemblySummary(self.paths.metadata)
-        for i in set(d_local.keys()) - set(assumbly_summary.ids):
+        previous_versions = set(d_local.keys()) - set(assumbly_summary.ids)
+        for i in previous_versions:
             for f in d_local[i]:
                 f.unlink()
 
