@@ -36,6 +36,7 @@ class Genbank(object):
             yield Species(dir_, assembly_summary=assembly_summary)
 
     def qc(self):
+        self.prune()
         for species in self.species():
             try:
                 species.qc()
