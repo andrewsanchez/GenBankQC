@@ -1,4 +1,3 @@
-import os
 import xml.etree.cElementTree as ET
 from pathlib import Path
 from tempfile import mkdtemp
@@ -158,11 +157,6 @@ class BioSample(object):
     def sra_ids(self):
         ids = self.df[self.df.SRA.notnull()].SRA.tolist()
         return ids
-
-    def SRA_runs(self):
-        file_ = os.path.join(self.paths.sra_runs("sra_runs.txt"))
-        df = pd.read_csv(file_, sep="\t", error_bad_lines=False, warn_bad_lines=False)
-        self.df_SRA_runs = df
 
     def _DataFrame(self):
         self.df = pd.concat(self.data)
