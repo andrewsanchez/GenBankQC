@@ -1,17 +1,20 @@
 #!/bin/bash
 
 metadata_dir=$1
-outdir=${metadata_dir}.sra_runs
+sra_ids=${metadata_dir}sra_ids.txt
+sra_ids_split=${metadata_dir}_sra_ids_*
+sra_runs=${metadata_dir}sra_runs.tsv
+
+rm $sra_ids_split
+rm $sra_runs
 
 # Get SRA runs for each ID
-mkdir ${outdir}
-split -l 5000 ${metadata_dir}sra_ids.txt ${outdir}/sra_ids_
-for f in ${outdir}/sra_ids*;
+split -l 5000 ${sra_ids} ${metadata_dir}_sra_ids_
+for f in $sra_ids_split;
 do epost -db sra -input $f -format acc | \
         efetch -format docsum | \
         xtract -pattern DocumentSummary/* \
                -group Biosample -ret '\t' -element Biosample \
                -group Runs -sep ',' -element Runs/Run@acc \
-               >> ${metadata_dir}/sra_runs.tsv
+               >> $sra_runs
 done
-rm ${outdir}
