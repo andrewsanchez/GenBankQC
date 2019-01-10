@@ -27,12 +27,12 @@ def cli(ctx, path):
     species-based statistics and metadata.
     """
     if ctx.invoked_subcommand is None:
-        genbank = Genbank(path)
         logbook.set_datetime_format("local")
         handler = logbook.TimedRotatingFileHandler(
             os.path.join(path, ".logs", "qc.log"), backup_count=10
         )
         handler.push_application()
+        genbank = Genbank(path)
         genbank.qc()
 
 
