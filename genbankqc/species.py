@@ -251,8 +251,8 @@ class Species:
             t = TreeNode.from_linkage_matrix(hclust, ids)
             nw = t.__str__().replace("'", "")
             self.tree = Tree(nw)
-            # midpoint root tree
             try:
+                # midpoint root tree
                 self.tree.set_outgroup(self.tree.get_midpoint_outgroup())
             except TreeError as e:
                 self.log.exception(e)
@@ -260,6 +260,7 @@ class Species:
 
     def get_stats(self):
         """Get stats for all genomes. Concat the results into a DataFrame"""
+        # pool.map needs an arg for each function that will be run
         dmx_mean = [self.dmx.mean()] * len(self.genome_paths)
         with ProcessingPool() as pool:
             results = pool.map(genome.mp_stats, self.genome_paths, dmx_mean)
