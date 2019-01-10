@@ -121,17 +121,12 @@ class Species:
         @functools.wraps(f)
         def wrapper(self):
             try:
-                assert self.stats is not None
                 assert os.path.isfile(self.allowed_path)
                 assert sorted(self.genome_ids.tolist()) == sorted(
                     self.stats.index.tolist()
                 )
-                self.complete = True
-                with open(self.allowed_path, "rb") as p:
-                    self.allowed = pickle.load(p)
                 self.log.info("Already complete")
             except AssertionError:
-                self.complete = False
                 f(self)
 
         return wrapper
