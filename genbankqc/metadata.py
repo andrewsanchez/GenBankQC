@@ -1,3 +1,4 @@
+import subprocess
 import xml.etree.cElementTree as ET
 from pathlib import Path
 from tempfile import mkdtemp
@@ -201,3 +202,32 @@ class SRA:
             sep="\t",
             error_bad_lines=False,
         )
+
+
+@attr.s
+class Metadata:
+    """Methods for accessing and joining all the available Metadata we are interested in."""
+
+    path = attr.ib(converter=Path)
+    email = attr.ib()
+    sample = attr.ib(default=False)
+
+    def __attrs_post_init__(self):
+        self.csv = self.path / "metadata.csv"
+
+    def update(self):
+        self.summary = AssemblySummary()
+        self.biosample = BioSample(
+            email=self.email, outdir=self.path, sample=self.sample
+        )
+        self.biosample.generate()
+        subprocess.run(["bash", "./scripts/efetch_sra_runs.sh", f"{self.path}/"])
+        self.sra = SRA(self.path)
+
+    def join_all(self):
+        self.summary.df.reset_index(inplace=True)
+        accession_ids = self.summary.df[["biosample", "# assembly_accession"]]
+        accession_ids.set_index("biosample", inplace=True)
+        self.df = self.biosample.df.join(accession_ids)
+        self.df = self.biosample.df.join([self.sra.runs])
+        self.df.to_csv(self.csv)
