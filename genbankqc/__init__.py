@@ -5,10 +5,11 @@ from . import metadata
 from .species import Species
 from .genbank import Genbank
 from .genome import Genome
+from .metadata import Metadata
 from .metadata import BioSample
 from .metadata import AssemblySummary
 
-__all__ = ["Genome", "Species", "Genbank", "BioSample", "AssemblySummary"]
+__all__ = ["Genome", "Species", "Genbank", "BioSample", "AssemblySummary", "Metadata"]
 
 
 # Suppress error output with:
