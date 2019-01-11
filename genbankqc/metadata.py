@@ -192,15 +192,19 @@ class BioSample(object):
 class SRA:
     """Runs from the SRA database"""
 
-    path = attr.ib(default="sra_runs.tsv")
+    path = attr.ib()
 
     def __attrs_post_init__(self):
-        self.df = pd.read_csv(
-            self.path,
+        self.paths = config.Paths(root=self.path)
+        self.paths.runs = self.path / "sra_runs.tsv"
+        self.id_files = list(self.path.glob("_sra_ids_*"))
+        self.runs = pd.read_csv(
+            self.paths.runs,
             index_col=0,
             names=["biosample", "runs"],
             sep="\t",
             error_bad_lines=False,
+            warn_bad_lines=False,
         )
 
 
