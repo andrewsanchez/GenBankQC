@@ -48,7 +48,8 @@ def cli(ctx, path):
 def metadata(path, email, species):
     """Download assembly_summary.txt and BioSample metadata."""
     genbank = Genbank(path)
-    genbank.biosample_metadata(email=email)
+    metadata = genbank.metadata(email=email)
+    genbank.species_metadata(metadata)
 
 
 @cli.command()
