@@ -10,6 +10,7 @@ from logbook import TestHandler
 from genbankqc import Genome
 from genbankqc import Species
 from genbankqc import Genbank
+from genbankqc import Metadata
 
 
 assembly_summary = pd.read_csv(
@@ -34,6 +35,16 @@ def genome(aphidicola):
 
 
 @pytest.fixture(scope="module")
+def aphidicola():
+    """A species object for Buchnera aphidicola"""
+    tmp = tempfile.mkdtemp()
+    aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
+    shutil.copytree("test/resources/Buchnera_aphidicola", aphidicola)
+    yield Species(aphidicola)
+    shutil.rmtree(tmp)
+
+
+@pytest.fixture(scope="module")
 def genbank():
     resources = Path("test/resources").absolute()
     tmp = Path(tempfile.mkdtemp())
@@ -44,10 +55,9 @@ def genbank():
     shutil.rmtree(tmp)
 
 
-@pytest.fixture(scope="module")
-def aphidicola():
-    tmp = tempfile.mkdtemp()
-    aphidicola = os.path.join(tmp, "Buchnera_aphidicola")
-    shutil.copytree("test/resources/Buchnera_aphidicola", aphidicola)
-    yield Species(aphidicola)
-    shutil.rmtree(tmp)
+@pytest.fixture()
+def metadata():
+    temp = tempfile.mkdtemp()
+    metadata = Metadata(temp, "inbox.asanchez@gmail.com")
+    yield metadata
+    shutil.rmtree(temp)
