@@ -1,13 +1,12 @@
 import os
 
 from . import config
-from . import metadata
-from .species import Species
-from .genbank import Genbank
-from .genome import Genome
 from .metadata import Metadata
 from .metadata import BioSample
 from .metadata import AssemblySummary
+from .species import Species
+from .genbank import Genbank
+from .genome import Genome
 
 __all__ = ["Genome", "Species", "Genbank", "BioSample", "AssemblySummary", "Metadata"]
 
