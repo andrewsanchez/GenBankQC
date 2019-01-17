@@ -1,7 +1,6 @@
 import subprocess
 import xml.etree.cElementTree as ET
 from pathlib import Path
-from tempfile import mkdtemp
 
 import attr
 import pandas as pd
@@ -16,7 +15,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 class AssemblySummary(object):
     """Read in existing file or download latest assembly summary."""
 
-    path = attr.ib(default=mkdtemp(), converter=Path)
+    path = attr.ib(converter=Path)
     read = attr.ib(default=False)
     url = "ftp://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt"
 
@@ -220,18 +219,21 @@ class Metadata:
         self.csv = self.path / "metadata.csv"
 
     def update(self):
-        self.summary = AssemblySummary()
+        self.assembly_summary = AssemblySummary(self.path)
         self.biosample = BioSample(
             email=self.email, outdir=self.path, sample=self.sample
         )
         self.biosample.generate()
         subprocess.run(["bash", "./scripts/efetch_sra_runs.sh", f"{self.path}/"])
         self.sra = SRA(self.path)
+        self.join_all()
 
     def join_all(self):
-        self.summary.df.reset_index(inplace=True)
-        accession_ids = self.summary.df[["biosample", "# assembly_accession"]]
+        accession_ids = self.assembly_summary.df.reset_index()[
+            ["biosample", "# assembly_accession"]
+        ]
         accession_ids.set_index("biosample", inplace=True)
-        self.df = self.biosample.df.join(accession_ids)
-        self.df = self.biosample.df.join([self.sra.runs])
-        self.df.to_csv(self.csv)
+        self.joined = self.biosample.df.join(accession_ids).join(self.sra.runs)
+        self.joined.set_index("# assembly_accession", inplace=True)
+        self.joined.to_csv(self.csv)
+        return self.joined
