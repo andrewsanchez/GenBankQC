@@ -5,10 +5,12 @@ sra_ids=${metadata_dir}sra_ids.txt
 sra_ids_split=${metadata_dir}_sra_ids_*
 sra_runs=${metadata_dir}sra_runs.tsv
 
-if [ -e $sra_ids_split ]
-then
+for f in $sra_ids_split;
+do
     rm $sra_ids_split
-elif [ -e $sra_runs ]
+done
+
+if [ -e $sra_runs ]
 then
     rm $sra_runs
 fi
