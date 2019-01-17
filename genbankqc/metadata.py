@@ -48,7 +48,7 @@ class BioSample(object):
     outdir = attr.ib(converter=Path)
     email = attr.ib()
     sample = attr.ib(default=False)
-    read_existing = attr.ib(default=False)
+    update = attr.ib(default=True)
 
     attributes = [
         "BioSample",
@@ -83,7 +83,7 @@ class BioSample(object):
         self.paths = config.Paths(root=self.outdir)
         self.df = pd.DataFrame(index=["BioSample"], columns=self.attributes)
         self.data = [self.df]
-        if self.read_existing:
+        if not self.update:
             self.df = self.read()
 
     log = Logger("BioSample")
