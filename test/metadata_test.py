@@ -32,10 +32,9 @@ def biosample():
 
 
 def test_biosample(biosample):
-    biosample.with_runs()
+    biosample.generate()
     assert biosample.paths.raw.is_file()
     assert biosample.paths.sra_ids.is_file()
-    assert "# assembly_accession" in biosample.df.columns
 
 
 def test_Metadata(metadata):
