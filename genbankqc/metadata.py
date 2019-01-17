@@ -203,11 +203,23 @@ class Metadata:
     path = attr.ib(converter=Path)
     email = attr.ib()
     sample = attr.ib(default=False)
+    update = attr.ib(default=True)
 
     def __attrs_post_init__(self):
         self.csv = self.path / "metadata.csv"
+        if self.update:
+            self._update()
+        else:
+            self.biosample = BioSample(
+                email=self.email,
+                outdir=self.path,
+                sample=self.sample,
+                update=self.update,
+            )
+            self.sra = SRA(self.path)
+            self._join()
 
-    def update(self):
+    def _update(self):
         self.assembly_summary = AssemblySummary(self.path)
         self.biosample = BioSample(
             email=self.email, outdir=self.path, sample=self.sample
@@ -215,9 +227,9 @@ class Metadata:
         self.biosample.generate()
         subprocess.run(["bash", "./scripts/efetch_sra_runs.sh", f"{self.path}/"])
         self.sra = SRA(self.path)
-        return self.join_all()
+        self._join()
 
-    def join_all(self):
+    def _join(self):
         accession_ids = self.assembly_summary.df.reset_index()[
             ["biosample", "# assembly_accession"]
         ]
@@ -225,4 +237,3 @@ class Metadata:
         self.joined = self.biosample.df.join(accession_ids).join(self.sra.runs)
         self.joined.index.rename("biosample", inplace=True)
         self.joined.to_csv(self.csv)
-        return self.joined
