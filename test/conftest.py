@@ -58,6 +58,6 @@ def genbank():
 @pytest.fixture()
 def metadata():
     temp = tempfile.mkdtemp()
-    metadata = Metadata(temp, "inbox.asanchez@gmail.com")
+    metadata = Metadata(temp, "inbox.asanchez@gmail.com", sample=1000)
     yield metadata
     shutil.rmtree(temp)
