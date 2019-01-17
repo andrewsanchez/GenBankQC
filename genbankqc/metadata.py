@@ -223,6 +223,6 @@ class Metadata:
         ]
         accession_ids.set_index("biosample", inplace=True)
         self.joined = self.biosample.df.join(accession_ids).join(self.sra.runs)
-        self.joined.set_index("# assembly_accession", inplace=True)
+        self.joined.index.rename("biosample", inplace=True)
         self.joined.to_csv(self.csv)
         return self.joined
