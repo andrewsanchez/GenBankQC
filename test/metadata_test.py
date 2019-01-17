@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 import pandas as pd
-from genbankqc import AssemblySummary, BioSample, Metadata
+from genbankqc import AssemblySummary, BioSample
 
 
 def test_existing_assembly_summary():
@@ -35,21 +35,12 @@ def test_biosample(biosample):
     assert "# assembly_accession" in biosample.df.columns
 
 
-@pytest.fixture()
-def metadata():
-    temp = tempfile.mkdtemp()
-    metadata = Metadata(temp, "inbox.asanchez@gmail.com", sample=100)
-    yield metadata
-    shutil.rmtree(temp)
-
-
 def test_Metadata(metadata):
     metadata.update()
     assert metadata.biosample.paths.raw.is_file()
     assert metadata.biosample.paths.sra_ids.is_file()
     assert metadata.sra.paths.runs.is_file()
-    assert isinstance(metadata.sra.runs, pd.DataFrame)
     assert metadata.sra.id_files
-    metadata.join_all()
+    assert isinstance(metadata.sra.runs, pd.DataFrame)
     assert metadata.csv.is_file()
-    assert isinstance(metadata.df, pd.DataFrame)
+    assert isinstance(metadata.joined, pd.DataFrame)
