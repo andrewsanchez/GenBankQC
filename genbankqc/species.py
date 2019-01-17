@@ -533,7 +533,7 @@ class Species:
 
     def select_metadata(self, metadata):
         try:
-            self.metadata = metadata.joined.loc[self.accession_ids]
+            self.metadata = metadata.joined.loc[self.biosample_ids]
             self.metadata.to_csv(self.metadata_path)
             self.log.info("Metadata saved")
         except KeyError:
