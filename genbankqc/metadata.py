@@ -215,7 +215,7 @@ class Metadata:
         self.biosample.generate()
         subprocess.run(["bash", "./scripts/efetch_sra_runs.sh", f"{self.path}/"])
         self.sra = SRA(self.path)
-        self.join_all()
+        return self.join_all()
 
     def join_all(self):
         accession_ids = self.assembly_summary.df.reset_index()[
