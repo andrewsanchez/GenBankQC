@@ -39,7 +39,7 @@ def cli(ctx, path):
 @cli.command()
 @click.argument("path", type=click.Path())
 @click.argument("email")
-@click.option("--update/--no-update", "-U", default=True, help="Update metadata")
+@click.option("--update/--no-update", " /-U", default=True, help="Update metadata")
 def metadata(path, email, update):
     """Download assembly_summary.txt and BioSample metadata."""
     logbook.set_datetime_format("local")
