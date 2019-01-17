@@ -9,6 +9,7 @@ find $metadata_dir -name "*sra_ids*" -or -name "sra_runs.tsv" -delete
 
 # Get SRA runs for each ID
 split -l 5000 ${sra_ids} ${metadata_dir}_sra_ids_
+echo "Downloading runs for each SRA ID..."
 for f in $sra_ids_split;
 do epost -db sra -input $f -format acc | \
         efetch -format docsum | \
@@ -17,3 +18,4 @@ do epost -db sra -input $f -format acc | \
                -group Runs -sep ',' -element Runs/Run@acc \
                >> $sra_runs
 done
+echo "Finished downloading runs"
