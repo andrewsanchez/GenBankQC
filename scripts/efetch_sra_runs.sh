@@ -5,15 +5,7 @@ sra_ids=${metadata_dir}sra_ids.txt
 sra_ids_split=${metadata_dir}_sra_ids_*
 sra_runs=${metadata_dir}sra_runs.tsv
 
-for f in $sra_ids_split;
-do
-    rm $sra_ids_split
-done
-
-if [ -e $sra_runs ]
-then
-    rm $sra_runs
-fi
+find $metadata_dir -name "*sra_ids*" -or -name "sra_runs.tsv" -delete
 
 # Get SRA runs for each ID
 split -l 5000 ${sra_ids} ${metadata_dir}_sra_ids_
