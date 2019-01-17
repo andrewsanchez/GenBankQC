@@ -531,10 +531,10 @@ class Species:
         else:
             self.log.info("Not enough genomes.")
 
-    def metadata(self, metadata):
+    def select_metadata(self, metadata):
         try:
-            metadata = metadata.loc[self.biosample_ids]
-            metadata.to_csv(self.metadata_path)
+            self.metadata = metadata.joined.loc[self.accession_ids]
+            self.metadata.to_csv(self.metadata_path)
             self.log.info("Metadata saved")
         except KeyError:
-            self.log.info("Metadata failed")
+            self.log.exception()
