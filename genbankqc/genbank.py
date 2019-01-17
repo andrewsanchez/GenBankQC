@@ -4,7 +4,7 @@ from pathlib import Path
 import attr
 from logbook import Logger
 
-from genbankqc import config, Species, metadata
+from genbankqc import config, Species, Metadata, AssemblySummary
 
 taxdump_url = "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
 
@@ -66,21 +66,18 @@ class Genbank(object):
             d_local[id_].append(path)
 
         # Remove local files that aren't latest assembly versions
-        assumbly_summary = metadata.AssemblySummary(self.paths.metadata)
+        assumbly_summary = AssemblySummary(self.paths.metadata)
         previous_versions = set(d_local.keys()) - set(assumbly_summary.ids)
         for i in previous_versions:
             for f in d_local[i]:
                 f.unlink()
 
-    def biosample_metadata(self, email):
-        biosample = metadata.BioSample(self.paths.metadata, email=email)
-        biosample.with_runs()
+    def metadata(self, email, sample=False):
+        """Download and join all metadata and write out .csv for each species"""
+        metadata_ = Metadata(self.paths.metadata, email=email, sample=sample)
+        metadata_.update()
+        return metadata_
 
-    def species_metadata(self, email):
-        """Assumes existence of metadata files"""
-        biosample = metadata.BioSample(self.paths.metadata, email, read_existing=True)
-        runs = metadata.SRA(self.paths.metadata / "sra_runs.tsv")
-        all_metadata = biosample.df.join(runs.df)
-        assembly_summary = metadata.AssemblySummary(self.paths.metadata)
-        for species in self.species(assembly_summary):
-            species.metadata(all_metadata)
+    def species_metadata(self, metadata):
+        for species in self.species(metadata.assembly_summary):
+            species.select_metadata(metadata)
