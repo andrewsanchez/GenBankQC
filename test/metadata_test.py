@@ -13,7 +13,10 @@ def test_existing_assembly_summary():
     assert isinstance(summary.df, pd.DataFrame)
 
 
-@pytest.mark.xfail("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true")
+@pytest.mark.xfail(
+    "TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
+    reason="Fails on Travis for unknown reason.",
+)
 def test_download_assembly_summary():
     summary = AssemblySummary(tempfile.mkdtemp())
     assert os.path.isfile(summary.file_.as_posix())
