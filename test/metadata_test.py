@@ -32,7 +32,6 @@ def test_biosample(biosample):
     biosample.with_runs()
     assert biosample.paths.raw.is_file()
     assert biosample.paths.sra_ids.is_file()
-    # Needs to be tested in with_runs()
     assert "# assembly_accession" in biosample.df.columns
 
 
