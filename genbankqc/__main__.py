@@ -39,16 +39,16 @@ def cli(ctx, path):
 @cli.command()
 @click.argument("path", type=click.Path())
 @click.argument("email")
-@click.option(
-    "--species",
-    is_flag=True,
-    default=False,
-    help="Write metadata files to disk for all species",
-)
-def metadata(path, email, species):
+@click.option("--update/--no-update", "-U", default=True, help="Update metadata")
+def metadata(path, email, update):
     """Download assembly_summary.txt and BioSample metadata."""
+    logbook.set_datetime_format("local")
+    handler = logbook.TimedRotatingFileHandler(
+        os.path.join(path, ".logs", "metadata.log"), backup_count=10
+    )
+    handler.push_application()
     genbank = Genbank(path)
-    metadata = genbank.metadata(email=email)
+    metadata = genbank.metadata(email=email, update=update)
     genbank.species_metadata(metadata)
 
 
