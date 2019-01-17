@@ -5,8 +5,13 @@ sra_ids=${metadata_dir}sra_ids.txt
 sra_ids_split=${metadata_dir}_sra_ids_*
 sra_runs=${metadata_dir}sra_runs.tsv
 
-rm $sra_ids_split
-rm $sra_runs
+if [ -e $sra_ids_split ]
+then
+    rm $sra_ids_split
+elif [ -e $sra_runs ]
+then
+    rm $sra_runs
+fi
 
 # Get SRA runs for each ID
 split -l 5000 ${sra_ids} ${metadata_dir}_sra_ids_
