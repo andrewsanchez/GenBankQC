@@ -10,7 +10,7 @@ def test_cli_noargs():
     assert result.exit_code == 0
 
 
-def test_cli_nosubcommand(genbank):
+def test_cli_no_subcommand(genbank):
     runner = CliRunner()
     result = runner.invoke(cli, [genbank.root.as_posix()])
     assert result.exit_code == 0
