@@ -38,7 +38,6 @@ def test_biosample(biosample):
 
 
 def test_Metadata(metadata):
-    metadata.update()
     assert metadata.biosample.paths.raw.is_file()
     assert metadata.biosample.paths.sra_ids.is_file()
     assert metadata.sra.paths.runs.is_file()
