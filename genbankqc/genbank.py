@@ -72,10 +72,11 @@ class Genbank(object):
             for f in d_local[i]:
                 f.unlink()
 
-    def metadata(self, email, sample=False):
+    def metadata(self, email, sample=False, update=True):
         """Download and join all metadata and write out .csv for each species"""
-        metadata_ = Metadata(self.paths.metadata, email=email, sample=sample)
-        metadata_.update()
+        metadata_ = Metadata(
+            self.paths.metadata, email=email, sample=sample, update=update
+        )
         return metadata_
 
     def species_metadata(self, metadata):
