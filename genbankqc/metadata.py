@@ -210,6 +210,7 @@ class Metadata:
         if self.update:
             self._update()
         else:
+            self.assembly_summary = AssemblySummary(self.path, self.update)
             self.biosample = BioSample(
                 email=self.email,
                 outdir=self.path,
