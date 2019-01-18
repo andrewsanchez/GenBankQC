@@ -9,7 +9,7 @@ from genbankqc import AssemblySummary, BioSample
 
 
 def test_existing_assembly_summary():
-    summary = AssemblySummary("test/resources/metadata", read=True)
+    summary = AssemblySummary("test/resources/metadata", update=False)
     assert isinstance(summary.df, pd.DataFrame)
 
 
