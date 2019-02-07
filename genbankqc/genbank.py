@@ -18,20 +18,22 @@ class Genbank(object):
         self.paths = config.Paths(root=self.root, subdirs=["metadata", ".logs"])
 
     def info(self):
-        import os
-
-        patterns = ["dmx.csv", "tree.svg", "stats.csv"]
+        patterns = ["*/*/dmx.csv", "*/*/*/tree.svg", "*/*/stats.csv"]
         info = []
         for pattern in patterns:
+            import pdb; pdb.set_trace()
             files = self.root.glob(pattern)
-            count, empty = 0, 0
+            count = 0
+            empty_files = []
             for file_ in files:
                 count += 1
-                if not os.stat(file_).st_size:
-                    empty += 1
-            info.append(f"{pattern}:")
+                if not file_.stat().st_size:
+                    empty_files.append(file_.name)
+            info.append(f"{pattern.split('/')[-1]}:")
             info.append(f"{count:>8} existing files")
-            info.append(f"{empty:>8} empty files")
+            info.append(f"{len(empty_files):>8} empty files")
+            for empty in empty_files:
+                info.append(f"Empty:  {empty:>8}")
         return "\n".join(info)
 
     @property
