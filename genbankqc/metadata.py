@@ -29,7 +29,6 @@ class AssemblySummary(object):
 
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
     def _update(self):
-        print(f"Downloading {self.url}")
         df = pd.read_csv(self.url, sep="\t", index_col=0, skiprows=1)
         df.to_csv(self.file_, sep="\t")
         return df
