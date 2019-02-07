@@ -13,9 +13,9 @@ def test_existing_assembly_summary():
     assert isinstance(summary.df, pd.DataFrame)
 
 
-@pytest.mark.xfail(
+@pytest.mark.skipif(
     "TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
-    reason="Fails on Travis for unknown reason.",
+    reason="Reading data into pandas directly from URL fails",
 )
 def test_download_assembly_summary():
     summary = AssemblySummary(tempfile.mkdtemp())
@@ -31,15 +31,19 @@ def biosample():
     shutil.rmtree(temp)
 
 
+@pytest.mark.skipif(
+    "TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
+    reason="Reading data into pandas directly from URL fails",
+)
 def test_biosample(biosample):
     biosample.generate()
     assert biosample.paths.raw.is_file()
     assert biosample.paths.sra_ids.is_file()
 
 
-@pytest.mark.xfail(
+@pytest.mark.skipif(
     "TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
-    reason="Fails on Travis for unknown reason.",
+    reason="Reading data into pandas directly from URL fails",
 )
 def test_Metadata(metadata):
     assert metadata.biosample.paths.raw.is_file()
