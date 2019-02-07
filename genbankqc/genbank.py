@@ -21,7 +21,6 @@ class Genbank(object):
         patterns = ["*/*/dmx.csv", "*/*/*/tree.svg", "*/*/stats.csv"]
         info = []
         for pattern in patterns:
-            import pdb; pdb.set_trace()
             files = self.root.glob(pattern)
             count = 0
             empty_files = []
@@ -68,8 +67,7 @@ class Genbank(object):
         p_id = re.compile("GCA_[0-9]*.[0-9]")  # patterns for matching accession IDs
         p_glob = "GCA_[0-9]*.[0-9]_*[fasta|msh|csv]"
 
-        # IDs and associated files
-        d_local = {}
+        d_local = {}  # IDs and associated files
 
         def glob_local():
             """Yield all files that match `p_glob`"""
