@@ -148,7 +148,6 @@ class Species:
 
     @property
     def genome_paths(self, ext="fasta"):
-        # Why doesn't this work when importing at top of file?
         """Returns a generator for every file ending with `ext`
 
         :param ext: File extension of genomes in species directory
@@ -160,16 +159,6 @@ class Species:
             for genome in os.listdir(self.path)
             if genome.endswith(ext)
         ]
-
-    # @property
-    # def genomes(self):
-    #     """Returns a generator for every file ending with `ext`
-
-    #     :param ext: File extension of genomes in species directory
-    #     :returns: Generator of Genome objects for all genomes in species dir
-    #     :rtype: generator
-    #     """
-    #     return (Genome(genome, self.assembly_summary) for genome in self.genome_paths)
 
     @property
     def total_genomes(self):
