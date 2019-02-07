@@ -203,7 +203,8 @@ class Species:
         if not os.path.isfile(self.paste_file):
             self.log.error("MASH paste failed")
             self.paste_file = None
-        self.log.info("MASH paste completed")
+        else:
+            self.log.info("MASH paste completed")
 
     def mash_dist(self):
         from multiprocessing import cpu_count
