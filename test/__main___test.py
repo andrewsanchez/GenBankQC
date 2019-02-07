@@ -1,3 +1,6 @@
+import os
+
+import pytest
 from click.testing import CliRunner
 
 from genbankqc.__main__ import cli
@@ -5,11 +8,14 @@ from genbankqc.__main__ import cli
 
 def test_cli_noargs():
     runner = CliRunner()
-    # Should only display help
-    result = runner.invoke(cli)
+    result = runner.invoke(cli)  # Should only display help
     assert result.exit_code == 0
 
 
+@pytest.mark.skipif(
+    "TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
+    reason="Fails because the prune function downloads the assembly summary",
+)
 def test_cli_no_subcommand(genbank):
     runner = CliRunner()
     result = runner.invoke(cli, [genbank.root.as_posix()])
