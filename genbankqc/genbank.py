@@ -17,6 +17,23 @@ class Genbank(object):
     def __attrs_post_init__(self):
         self.paths = config.Paths(root=self.root, subdirs=["metadata", ".logs"])
 
+    def info(self):
+        import os
+
+        patterns = ["dmx.csv", "tree.svg", "stats.csv"]
+        info = []
+        for pattern in patterns:
+            files = self.root.glob(pattern)
+            count, empty = 0, 0
+            for file_ in files:
+                count += 1
+                if not os.stat(file_).st_size:
+                    empty += 1
+            info.append(f"{pattern}:")
+            info.append(f"{count:>8} existing files")
+            info.append(f"{empty:>8} empty files")
+        return "\n".join(info)
+
     @property
     def species_directories(self):
         """Generator of `Path` objects for directories under `self.root`.

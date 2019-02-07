@@ -115,6 +115,16 @@ def genome(path, metadata):
 
 
 @cli.command()
+@click.argument("path", type=click.Path(exists=True, file_okay=False))
+def info(path):
+    """Print basic info about existing GenBank database.
+    """
+    genbank = Genbank(path)
+    info = genbank.info()
+    click.echo(info)
+
+
+@cli.command()
 @click.pass_obj
 @click.argument("path", type=click.Path(exists=True, dir_okay=False))
 def log_stats(ctx, path):
