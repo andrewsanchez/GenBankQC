@@ -116,7 +116,7 @@ class Genome:
         )
         # Make efetch timeout and retry after 30 seconds
         time_limit = 30
-        if self.metadata[db_id] is not "missing":
+        if self.metadata[db_id] != "missing":
             try:
                 p = subprocess.run(
                     cmd,
