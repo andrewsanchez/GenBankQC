@@ -71,6 +71,7 @@ class Genbank(object):
         for i in previous_versions:
             for f in d_local[i]:
                 f.unlink()
+                self.log.info(f"Removed {f}")
 
     def metadata(self, email, sample=False, update=True):
         """Download and join all metadata and write out .csv for each species"""
