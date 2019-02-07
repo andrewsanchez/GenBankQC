@@ -46,8 +46,7 @@ class Genbank(object):
 
     def prune(self):
         """Prune all files that aren't latest assembly versions."""
-        # patterns for matching accession IDs
-        p_id = re.compile("GCA_[0-9]*.[0-9]")
+        p_id = re.compile("GCA_[0-9]*.[0-9]")  # patterns for matching accession IDs
         p_glob = "GCA_[0-9]*.[0-9]_*[fasta|msh|csv]"
 
         # IDs and associated files
