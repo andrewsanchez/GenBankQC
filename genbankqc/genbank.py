@@ -18,7 +18,14 @@ class Genbank(object):
         self.paths = config.Paths(root=self.root, subdirs=["metadata", ".logs"])
 
     def info(self):
-        patterns = ["*/*/dmx.csv", "*/*/*/tree.svg", "*/*/stats.csv"]
+        patterns = [
+            "*/*.fasta",
+            "*/*/GCA*.msh",
+            "*/*/GCA*.csv",
+            "*/*/dmx.csv",
+            "*/*/*/tree.svg",
+            "*/*/stats.csv",
+        ]
         info = []
         for pattern in patterns:
             files = self.root.glob(pattern)
