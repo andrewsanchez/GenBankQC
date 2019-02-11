@@ -75,9 +75,8 @@ class Species:
         if os.path.isfile(self.dmx_path):
             try:
                 self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
-                self.log.info("Distance matrix read succesfully")
             except pd.errors.EmptyDataError:
-                self.log.exception()
+                self.log.exception("Failed to read distance matrix")
         self.metadata_path = os.path.join(
             self.qc_dir, "{}_metadata.csv".format(self.name)
         )
@@ -142,7 +141,6 @@ class Species:
                 == sorted(self.genome_ids.tolist())
             )
             self.tree_complete = True
-            self.log.info("Tree already complete")
         except AssertionError:
             self.tree_complete = False
 
@@ -192,8 +190,6 @@ class Species:
         if not os.path.isfile(self.paste_file):
             self.log.error("MASH paste failed")
             self.paste_file = None
-        else:
-            self.log.info("MASH paste completed")
 
     def mash_dist(self):
         from multiprocessing import cpu_count
@@ -203,26 +199,25 @@ class Species:
             ncpus, self.paste_file, self.paste_file, self.dmx_path
         )
         Popen(cmd, shell="True", stderr=DEVNULL).wait()
-        self.log.info("MASH distance completed")
         self.dmx = pd.read_csv(self.dmx_path, index_col=0, sep="\t")
         # Make distance matrix more readable
         names = [os.path.splitext(i)[0].split("/")[-1] for i in self.dmx.index]
         self.dmx.index = names
         self.dmx.columns = names
         self.dmx.to_csv(self.dmx_path, sep="\t")
-        self.log.info("dmx.csv created")
 
     def mash_sketch(self):
         """Sketch all genomes"""
         with ProcessingPool() as pool:
-            self.log.info("{} cpus in pool".format(pool.ncpus))
             pool.map(genome.sketch_genome, self.genome_paths)
-        self.log.info("All genomes sketched")
 
     def run_mash(self):
         self.mash_sketch()
         self.mash_paste()
-        self.mash_dist()
+        try:
+            self.mash_dist()
+        except Exception:
+            self.log.exception("mash dist failed")
 
     def get_tree(self):
         # Use decorator instead of if statement
@@ -244,8 +239,8 @@ class Species:
             try:
                 # midpoint root tree
                 self.tree.set_outgroup(self.tree.get_midpoint_outgroup())
-            except TreeError as e:
-                self.log.exception(e)
+            except TreeError:
+                self.log.exception("Unable to midpoint root tree")
             self.tree.write(outfile=self.nw_path)
 
     def get_stats(self):
@@ -256,7 +251,6 @@ class Species:
             results = pool.map(genome.mp_stats, self.genome_paths, dmx_mean)
         self.stats = pd.concat(results)
         self.stats.to_csv(self.stats_path)
-        self.log.info("Generated stats and wrote to disk")
 
     def MAD(self, df, col):
         """Get the median absolute deviation for col"""
@@ -279,7 +273,6 @@ class Species:
             self.stats["unknowns"] > self.tolerance["unknowns"]
         ]
         self.passed = self.stats.drop(self.failed["unknowns"])
-        self.log.info("Analyzed unknowns")
 
     def check_passed_count(f):
         """
@@ -327,7 +320,6 @@ class Species:
         eligible_contigs = pd.concat([eligible_contigs, not_enough_contigs])
         eligible_contigs = eligible_contigs.index
         self.passed = self.passed.loc[eligible_contigs]
-        self.log.info("Analyzed contigs")
 
     @check_passed_count
     def filter_MAD_range(self, criteria):
@@ -349,7 +341,6 @@ class Species:
         self.passed = self.passed[
             abs(self.passed[criteria] - self.passed[criteria].median()) <= dev_ref
         ]
-        self.log.info("Filtered based on median absolute deviation range")
 
     @check_passed_count
     def filter_MAD_upper(self, criteria):
@@ -365,7 +356,6 @@ class Species:
         self.passed = self.passed[self.passed[criteria] <= upper]
         upper = "{:.4f}".format(upper)
         self.allowed[criteria] = upper
-        self.log.info("Filtered based on MAD upper bound")
 
     def base_node_style(self):
         from ete3 import NodeStyle, AttrFace
@@ -381,7 +371,6 @@ class Species:
                 nf.margin_right = 150
                 nf.margin_left = 3
                 n.add_face(nf, column=0)
-        self.log.info("Applied base node style")
 
     # Might be better in a layout function
     def style_and_render_tree(self, file_types=["svg"]):
@@ -425,7 +414,6 @@ class Species:
         for f in file_types:
             out_tree = os.path.join(self.qc_results_dir, "tree.{}".format(f))
             self.tree.render(out_tree, tree_style=ts)
-            self.log.info("tree.{} generated".format(f))
 
     def color_tree(self):
         from ete3 import NodeStyle
@@ -448,7 +436,6 @@ class Species:
         self.filter_MAD_upper("distance")
         with open(self.allowed_path, "wb") as p:
             pickle.dump(self.allowed, p)
-            self.log.info("Pickled results of filtering")
         self.summary()
         self.write_failed_report()
 
@@ -463,7 +450,6 @@ class Species:
             if type(self.failed[criteria]) == pd.Index:
                 self.failed_report.loc[self.failed[criteria], "criteria"] = criteria
         self.failed_report.to_csv(self.failed_path)
-        self.log.info("Wrote failed report")
 
     def summary(self):
         summary = [
@@ -506,7 +492,6 @@ class Species:
                 os.link(src, dst)
             except FileExistsError:
                 pass
-        self.log.info("Links created for genomes that passed QC")
 
     @assess
     def qc(self):
@@ -517,14 +502,11 @@ class Species:
             self.link_genomes()
             self.get_tree()
             self.color_tree()
-            self.log.info("qc command completed")
-        else:
-            self.log.info("Not enough genomes.")
+            self.log.info("QC completed")
 
     def select_metadata(self, metadata):
         try:
             self.metadata = metadata.joined.loc[self.biosample_ids]
             self.metadata.to_csv(self.metadata_path)
-            self.log.info("Metadata saved")
         except KeyError:
-            self.log.exception()
+            self.log.exception("Metadata failed")
