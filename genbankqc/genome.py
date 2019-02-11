@@ -38,16 +38,14 @@ class Genome:
         except AttributeError:
             # Raise custom exception
             self.accession_id = "missing"
-            self.log.error("Invalid accession ID")
-            self.log.exception()
+            self.log.exception("Invalid accession ID")
         # Don't do this here
         if isinstance(self.assembly_summary, pd.DataFrame):
             try:
                 biosample = assembly_summary.loc[self.accession_id].biosample
                 self.metadata["biosample_id"] = biosample
             except (AttributeError, KeyError):
-                self.log.info("Unable to get biosample ID")
-        self.log.info("Instantiated")
+                self.log.exception("Unable to get biosample ID")
 
     def get_contigs(self):
         """
@@ -57,7 +55,6 @@ class Genome:
         try:
             self.contigs = [seq.seq for seq in SeqIO.parse(self.path, "fasta")]
             self.count_contigs = len(self.contigs)
-            self.log.info("Contigs: {}".format(self.count_contigs))
         except UnicodeDecodeError:
             self.log.exception()
 
@@ -65,26 +62,22 @@ class Genome:
         """Calculate the sum of all contig lengths"""
         # TODO: map or reduce might be more elegant here
         self.assembly_size = sum((len(str(seq)) for seq in self.contigs))
-        self.log.info("Assembly Size: {}".format(self.assembly_size))
 
     def get_unknowns(self):
         """Count the number of unknown bases, i.e. not [ATCG]"""
         # TODO: Would it be useful to allow the user to define p?
         p = re.compile("[^ATCG]")
         self.unknowns = sum((len(re.findall(p, str(seq))) for seq in self.contigs))
-        self.log.info("Unknowns: {}".format(self.unknowns))
 
     def get_distance(self, dmx_mean):
         self.distance = dmx_mean.loc[self.name]
-        self.log.info("Distance: {}".format(self.distance))
 
     def sketch(self):
         cmd = "mash sketch '{}' -o '{}'".format(self.path, self.msh)
         if os.path.isfile(self.msh):
-            self.log.info("Sketch file already exists")
+            pass
         else:
             subprocess.Popen(cmd, shell="True", stderr=subprocess.DEVNULL).wait()
-            self.log.info("Sketch file created")
 
     def get_stats(self, dmx_mean):
         if not os.path.isfile(self.stats_path):
@@ -100,7 +93,6 @@ class Genome:
             }
             self.stats = pd.DataFrame(data, index=[self.name])
             self.stats.to_csv(self.stats_path)
-            self.log.info("Generated stats and wrote to disk")
 
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
     def efetch(self, db):
@@ -127,13 +119,11 @@ class Genome:
                 )
                 xml = p.stdout
                 self.xml[db] = xml
-                self.log.info("{} XML downloaded".format(db))
             except subprocess.TimeoutExpired:
                 self.log.error("Retrying efetch after timeout")
                 raise subprocess.TimeoutExpired(cmd, time_limit)
             except Exception:
-                self.log.error(db)
-                self.log.exception()
+                self.log.exception(db)
 
     def parse_biosample(self):
         """
@@ -170,7 +160,6 @@ class Genome:
         try:
             tree = ET.fromstring(self.xml["biosample"])
             sra = tree.find('DocumentSummary/SampleData/BioSample/Ids/Id/[@db="SRA"]')
-            self.log.info("Parsed biosample XML")
             try:
                 self.metadata["sra_id"] = sra.text
             except AttributeError:
@@ -185,15 +174,13 @@ class Genome:
                     self.metadata[name] = attrib.text
                 except AttributeError:
                     self.metadata[name] = "missing"
-
         except ParseError:
-            self.log.error("Parse error for biosample XML")
+            self.log.exception()
 
     def parse_sra(self):
         try:
             tree = ET.fromstring(self.xml["sra"])
             elements = tree.iterfind("DocumentSummary/Runs/Run/[@acc]")
-            self.log.info("Parsed SRA XML")
             srr_accessions = []
             for el in elements:
                 items = el.items()
@@ -202,7 +189,7 @@ class Genome:
                 srr_accessions.append(acc)
             self.metadata["srr_accessions"] = ",".join(srr_accessions)
         except ParseError:
-            self.log.error("Parse error for SRA XML")
+            self.log.exception("Parse error for SRA XML")
 
     def get_metadata(self):
         self.efetch("biosample")
