@@ -114,15 +114,13 @@ class Species:
         return "\n".join(self.message)
 
     def assess(f):
-        # TODO: This can have a more general application if the pickling
-        # functionality is implemented elsewhere
         @functools.wraps(f)
         def wrapper(self):
             try:
-                assert os.path.isfile(self.allowed_path)
                 assert sorted(self.genome_ids.tolist()) == sorted(
                     self.stats.index.tolist()
                 )
+                assert os.path.isfile(self.allowed_path)
                 self.log.info("Already complete")
             except AssertionError:
                 f(self)
