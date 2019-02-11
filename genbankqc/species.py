@@ -59,7 +59,7 @@ class Species:
         self.dmx_path = os.path.join(self.qc_dir, "dmx.csv")
         self.failed_path = os.path.join(self.qc_results_dir, "failed.csv")
         self.tree_img = os.path.join(self.qc_results_dir, "tree.svg")
-        self.summary_path = os.path.join(self.qc_results_dir, "summary.txt")
+        self.summary_path = os.path.join(self.qc_results_dir, "qc_summary.txt")
         self.allowed_path = os.path.join(self.qc_results_dir, "allowed.p")
         self.paste_file = os.path.join(self.qc_dir, "all.msh")
         # Figure out if defining these as None is necessary
