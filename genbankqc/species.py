@@ -101,7 +101,6 @@ class Species:
         self.genomes = [
             genome.Genome(path, self.assembly_summary) for path in self.genome_paths
         ]
-        self.assess_tree()
 
     def __str__(self):
         self.message = [
@@ -130,19 +129,17 @@ class Species:
 
         return wrapper
 
-    def assess_tree(self):
+    def tree_complete(self):
         try:
-            assert self.tree is not None
-            assert self.stats is not None
             leaf_names = [re.sub(".fasta", "", i) for i in self.tree.get_leaf_names()]
             assert (
                 sorted(leaf_names)
                 == sorted(self.stats.index.tolist())
                 == sorted(self.genome_ids.tolist())
             )
-            self.tree_complete = True
+            return True
         except AssertionError:
-            self.tree_complete = False
+            return False
 
     @property
     def genome_paths(self, ext="fasta"):
@@ -220,13 +217,9 @@ class Species:
             self.log.exception("mash dist failed")
 
     def get_tree(self):
-        # Use decorator instead of if statement
-        if self.tree_complete is False:
+        if not self.tree_complete():
             from ete3.coretype.tree import TreeError
             import numpy as np
-
-            # import matplotlib as mpl
-            # mpl.use('TkAgg')
             from skbio.tree import TreeNode
             from scipy.cluster.hierarchy import weighted
 
