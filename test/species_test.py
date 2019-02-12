@@ -3,6 +3,7 @@ import pytest
 import shutil
 import tempfile
 
+from ete3 import Tree
 import pandas as pd
 from pandas.util.testing import assert_index_equal
 
@@ -64,7 +65,6 @@ def aphidicola_multi(request):
 
 
 def test_init(aphidicola_multi):
-    from ete3 import Tree
 
     params, aphidicola = aphidicola_multi
     a, b, c, d = params
@@ -113,12 +113,8 @@ def test_genome_ids(aphidicola):
 
 
 def test_sketches(aphidicola):
-    from os.path import basename
-
-    aphidicola_sketches = aphidicola.sketches()
-    for i in aphidicola_sketches:
-        assert isinstance(i, str)
-        assert basename(i).replace(".msh", "") in aphidicola.genome_ids
+    for i in aphidicola.sketches:
+        assert os.path.basename(i).replace(".msh", "") in aphidicola.genome_ids
 
 
 def test_filter(aphidicola):
@@ -174,8 +170,7 @@ class TestBare:
         assert os.path.isfile(aphidicola.paste_file)
         assert os.path.isfile(aphidicola.dmx_path)
         assert type(aphidicola.dmx) == pd.DataFrame
-        aphidicola_sketches = aphidicola.sketches()
-        for i in aphidicola_sketches:
+        for i in aphidicola.sketches:
             assert i is not None
             assert os.path.isfile(i)
 
@@ -186,7 +181,6 @@ class TestBare:
         assert type(aphidicola.stats) == pd.DataFrame
 
     def test_get_tree(self, species_bare):
-        from ete3 import Tree
 
         aphidicola = species_bare
         aphidicola.get_tree()
