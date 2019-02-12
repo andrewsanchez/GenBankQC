@@ -89,7 +89,7 @@ def test_init(aphidicola_multi):
     assert aphidicola.tolerance["distance"] == d
     assert aphidicola.label == "{}-{}-{}-{}".format(a, b, c, d)
     assert id(aphidicola.stats) == id(aphidicola.passed)
-    assert aphidicola.tree_complete is True
+    assert aphidicola.tree_complete() is True
 
 
 @pytest.fixture(scope="module")
