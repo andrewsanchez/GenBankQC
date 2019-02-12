@@ -122,7 +122,7 @@ class Species:
                 )
                 assert os.path.isfile(self.allowed_path)
                 self.log.info("Already complete")
-            except AssertionError:
+            except (AttributeError, AssertionError):
                 f(self)
 
         return wrapper
@@ -242,7 +242,7 @@ class Species:
                 # midpoint root tree
                 self.tree.set_outgroup(self.tree.get_midpoint_outgroup())
             except TreeError:
-                self.log.exception("Unable to midpoint root tree")
+                self.log.error("Unable to midpoint root tree")
             self.tree.write(outfile=self.nw_path)
 
     @property
@@ -293,7 +293,7 @@ class Species:
             else:
                 self.allowed[args[0]] = ""
                 self.failed[args[0]] = ""
-                self.log.info("Stopped filtering after {}".format(f.__name__))
+                self.log.info("Not filtering based on {}".format(f.__name__))
 
         return wrapper
 
@@ -484,7 +484,6 @@ class Species:
         summary = "\n".join(summary)
         with open(os.path.join(self.summary_path), "w") as f:
             f.write(summary)
-            self.log.info("Wrote QC summary")
         return summary
 
     def link_genomes(self):
@@ -522,7 +521,7 @@ class Species:
             self.log.info(f"{self.total_sketches} total sketch .msh files")
             self.log.info(f"{len(list(self.stats_files))} total stats .csv files")
         try:
-            assert Path(self.dmx).stat().st_size  # Check if dmx is empty
+            assert Path(self.dmx_path).stat().st_size  # Check if dmx is empty
         except AssertionError:
             self.log.error("Distance matrix is empty")
         try:
