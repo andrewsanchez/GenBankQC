@@ -508,7 +508,27 @@ class Species:
             self.link_genomes()
             self.get_tree()
             self.color_tree()
-            self.log.info("QC completed")
+            self.log.info("QC finished")
+            self.report()
+
+    def report(self):
+        try:
+            assert (
+                self.total_genomes == self.total_sketches == len(list(self.stats_files))
+            )
+        except AssertionError:
+            self.log.error("File counts do not match up.")
+            self.log.info(f"{self.total_genomes} total .fasta files")
+            self.log.info(f"{self.total_sketches} total sketch .msh files")
+            self.log.info(f"{len(list(self.stats_files))} total stats .csv files")
+        try:
+            assert Path(self.dmx).stat().st_size  # Check if dmx is empty
+        except AssertionError:
+            self.log.error("Distance matrix is empty")
+        try:
+            assert Path(self.passed_dir).iterdir()
+        except AssertionError:
+            self.log.error("Passed directory is empty")
 
     def select_metadata(self, metadata):
         try:
