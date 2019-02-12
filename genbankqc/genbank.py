@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 
 import attr
-from logbook import Logger
+import logbook
 
 from genbankqc import config, Species, Metadata, AssemblySummary
 
@@ -11,7 +11,7 @@ taxdump_url = "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
 
 @attr.s
 class Genbank(object):
-    log = Logger("GenBank")
+    log = logbook.Logger("GenBank")
     root = attr.ib(default=Path(), converter=Path)
 
     def __attrs_post_init__(self):
@@ -39,6 +39,7 @@ class Genbank(object):
             info.append(f"{count:>8} existing files")
             info.append(f"{len(empty_files):>8} empty files")
             for empty in empty_files:
+
                 info.append(f"Empty:  {empty:>8}")
         return "\n".join(info)
 
@@ -62,6 +63,11 @@ class Genbank(object):
     def qc(self):
         self.prune()
         for species in self.species():
+            logbook.set_datetime_format("local")
+            handler = logbook.TimedRotatingFileHandler(
+                Path(species.path, ".logs", "qc.log"), backup_count=10
+            )
+            handler.push_application()
             try:
                 species.qc()
             except Exception:
@@ -71,7 +77,6 @@ class Genbank(object):
         """Prune all files that aren't latest assembly versions."""
         p_id = re.compile("GCA_[0-9]*.[0-9]")  # patterns for matching accession IDs
         p_glob = "GCA_[0-9]*.[0-9]_*[fasta|msh|csv]"
-
         d_local = {}  # IDs and associated files
 
         def glob_local():

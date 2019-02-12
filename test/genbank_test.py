@@ -23,6 +23,10 @@ def test_genbank_init(genbank):
         assert isinstance(i, Species)
 
 
+# def test_qc(genbank):
+#     genbank.qc()
+
+
 @pytest.mark.skip(reason="Fails because our test genomes aren't in first 1000k samples")
 def test_species_metadata(genbank):
     metadata = genbank.metadata(email="inbox.asanchez@gmail.com", sample=1000)
