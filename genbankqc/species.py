@@ -491,7 +491,7 @@ class Species:
             try:
                 os.link(src, dst)
             except FileExistsError:
-                pass
+                continue
 
     @assess
     def qc(self):
