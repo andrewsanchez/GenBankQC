@@ -136,7 +136,7 @@ class Species:
                 == sorted(self.genome_ids.tolist())
             )
             return True
-        except AssertionError:
+        except (AssertionError, AttributeError):
             return False
 
     @property
