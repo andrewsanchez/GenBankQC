@@ -157,8 +157,13 @@ class Species:
     def total_genomes(self):
         return len(list(self.genomes))
 
+    @property
     def sketches(self):
-        return (i.msh for i in self.genomes)
+        return Path(self.qc_dir).glob("GCA*msh")
+
+    @property
+    def total_sketches(self):
+        return len(list(self.sketches))
 
     @property
     def genome_ids(self):
@@ -233,6 +238,10 @@ class Species:
             except TreeError:
                 self.log.exception("Unable to midpoint root tree")
             self.tree.write(outfile=self.nw_path)
+
+    @property
+    def stats_files(self):
+        return Path(self.qc_dir).glob("GCA*csv")
 
     def get_stats(self):
         """Get stats for all genomes. Concat the results into a DataFrame"""
