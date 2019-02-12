@@ -193,7 +193,6 @@ class TestBare:
         assert type(aphidicola.tree) == Tree
         assert os.path.isfile(aphidicola.nw_path)
         os.remove(aphidicola.nw_path)
-        aphidicola.assess_tree()
         aphidicola.get_tree()
         assert not os.path.isfile(aphidicola.nw_path)
         assert type(aphidicola.tree) == Tree
