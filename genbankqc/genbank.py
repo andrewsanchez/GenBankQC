@@ -51,7 +51,6 @@ class Genbank(object):
                 continue
             dir_ = item.absolute()
             if len(list(dir_.glob("*fasta"))) < 10:
-                self.log.info("Not enough FASTAs in {}".format(dir_))
                 continue
             yield dir_
 
@@ -66,8 +65,7 @@ class Genbank(object):
             try:
                 species.qc()
             except Exception:
-                self.log.error(f"qc command failed for {species.name}")
-                self.log.exception()
+                self.log.exception(f"qc command failed for {species.name}")
 
     def prune(self):
         """Prune all files that aren't latest assembly versions."""
