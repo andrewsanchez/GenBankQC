@@ -24,7 +24,6 @@ class Genome:
         self.name = os.path.splitext(self.fasta)[0]
         self.log = Logger(self.name)
         self.qc_dir = os.path.join(self.species_dir, "qc")
-        self.msh = os.path.join(self.qc_dir, self.name + ".msh")
         self.stats_path = os.path.join(self.qc_dir, self.name + ".csv")
         # Don't do this here
         if os.path.isfile(self.stats_path):
@@ -73,6 +72,7 @@ class Genome:
         self.distance = dmx_mean.loc[self.name]
 
     def sketch(self):
+        self.msh = os.path.join(self.qc_dir, self.name + ".msh")
         cmd = "mash sketch '{}' -o '{}'".format(self.path, self.msh)
         if os.path.isfile(self.msh):
             pass
