@@ -212,8 +212,14 @@ class Species:
             pool.map(genome.sketch_genome, self.genome_paths)
 
     def run_mash(self):
-        self.mash_sketch()
-        self.mash_paste()
+        try:
+            self.mash_sketch()
+        except Exception:
+            self.log.exception("mash sketch failed")
+        try:
+            self.mash_paste()
+        except Exception:
+            self.log.exception("mash paste failed")
         try:
             self.mash_dist()
         except Exception:
