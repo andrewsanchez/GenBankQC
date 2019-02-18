@@ -24,10 +24,8 @@ class Genome:
         self.name = os.path.splitext(self.fasta)[0]
         self.log = Logger(self.name)
         self.qc_dir = os.path.join(self.species_dir, "qc")
-        self.stats_path = os.path.join(self.qc_dir, self.name + ".csv")
-        # Don't do this here
-        if os.path.isfile(self.stats_path):
-            self.stats = pd.read_csv(self.stats_path, index_col=0)
+        self.stats_file = os.path.join(self.qc_dir, self.name + ".csv")
+        self.sketch_file = os.path.join(self.qc_dir, self.name + ".msh")
         self.assembly_summary = assembly_summary
         self.metadata = defaultdict(lambda: "missing")
         self.xml = defaultdict(lambda: "missing")
@@ -80,7 +78,7 @@ class Genome:
             subprocess.Popen(cmd, shell="True", stderr=subprocess.DEVNULL).wait()
 
     def get_stats(self, dmx_mean):
-        if not os.path.isfile(self.stats_path):
+        if not os.path.isfile(self.stats_file):
             self.get_contigs()
             self.get_assembly_size()
             self.get_unknowns()
@@ -92,7 +90,7 @@ class Genome:
                 "distance": self.distance,
             }
             self.stats = pd.DataFrame(data, index=[self.name])
-            self.stats.to_csv(self.stats_path)
+            self.stats.to_csv(self.stats_file)
 
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
     def efetch(self, db):
