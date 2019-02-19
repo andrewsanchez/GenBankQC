@@ -516,10 +516,18 @@ class Species:
                 self.total_genomes == self.total_sketches == len(list(self.stats_files))
             )
         except AssertionError:
+            from itertools import combinations
+
             self.log.error("File counts do not match up.")
-            self.log.info(f"{self.total_genomes} total .fasta files")
-            self.log.info(f"{self.total_sketches} total sketch .msh files")
-            self.log.info(f"{len(list(self.stats_files))} total stats .csv files")
+            sketches = [genome.Genome.id_(i.as_posix()) for i in self.sketches]
+            stats = [genome.Genome.id_(i.as_posix()) for i in self.stats_files]
+            ids = [self.genome_ids, sketches, stats]
+            for a, b in combinations(ids):
+                print(set(a) - set(b))
+
+            self.log.error(f"{self.total_genomes} total .fasta files")
+            self.log.error(f"{self.total_sketches} total sketch .msh files")
+            self.log.error(f"{len(list(self.stats_files))} total stats .csv files")
         try:
             assert Path(self.dmx_path).stat().st_size  # Check if dmx is empty
         except AssertionError:
