@@ -108,13 +108,13 @@ def test_genomes(aphidicola):
 
 def test_genome_ids(aphidicola):
     assert_index_equal(
-        aphidicola.genome_ids.sort_values(), aphidicola.stats.index.sort_values()
+        aphidicola.genome_names.sort_values(), aphidicola.stats.index.sort_values()
     )
 
 
 def test_sketches(aphidicola):
     for i in aphidicola.sketches:
-        assert os.path.basename(i).replace(".msh", "") in aphidicola.genome_ids
+        assert os.path.basename(i).replace(".msh", "") in aphidicola.genome_names
 
 
 def test_filter(aphidicola):
