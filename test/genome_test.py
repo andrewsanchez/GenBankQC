@@ -26,7 +26,7 @@ def test_init(genome):
     assert genome.path == expected_path
     assert isinstance(genome, Genome)
     assert genome.name == expected_name
-    assert genome.name in genome.msh
+    assert genome.name in genome.sketch_file
 
 
 def test_get_contigs(genome):
@@ -57,7 +57,7 @@ def test_get_distance(aphidicola, genome):
 def test_sketch(genome):
     genome, handler = genome
     genome.sketch()
-    assert os.path.isfile(genome.msh)
+    assert os.path.isfile(genome.sketch_file)
 
 
 def test_get_stats(genome, aphidicola):
@@ -67,7 +67,7 @@ def test_get_stats(genome, aphidicola):
     dmx_mean = aphidicola.dmx.mean()
     genome.get_stats(dmx_mean)
     assert isinstance(genome.stats, DataFrame)
-    assert os.path.isfile(genome.stats_path)
+    assert os.path.isfile(genome.stats_file)
 
 
 # def test_parse_empty_biosample(ecoli_genome):
