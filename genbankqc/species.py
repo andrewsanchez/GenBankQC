@@ -280,6 +280,8 @@ class Species:
         ]
         self.passed = self.stats.drop(self.failed["unknowns"])
 
+    # Perform this logic in self.filter
+    # Don't use decorator
     def check_passed_count(f):
         """
         Count the number of genomes in self.passed.
