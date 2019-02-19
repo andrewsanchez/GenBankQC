@@ -1,5 +1,6 @@
 import re
 from pathlib import Path
+from collections import defaultdict
 
 import attr
 import logbook
@@ -77,17 +78,10 @@ class Genbank(object):
         """Prune all files that aren't latest assembly versions."""
         p_id = re.compile("GCA_[0-9]*.[0-9]")  # patterns for matching accession IDs
         p_glob = "GCA_[0-9]*.[0-9]_*[fasta|msh|csv]"
-        d_local = {}  # IDs and associated files
-
-        def glob_local():
-            """Yield all files that match `p_glob`"""
-            for path in self.root.rglob(p_glob):
-                id_ = p_id.match(path.name).group()
-                d_local[id_] = []
-                yield path
+        d_local = defaultdict(list)  # IDs and associated files
 
         # Update `d_local` with a list containing paths for all matches
-        for path in glob_local():
+        for path in self.root.rglob(p_glob):
             id_ = p_id.match(path.name).group()
             d_local[id_].append(path)
 
