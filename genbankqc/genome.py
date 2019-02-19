@@ -30,7 +30,7 @@ class Genome:
         self.metadata = defaultdict(lambda: "missing")
         self.xml = defaultdict(lambda: "missing")
         try:
-            self.accession_id = self.id_(self.name)
+            self.accession_id = re.search("GCA_[0-9]*.[0-9]", self.name).group()
             self.metadata["accession"] = self.accession_id
         except AttributeError:
             self.accession_id = "missing"
@@ -45,7 +45,7 @@ class Genome:
 
     @staticmethod
     def id_(name):
-        return re.search("GCA_[0-9]*.[0-9]", name)
+        return re.search("GCA_[0-9]*.[0-9]", name).group()
 
     def get_contigs(self):
         """
