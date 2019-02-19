@@ -73,9 +73,8 @@ class Genome:
         self.distance = dmx_mean.loc[self.name]
 
     def sketch(self):
-        self.msh = os.path.join(self.qc_dir, self.name + ".msh")
-        cmd = "mash sketch '{}' -o '{}'".format(self.path, self.msh)
-        if os.path.isfile(self.msh):
+        cmd = "mash sketch '{}' -o '{}'".format(self.path, self.sketch_file)
+        if os.path.isfile(self.sketch_file):
             pass
         else:
             subprocess.Popen(cmd, shell="True", stderr=subprocess.DEVNULL).wait()
