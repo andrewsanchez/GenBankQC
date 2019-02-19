@@ -117,7 +117,7 @@ class Species:
         @functools.wraps(f)
         def wrapper(self):
             try:
-                assert sorted(self.genome_ids.tolist()) == sorted(
+                assert sorted(self.genome_names.tolist()) == sorted(
                     self.stats.index.tolist()
                 )
                 assert os.path.isfile(self.allowed_path)
@@ -133,7 +133,7 @@ class Species:
             assert (
                 sorted(leaf_names)
                 == sorted(self.stats.index.tolist())
-                == sorted(self.genome_ids.tolist())
+                == sorted(self.genome_names.tolist())
             )
             return True
         except (AssertionError, AttributeError):
@@ -166,7 +166,7 @@ class Species:
         return len(list(self.sketches))
 
     @property
-    def genome_ids(self):
+    def genome_names(self):
         ids = [i.name for i in self.genomes]
         return pd.Index(ids)
 
@@ -175,7 +175,7 @@ class Species:
         ids = self.assembly_summary.df.loc[self.accession_ids].biosample.tolist()
         return ids
 
-    # may be redundant. see genome_ids attrib
+    # may be redundant. see genome_names attrib
     @property
     def accession_ids(self):
         ids = [i.accession_id for i in self.genomes if i.accession_id is not None]
@@ -519,15 +519,18 @@ class Species:
             from itertools import combinations
 
             self.log.error("File counts do not match up.")
-            sketches = [genome.Genome.id_(i.as_posix()) for i in self.sketches]
-            stats = [genome.Genome.id_(i.as_posix()) for i in self.stats_files]
-            ids = [self.genome_ids, sketches, stats]
-            for a, b in combinations(ids):
-                print(set(a) - set(b))
-
             self.log.error(f"{self.total_genomes} total .fasta files")
             self.log.error(f"{self.total_sketches} total sketch .msh files")
             self.log.error(f"{len(list(self.stats_files))} total stats .csv files")
+            sketches = [genome.Genome.id_(i.as_posix()) for i in self.sketches]
+            stats = [genome.Genome.id_(i.as_posix()) for i in self.stats_files]
+            genome_ids = [i.accession_id for i in self.genomes]
+            ids = [genome_ids, sketches, stats]
+            for a, b in combinations(ids, 2):
+                diff = set(a) - set(b)
+                if bool(diff):
+                    for i in diff:
+                        self.log.error(i)
         try:
             assert Path(self.dmx_path).stat().st_size  # Check if dmx is empty
         except AssertionError:
