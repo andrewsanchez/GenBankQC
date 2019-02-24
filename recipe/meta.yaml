@@ -32,13 +32,14 @@ requirements:
     - attrs==18.2.0
 
 test:
-  requires:
-    - pytest
+  # requires:
+  #   - pytest
   imports:
     - genbankqc
   commands:
     - genbankqc --help
-    - pytest --ignore test/metadata_test.py
+    # - pytest --pyargs genbankqc
+    # - pytest --ignore test/metadata_test.py test
 
 about:
   home: https://github.com/andrewsanchez/GenBankQC
