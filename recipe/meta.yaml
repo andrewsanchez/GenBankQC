@@ -14,10 +14,10 @@ build:
 
 requirements:
   host:
-    - python >=3.6
+    - python {{ python }}
     - pip
   run:
-    - python==3.6.6
+    - python {{ python }}
     - ete3==3.1.1
     - scikit-bio==0.5.4
     - biopython==1.72
