@@ -3,7 +3,7 @@ package:
   version: "18.19.14"
 
 source:
-  git_url: https://github.com/andrewsanchez/GenBankQC.git
+  path: ../
 
 build:
   number: 0
