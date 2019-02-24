@@ -1,7 +1,6 @@
 channels:
   - conda-forge
   - bioconda
-  - biocore
 dependencies:
   - python==3.6.6
 # Bioinformatics tools
