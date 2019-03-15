@@ -80,7 +80,9 @@ class Genome:
             subprocess.Popen(cmd, shell="True", stderr=subprocess.DEVNULL).wait()
 
     def get_stats(self, dmx_mean):
-        if not os.path.isfile(self.stats_file):
+        if os.path.isfile(self.stats_file):
+            self.stats = pd.read_csv(self.stats_file)
+        else:
             self.get_contigs()
             self.get_assembly_size()
             self.get_unknowns()
