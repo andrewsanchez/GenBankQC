@@ -7,7 +7,7 @@ setup(
     license="BSD-3-Clause",
     keywords="NCBI bioinformatics genomics",
     packages=find_packages(),
-    python_requires=">=3.4",
+    python_requires=">=3.6",
     install_requires=["click", "pandas", "pytest", "biopython", "tenacity", "logbook"],
     entry_points="""
       [console_scripts]
