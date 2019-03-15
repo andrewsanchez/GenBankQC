@@ -44,14 +44,14 @@ def test_filter_contigs(species):
 def test_filter_MAD(species):
     genomes_before_filtering = len(species.passed)
     species.filter_MAD_range("assembly_size")
-    assert type(species.passed) == pd.DataFrame
-    assert type(species.failed["assembly_size"]) == pd.Index
+    assert isinstance(species.passed, pd.DataFrame)
+    assert isinstance(species.failed["assembly_size"], pd.Index)
     passed_and_failed = sum(map(len, [species.failed["assembly_size"], species.passed]))
     assert passed_and_failed == genomes_before_filtering
     genomes_before_filtering = len(species.passed)
     species.filter_MAD_upper("distance")
-    assert type(species.passed) == pd.DataFrame
-    assert type(species.failed["distance"]) == pd.Index
+    assert isinstance(species.passed, pd.DataFrame)
+    assert isinstance(species.failed["distance"], pd.Index)
     passed_and_failed = sum(map(len, [species.failed["distance"], species.passed]))
     assert passed_and_failed == genomes_before_filtering
 
