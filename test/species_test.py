@@ -19,8 +19,8 @@ assembly_summary = pd.read_csv(
 @pytest.fixture()
 def species():
     """
-    Provides a Species object for B. aphidicola, which contains one misnamed genome, a qc
-    directory, one sketch file, dmx.csv, stats.csv, tree.nw and two filtered directories.
+    Provides a Species object for B. aphidicola with a misnamed genome, a qc directory,
+    a sketch file, a distance matrix, stats.csv, tree.nw and two filtered directories.
     """
     tmp = tempfile.mkdtemp()
     path = os.path.join(tmp, "Buchnera_aphidicola")

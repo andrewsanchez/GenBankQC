@@ -252,6 +252,7 @@ class Species:
     def get_stats(self):
         """Get stats for all genomes. Concat the results into a DataFrame"""
         # pool.map needs an arg for each function that will be run
+        # TODO Use itertools to repeat this
         dmx_mean = [self.dmx.mean()] * len(self.genome_paths)
         with ProcessingPool() as pool:
             results = pool.map(genome.mp_stats, self.genome_paths, dmx_mean)
@@ -299,15 +300,14 @@ class Species:
 
         return wrapper
 
+    # todo remove unnecessary criteria parameter
     @check_passed_count
     def filter_contigs(self, criteria):
         """
-        Only look at genomes with > 10 contigs to avoid throwing off the
-        median absolute deviation.
-        Median absolute deviation - Average absolute difference between
-        number of contigs and the median for all genomes
-        Extract genomes with < 10 contigs to add them back in later.
-        Add genomes with < 10 contigs back in
+        Only look at genomes with > 10 contigs to avoid throwing off the median absolute deviation.
+        Median absolute deviation - Average absolute difference between number of contigs and the
+        median for all genomes. Extract genomes with < 10 contigs to add them back in later.
+        Add genomes with < 10 contigs back in.
         """
         eligible_contigs = self.passed.contigs[self.passed.contigs > 10]
         not_enough_contigs = self.passed.contigs[self.passed.contigs <= 10]

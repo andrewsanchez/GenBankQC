@@ -7,6 +7,7 @@ import logbook
 
 from genbankqc import config, Species, Metadata, AssemblySummary
 
+
 taxdump_url = "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz"
 
 
