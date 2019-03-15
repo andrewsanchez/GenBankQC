@@ -207,7 +207,7 @@ def test_filter_unknowns(altered_unknowns):
 
 @pytest.fixture()
 def five_genomes(aphidicola):
-    shutil.rmtree(aphidicola.qc_dir)
+    shutil.rmtree(aphidicola.paths.qc)
     for genome in list(aphidicola.genomes)[:5]:
         os.remove(genome.path)
     yield aphidicola
