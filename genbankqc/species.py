@@ -3,6 +3,7 @@ import re
 import pickle
 import functools
 
+import attr
 import logbook
 
 from pathlib import Path
@@ -16,52 +17,49 @@ from genbankqc import config
 import genbankqc.genome as genome
 
 
-class Species:
-    def __init__(
-        self,
-        path,
-        max_unknowns=200,
-        contigs=3.0,
-        assembly_size=3.0,
-        mash=3.0,
-        assembly_summary=None,
-        metadata=None,
-    ):
-        """Represents a collection of genomes in `path`
+@attr.s
+class Species(object):
+    """Represents a collection of genomes in `path`
 
-        :param path: Path to the directory of related genomes you wish to analyze.
-        :param max_unknowns: Number of allowable unknown bases, i.e. not [ATCG]
-        :param contigs: Acceptable deviations from median number of contigs
-        :param assembly_size: Acceptable deviations from median assembly size
-        :param mash: Acceptable deviations from median MASH distances
-        :param assembly_summary: a pandas DataFrame with assembly summary information
-        """
-        self.path = os.path.abspath(path)
-        self.deviation_values = [max_unknowns, contigs, assembly_size, mash]
-        self.label = "-".join(map(str, self.deviation_values))
-        self.paths = config.Paths(
-            root=Path(self.path), subdirs=["metadata", ".logs", "qc"]
+    :param path: Path to the directory of related genomes you wish to analyze.
+    :param max_unknowns: Number of allowable unknown bases, i.e. not [ATCG]
+    :param contigs: Acceptable deviations from median number of contigs
+    :param assembly_size: Acceptable deviations from median assembly size
+    :param mash: Acceptable deviations from median MASH distances
+    :param assembly_summary: a pandas DataFrame with assembly summary information
+    """
+
+    path = attr.ib(default=Path(), converter=Path)
+    max_unknowns = attr.ib(default=200)
+    contigs = attr.ib(default=3.0)
+    assembly_size = attr.ib(default=3.0)
+    mash = attr.ib(default=3.0)
+    assembly_summary = attr.ib(default=None)
+    metadata = attr.ib(default=None)
+
+    def __attrs_post_init__(self):
+        self.log = logbook.Logger(self.path.name)
+        label = "-".join(
+            map(str, [self.max_unknowns, self.contigs, self.assembly_size, self.mash])
         )
-        self.qc_results_dir = os.path.join(self.paths.qc, self.label)
-        if not os.path.isdir(self.qc_results_dir):
-            os.mkdir(self.qc_results_dir)
-        self.name = os.path.basename(os.path.normpath(path))
-        self.log = logbook.Logger(self.name)
-        self.max_unknowns = max_unknowns
-        self.contigs = contigs
-        self.assembly_size = assembly_size
-        self.mash = mash
-        self.assembly_summary = assembly_summary
-        self.qc_dir = os.path.join(self.path, "qc")
-        self.passed_dir = os.path.join(self.qc_results_dir, "passed")
-        self.stats_path = os.path.join(self.qc_dir, "stats.csv")
-        self.nw_path = os.path.join(self.qc_dir, "tree.nw")
-        self.dmx_path = os.path.join(self.qc_dir, "dmx.csv")
-        self.failed_path = os.path.join(self.qc_results_dir, "failed.csv")
-        self.tree_img = os.path.join(self.qc_results_dir, "tree.svg")
-        self.summary_path = os.path.join(self.qc_results_dir, "qc_summary.txt")
-        self.allowed_path = os.path.join(self.qc_results_dir, "allowed.p")
-        self.paste_file = os.path.join(self.qc_dir, "all.msh")
+        self.paths = config.Paths(
+            root=self.path,
+            subdirs=[
+                "qc",
+                ("results", f"qc/{label}"),
+                ("passed", f"qc/{label}/passed"),
+                "metadata",
+                ".logs",
+            ],
+        )
+        self.stats_path = os.path.join(self.paths.qc, "stats.csv")
+        self.nw_path = os.path.join(self.paths.qc, "tree.nw")
+        self.dmx_path = os.path.join(self.paths.qc, "dmx.csv")
+        self.failed_path = os.path.join(self.paths.results, "failed.csv")
+        self.tree_img = os.path.join(self.paths.results, "tree.svg")
+        self.summary_path = os.path.join(self.paths.results, "qc_summary.txt")
+        self.allowed_path = os.path.join(self.paths.results, "allowed.p")
+        self.paste_file = os.path.join(self.paths.qc, "all.msh")
         # Figure out if defining these as None is necessary
         self.tree = None
         self.stats = None
@@ -78,20 +76,20 @@ class Species:
             except pd.errors.EmptyDataError:
                 self.log.exception("Failed to read distance matrix")
         self.metadata_path = os.path.join(
-            self.qc_dir, "{}_metadata.csv".format(self.name)
+            self.paths.qc, "{}_metadata.csv".format(self.path.name)
         )
         self.criteria = ["unknowns", "contigs", "assembly_size", "distance"]
         self.tolerance = {
-            "unknowns": max_unknowns,
-            "contigs": contigs,
-            "assembly_size": assembly_size,
-            "distance": mash,
+            "unknowns": self.max_unknowns,
+            "contigs": self.contigs,
+            "assembly_size": self.assembly_size,
+            "distance": self.mash,
         }
         self.passed = self.stats
         self.failed = {}
         self.med_abs_devs = {}
         self.dev_refs = {}
-        self.allowed = {"unknowns": max_unknowns}
+        self.allowed = {"unknowns": self.max_unknowns}
         self.colors = {
             "unknowns": "red",
             "contigs": "green",
@@ -104,7 +102,7 @@ class Species:
 
     def __str__(self):
         self.message = [
-            "Species: {}".format(self.name),
+            "Species: {}".format(self.path.name),
             "Maximum Unknown Bases:  {}".format(self.max_unknowns),
             "Acceptable Deviations:",
             "Contigs, {}".format(self.contigs),
@@ -159,7 +157,7 @@ class Species:
 
     @property
     def sketches(self):
-        return Path(self.qc_dir).glob("GCA*msh")
+        return Path(self.paths.qc).glob("GCA*msh")
 
     @property
     def total_sketches(self):
@@ -184,7 +182,7 @@ class Species:
     def mash_paste(self):
         if os.path.isfile(self.paste_file):
             os.remove(self.paste_file)
-        sketches = os.path.join(self.qc_dir, "*msh")
+        sketches = os.path.join(self.paths.qc, "*msh")
         cmd = "mash paste {} {}".format(self.paste_file, sketches)
         Popen(cmd, shell="True", stderr=DEVNULL).wait()
         if not os.path.isfile(self.paste_file):
@@ -247,7 +245,7 @@ class Species:
 
     @property
     def stats_files(self):
-        return Path(self.qc_dir).glob("GCA*csv")
+        return Path(self.paths.qc).glob("GCA*csv")
 
     def get_stats(self):
         """Get stats for all genomes. Concat the results into a DataFrame"""
@@ -385,7 +383,7 @@ class Species:
         from ete3 import TreeStyle, TextFace, CircleFace
 
         ts = TreeStyle()
-        title_face = TextFace(self.name.replace("_", " "), fsize=20)
+        title_face = TextFace(self.path.name.replace("_", " "), fsize=20)
         title_face.margin_bottom = 10
         ts.title.add_face(title_face, column=0)
         ts.branch_vertical_margin = 10
@@ -420,7 +418,7 @@ class Species:
             ts.legend.add_face(filtered, column=i)
             ts.legend.add_face(cf, column=i)
         for f in file_types:
-            out_tree = os.path.join(self.qc_results_dir, "tree.{}".format(f))
+            out_tree = os.path.join(self.paths.results, "tree.{}".format(f))
             self.tree.render(out_tree, tree_style=ts)
 
     def color_tree(self):
@@ -461,7 +459,7 @@ class Species:
 
     def summary(self):
         summary = [
-            self.name,
+            self.path.name,
             "Unknown Bases",
             "Allowed: {}".format(self.allowed["unknowns"]),
             "Tolerance: {}".format(self.tolerance["unknowns"]),
@@ -489,12 +487,12 @@ class Species:
         return summary
 
     def link_genomes(self):
-        if not os.path.exists(self.passed_dir):
-            os.mkdir(self.passed_dir)
+        if not os.path.exists(self.paths.passed):
+            os.mkdir(self.paths.passed)
         for passed_genome in self.passed.index:
             fname = "{}.fasta".format(passed_genome)
             src = os.path.join(self.path, fname)
-            dst = os.path.join(self.passed_dir, fname)
+            dst = os.path.join(self.paths.passed, fname)
             try:
                 os.link(src, dst)
             except FileExistsError:
@@ -538,7 +536,7 @@ class Species:
         except AssertionError:
             self.log.error("Distance matrix is empty")
         try:
-            assert Path(self.passed_dir).iterdir()
+            assert Path(self.paths.passed).iterdir()
         except AssertionError:
             self.log.error("Passed directory is empty")
 

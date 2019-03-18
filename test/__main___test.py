@@ -38,7 +38,9 @@ def test_metadata():
 
 def test_species(genbank, aphidicola):
     runner = CliRunner()
-    result = runner.invoke(cli, [genbank.root.as_posix(), "species", aphidicola.path])
+    result = runner.invoke(
+        cli, [genbank.root.as_posix(), "species", aphidicola.path.as_posix()]
+    )
     assert result.exit_code == 0
 
 

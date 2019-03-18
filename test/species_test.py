@@ -87,7 +87,6 @@ def test_init(aphidicola_multi):
     assert aphidicola.tolerance["contigs"] == b
     assert aphidicola.tolerance["assembly_size"] == c
     assert aphidicola.tolerance["distance"] == d
-    assert aphidicola.label == "{}-{}-{}-{}".format(a, b, c, d)
     assert id(aphidicola.stats) == id(aphidicola.passed)
     assert aphidicola.tree_complete() is True
 
@@ -134,8 +133,8 @@ def test_filter(aphidicola):
 def test_link_genomes(aphidicola):
     aphidicola.link_genomes()
     passed = ["{}.fasta".format(i) for i in aphidicola.passed.index.tolist()]
-    assert os.listdir(aphidicola.passed_dir)
-    assert sorted(os.listdir(aphidicola.passed_dir)) == sorted(passed)
+    assert os.listdir(aphidicola.paths.passed)
+    assert sorted(os.listdir(aphidicola.paths.passed)) == sorted(passed)
 
 
 def test_failed_report(aphidicola):
@@ -216,4 +215,4 @@ def five_genomes(aphidicola):
 def test_min_genomes(five_genomes):
     # with pytest.raises(FileNotFoundError):
     five_genomes.qc()
-    assert not os.path.isdir(five_genomes.qc_dir)
+    assert not os.path.isdir(five_genomes.paths.qc)
