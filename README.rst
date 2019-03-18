@@ -1,4 +1,6 @@
-.. image:: https://api.travis-ci.org/andrewsanchez/GenBankQC.svg?branch=master 
+.. image:: https://api.travis-ci.org/andrewsanchez/GenBankQC.svg?branch=master
+.. image:: https://codecov.io/gh/andrewsanchez/GenBankQC/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/andrewsanchez/GenBankQC
 
 =============================================
            GenBank Quality Control
@@ -82,10 +84,10 @@ If you'd like to use GenBankQC without using NCBITK, all that is required is tha
 
 .. _NCBITK:  https://github.com/andrewsanchez/NCBITK
 .. _GenBank: https://www.ncbi.nlm.nih.gov/genbank/
-.. _ETE Toolkit: http://etetoolkit.org/ 
+.. _ETE Toolkit: http://etetoolkit.org/
 .. _Miniconda: https://conda.io/miniconda.html
 .. _MASH: http://mash.readthedocs.io/en/latest/
 .. _genbankqc.readthedocs.io: http://genbankqc.readthedocs.io/en/latest/
 
-.. image:: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square 
+.. image:: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
            :target: https://yangsu.github.io/pull-request-tutorial/
