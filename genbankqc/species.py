@@ -16,6 +16,15 @@ from ete3 import Tree
 from genbankqc import config
 import genbankqc.genome as genome
 
+CRITERIA = ["unknowns", "contigs", "assembly_size", "distance"]
+
+COLORS = {
+    "unknowns": "red",
+    "contigs": "green",
+    "distance": "purple",
+    "assembly_size": "orange",
+}
+
 
 @attr.s
 class Species(object):
@@ -78,7 +87,6 @@ class Species(object):
         self.metadata_path = os.path.join(
             self.paths.qc, "{}_metadata.csv".format(self.path.name)
         )
-        self.criteria = ["unknowns", "contigs", "assembly_size", "distance"]
         self.tolerance = {
             "unknowns": self.max_unknowns,
             "contigs": self.contigs,
@@ -90,12 +98,6 @@ class Species(object):
         self.med_abs_devs = {}
         self.dev_refs = {}
         self.allowed = {"unknowns": self.max_unknowns}
-        self.colors = {
-            "unknowns": "red",
-            "contigs": "green",
-            "distance": "purple",
-            "assembly_size": "orange",
-        }
         self.genomes = [
             genome.Genome(path, self.assembly_summary) for path in self.genome_paths
         ]
@@ -395,12 +397,12 @@ class Species(object):
             category.margin_bottom = 2
             category.margin_right = 40
             ts.legend.add_face(category, column=1)
-        for i, criteria in enumerate(self.criteria, 2):
+        for i, criteria in enumerate(CRITERIA, 2):
             title = criteria.replace("_", " ").title()
             title = TextFace(title, fsize=8, bold=True)
             title.margin_bottom = 2
             title.margin_right = 40
-            cf = CircleFace(4, self.colors[criteria], style="sphere")
+            cf = CircleFace(4, COLORS[criteria], style="sphere")
             cf.margin_bottom = 5
             filtered_count = len(
                 list(filter(None, self.failed_report.criteria == criteria))
@@ -428,7 +430,7 @@ class Species(object):
         for failed_genome in self.failed_report.index:
             n = self.tree.get_leaves_by_name(failed_genome + ".fasta").pop()
             nstyle = NodeStyle()
-            nstyle["fgcolor"] = self.colors[
+            nstyle["fgcolor"] = COLORS[
                 self.failed_report.loc[failed_genome, "criteria"]
             ]
             nstyle["size"] = 9
