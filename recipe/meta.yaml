@@ -1,6 +1,6 @@
 package:
   name: genbankqc
-  version: "18.19.14"
+  version: "2019.03.20.beta"
 
 source:
   path: ../
