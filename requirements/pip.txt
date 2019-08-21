@@ -1,7 +1,7 @@
 python==3.6.6
 click==7.0
 ete3==3.1.1
-logbook==1.4.1
+logbook==1.5.1
 pathos==0.2.1
 attrs==18.2.0
 scikit-bio==0.5.4
