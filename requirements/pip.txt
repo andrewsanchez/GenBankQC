@@ -7,6 +7,6 @@ attrs==18.2.0
 scikit-bio==0.5.4
 biopython==1.72
 pandas==0.22.0
-numpy==1.15.2
+numpy==1.17.1
 snakemake==5.3.1
 tenacity==5.0.2
