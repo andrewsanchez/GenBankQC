@@ -3,7 +3,7 @@ pudb==2018.1
 ipython==7.2.0
 pytest-cov==2.6.0
 pre-commit==1.12.0
-bumpversion==0.5.3
+bumpversion==0.6.0
 flake8==3.6.0
 isort==4.3.4
 black==18.9b0
